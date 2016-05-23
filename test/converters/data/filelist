@@ -1,0 +1,54 @@
+#CONFIG FILES
+#Visual studio run config
+path=test/converters/data/
+#Binary executable run config
+#path=../data/
+
+file=meshlist
+file=aabblist
+
+
+
+#MESHES
+#Visual studio run config
+path=data/meshes/
+#Binary executable run config
+#path=../../data/meshes/
+
+file=altair.obj
+
+alias=altair
+file=altair.bin
+
+file=altair.mtl
+
+
+file=cube.obj
+
+alias=cube
+file=cube.bin
+
+file=cube.mtl
+
+
+file=monster_jetpack_003.obj
+
+alias=monster_jetpack_003
+file=monster_jetpack_003.bin
+
+file=monster_jetpack_003.mtl
+
+
+
+
+#AABBs
+#Visual studio run config
+path=data/aabbs/
+#Binary executable run config
+#path=../../data/aabbs/
+
+alias=cube_aabb
+file=cube.bin
+
+alias=monster_jetpack_003_aabb
+file=monster_jetpack_003.bin

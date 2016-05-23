@@ -1,0 +1,64 @@
+#CONFIG FILES
+#Visual studio run config
+path=test/base/data/
+#Binary executable run config
+#path=../data/
+
+file=shaders.cfg
+file=textures.cfg
+file=meshlist
+file=resources.cfg
+file=world.cfg
+
+
+
+#SHADERS
+#Visual studio run config
+path=data/shaders/
+#Binary executable run config
+#path=../../data/shaders/
+
+alias=pflc.v
+file=per_fragment_lighting_color.vert
+alias=pflc.f
+file=per_fragment_lighting_color.frag
+
+alias=pflt.v
+file=per_fragment_lighting_texture.vert
+alias=pflt.f
+file=per_fragment_lighting_texture.frag
+
+
+
+#MESHES
+#Visual studio run config
+path=data/meshes/
+#Binary executable run config
+#path=../../data/meshes/
+
+alias=altair
+file=altair.bin
+
+file=altair.mtl
+
+
+
+
+#TEXTURES/IMAGES
+#Visual studio run config
+path=data/textures/
+#Binary executable run config
+#path=../../data/textures/
+
+
+file=default.dds
+file=ACboots.dds
+file=ACgloves.dds
+file=AChood.dds
+file=ACRobePants.dds
+file=ACRobeShirt.dds
+file=ACshortsword.dds
+file=ACswordsaber.dds
+file=mata.dds
+file=rai.dds
+file=dirt.dds

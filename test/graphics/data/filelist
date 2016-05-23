@@ -1,0 +1,83 @@
+#CONFIG FILES
+#Visual studio run config
+path=test/graphics/data/
+#Binary executable run config
+#path=../data/
+
+file=shaders.cfg
+file=textures.cfg
+file=meshlist
+file=resources.cfg
+
+
+
+#SHADERS
+#Visual studio run config
+path=data/shaders/
+#Binary executable run config
+#path=../../data/shaders/
+
+alias=pflc.v
+file=per_fragment_lighting_color.vert
+alias=pflc.f
+file=per_fragment_lighting_color.frag
+
+alias=pflt.v
+file=per_fragment_lighting_texture.vert
+alias=pflt.f
+file=per_fragment_lighting_texture.frag
+
+alias=pft.v
+file=per_fragment_texture.vert
+alias=pft.f
+file=per_fragment_texture.frag
+
+alias=pfc.v
+file=per_fragment_color.vert
+alias=pfc.f
+file=per_fragment_color.frag
+
+
+
+#MESHES
+#Visual studio run config
+path=data/meshes/
+#Binary executable run config
+#path=../../data/meshes/
+
+alias=altair
+file=altair.bin
+
+file=altair.mtl
+
+alias=monster_jetpack_003
+file=monster_jetpack_003.bin
+
+file=monster_jetpack_003.mtl
+
+
+
+
+#TEXTURES/IMAGES
+#Visual studio run config
+path=data/textures/
+#Binary executable run config
+#path=../../data/textures/
+
+
+file=default.dds
+file=ACboots.dds
+file=ACgloves.dds
+file=AChood.dds
+file=ACRobePants.dds
+file=ACRobeShirt.dds
+file=ACshortsword.dds
+file=ACswordsaber.dds
+file=mata.dds
+file=rai.dds
+file=dirt.dds
+file=texture_uv_map_controller.dds
+file=texture_uv_map_frame.dds
+file=texture_uv_map_mainjet.dds
+file=texture_uv_map_pilot.dds
+file=texture_uv_map_seat.dds
