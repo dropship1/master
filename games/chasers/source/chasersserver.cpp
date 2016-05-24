@@ -139,8 +139,8 @@ void check_physics(std::map<std::string, bright::base::ServerActor>& monsters, s
     bright::base::ServerActor& monster = pair.second;
     if ( monster.have_update() ){
       auto pMonsterAABB = monster.aabb();
-
-      auto check_monster = [&] (std::map<std::string, bright::base::ServerActor>::value_type& innerPair) {
+  
+      auto check_monster = [&] (std::map<std::string, bright::base::ServerActor>::value_type& innerPair) -> bool {
         std::string monsterName2 = innerPair.first;
         if (monsterName2.compare(monsterName) != 0){
           bright::base::ServerActor& monster2 = innerPair.second;
@@ -150,16 +150,24 @@ void check_physics(std::map<std::string, bright::base::ServerActor>& monsters, s
             monster.set_to_prev_pos();
             //monster.pos(glm::vec3(0.0f, 0.0f, 0.0f)); 
             monster.have_update(true);
+            return true;
           }
-       }
+          else{ return false; }
+        }
+        else{ return false; }
       };
-      std::for_each(monsters.begin(), monsters.end(), check_monster);
 
+      for(auto& monster2 : monsters) {
+        if ( check_monster(monster2) == true ){
+          break;
+        }
+      }
 
+  
     }
   };
-  std::for_each(monsters.begin(), monsters.end(), did_monster_collide_with_monster);
 
+  for(auto& monster: monsters){ did_monster_collide_with_monster(monster); } 
 
 
 }
