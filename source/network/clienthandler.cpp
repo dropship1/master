@@ -156,26 +156,22 @@ void ClientHandler::handle_commands(){
       if( cmdMessage.control_type().compare("STATE_ON")  == 0 ){
         if( cmdMessage.control_name().compare("MOVE_FORWARD") == 0 ){
           clientActor->move_fwd(0.2f);
-          updateResponses_.push_back( UpdateMessage(username(), clientActor->pos(), clientActor->right(), clientActor->up(), clientActor->look(), true) );
-          //needToSendUpdateResponse_ = true;
+          add_update_response();
           clientActor->have_update(true);
         }
         else if( cmdMessage.control_name().compare("MOVE_BACK") == 0 ){
           clientActor->move_backward(5.2f);
-          updateResponses_.push_back( UpdateMessage(username(), clientActor->pos(), clientActor->right(), clientActor->up(), clientActor->look(), true) );
-          //needToSendUpdateResponse_ = true;
+          add_update_response();
           clientActor->have_update(true);
         }
         else if( cmdMessage.control_name().compare("MOVE_LEFT") == 0 ){
           clientActor->move_left(0.2f);  
-          updateResponses_.push_back( UpdateMessage(username(), clientActor->pos(), clientActor->right(), clientActor->up(), clientActor->look(), true) );
-          //needToSendUpdateResponse_ = true;
+          add_update_response();
           clientActor->have_update(true);
         }
         else if( cmdMessage.control_name().compare("MOVE_RIGHT") == 0 ){
           clientActor->move_right(0.2f);
-          updateResponses_.push_back( UpdateMessage(username(), clientActor->pos(), clientActor->right(), clientActor->up(), clientActor->look(), true) );
-          //needToSendUpdateResponse_ = true;
+          add_update_response();
           clientActor->have_update(true);
         }
 
@@ -205,28 +201,24 @@ void ClientHandler::handle_commands(){
       if( amount > 0 ){
         if( cmdMessage.control_name().compare("CAMERA_X_AXIS") == 0 ){
           clientActor->rotate_right(0.01f);
-          updateResponses_.push_back( UpdateMessage(username(), clientActor->pos(), clientActor->right(), clientActor->up(), clientActor->look(), true) );
-          //needToSendUpdateResponse_ = true;
+          add_update_response();
           clientActor->have_update(true);
         }
         else if( cmdMessage.control_name().compare("CAMERA_Y_AXIS") == 0 ){
           clientActor->rotate_down(0.01f);
-          //updateResponses_.push_back( UpdateMessage(username(), clientActor->pos(), clientActor->right(), clientActor->up(), clientActor->look(), true) );
-          //needToSendUpdateResponse_ = true;
+          add_update_response();
           clientActor->have_update(true);
         }
       }
       else if(  amount < 0  ){
         if( cmdMessage.control_name().compare("CAMERA_X_AXIS") == 0 ){
           clientActor->rotate_left(0.01f);
-          updateResponses_.push_back( UpdateMessage(username(), clientActor->pos(), clientActor->right(), clientActor->up(), clientActor->look(), true) );
-          //needToSendUpdateResponse_ = true;
+          add_update_response();
           clientActor->have_update(true);
         }
         else if( cmdMessage.control_name().compare("CAMERA_Y_AXIS") == 0 ){
           clientActor->rotate_up(0.01f);
-          updateResponses_.push_back( UpdateMessage(username(), clientActor->pos(), clientActor->right(), clientActor->up(), clientActor->look(), true) );
-          //needToSendUpdateResponse_ = true;
+          add_update_response();
           clientActor->have_update(true);
         }
       }
