@@ -40,18 +40,16 @@ bool ClientConnection::started() const{
 }
 
 void ClientConnection::handler_send_login_response(){
-  if(clientHandler_.need_to_send_login_response()){
+  if( clientHandler_.need_to_send_login_response() ){
     do_write(clientHandler_.get_login_response());
     clientHandler_.need_to_send_login_response(false);
   }
 }
 
 void ClientConnection::handler_send_update_responses(){
-  if(clientHandler_.need_to_send_update_response()){
-    clientHandler_.need_to_send_update_response(false);
-    clientHandler_.add_update_response();
-    send_updates();
-  }
+  if ( !clientHandler_.is_logged_in() ) { return; }
+  if ( !clientHandler_.any_updates() ){ return; }
+  send_updates();
 }
 
 void ClientConnection::send_other_client_update(std::string msg){

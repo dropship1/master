@@ -120,7 +120,7 @@ bool GameEngine::initialize(){
   std::string controlConfig = pFileWorker_->get_file_contents("controls_config.cfg");
   pInputContextManager_->set_control_config(controlConfig);
 
-  pPlaneGroupRenderInfo_ = bright::graphics::create_plane(10.0f);
+  pPlaneGroupRenderInfo_ = bright::graphics::create_plane(20.0f);
   pPlaneGroupRenderInfo_->modToWorld_ = pPlanesController_->model_to_world_transformation_matrix();
   pPlaneGroupRenderInfo_->pShader_ = pResourceManager_->graphics_loader_manager().shaders("PER_FRAG_COLOR");
   pPlaneGroupRenderInfo_->hasShader_ = true;

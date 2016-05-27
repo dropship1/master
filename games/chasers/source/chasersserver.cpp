@@ -4,14 +4,18 @@
 #include "utils/fileworker.hpp"
 #include "converters/aabbconverter.hpp"
 #include <boost/make_shared.hpp>
+#include "network/updatemessage.hpp"
 #include <ctime>
 
 void create_monster_update_responses(std::map<std::string, bright::base::ServerActor>& monsters, std::vector<std::string>& monsterResponses);
 void check_physics(std::map<std::string, bright::base::ServerActor>& monsters, std::map<std::string, std::shared_ptr<bright::base::ServerActor>>& clientActors);
 
+
 int main(int argc, char* argv[]) {
 
   auto pFileWorker = std::make_shared<bright::utils::FileWorker>("../data/filelist");
+  //auto pFileWorker = std::make_shared<bright::utils::FileWorker>("games/chasers/data/filelist");
+
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
 
@@ -37,10 +41,6 @@ int main(int argc, char* argv[]) {
   double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
   while(true){
     pAsyncServer->process_messages();
-    
-    pAsyncServer->send_login_responses();
-
-    pAsyncServer->send_update_responses();
 
     if (elapsed_secs > 0.03 ){
       begin = clock();      
@@ -52,6 +52,10 @@ int main(int argc, char* argv[]) {
     create_monster_update_responses(monsters, monsterResponses);
     pAsyncServer->send_monster_responses(monsterResponses);
     monsterResponses.clear();
+
+    pAsyncServer->send_login_responses();
+
+    pAsyncServer->send_update_responses();
 
 
     end = clock();
@@ -83,30 +87,23 @@ void create_monster_update_responses(std::map<std::string, bright::base::ServerA
 
 void check_physics(std::map<std::string, bright::base::ServerActor>& monsters, std::map<std::string, std::shared_ptr<bright::base::ServerActor>>& clientActors){
 
-
   auto did_monster_collide_with_client = [&] (std::map<std::string, bright::base::ServerActor>::value_type& pair) {
     std::string monsterName = pair.first;
     bright::base::ServerActor& monster = pair.second;
-    if ( monster.have_update() ){
-      auto pMonsterAABB = monster.aabb();
+    auto pMonsterAABB = monster.aabb();
 
-      auto check_client = [&] (std::map<std::string, std::shared_ptr<bright::base::ServerActor>>::value_type& innerPair) {
-        std::string clientName = innerPair.first;
-        auto pClient = innerPair.second;
-        if (pClient->is_logged_in()){
-          auto pClientAABB = pClient->aabb();
-          bool intersect = pMonsterAABB->intersect(pClientAABB);
-          if (intersect){
-            monster.set_to_prev_pos();
-            //pClient->pos(glm::vec3(0.0f, 0.0f, 0.0f)); 
-            //pClient->have_update(true);
-          }
+    auto check_client = [&] (std::map<std::string, std::shared_ptr<bright::base::ServerActor>>::value_type& innerPair) {
+      std::string clientName = innerPair.first;
+      auto pClient = innerPair.second;
+      if (pClient->is_logged_in()){
+        auto pClientAABB = pClient->aabb();
+        bool intersect = pMonsterAABB->intersect(pClientAABB);
+        if (intersect){
+          monster.set_to_prev_pos();
         }
-      };
-      std::for_each(clientActors.begin(), clientActors.end(), check_client);
-
-
-    }
+      }
+    };
+    std::for_each(clientActors.begin(), clientActors.end(), check_client);
   };
   std::for_each(monsters.begin(), monsters.end(), did_monster_collide_with_client);
 
@@ -124,8 +121,6 @@ void check_physics(std::map<std::string, bright::base::ServerActor>& monsters, s
         bool intersect = pClientAABB->intersect(pMonsterAABB);
         if (intersect){
           pClient->set_to_prev_pos();
-          //pClient->pos(glm::vec3(0.0f, 0.0f, 0.0f)); 
-          pClient->have_update(true);
         }
       };
       std::for_each(monsters.begin(), monsters.end(), check_monster);
@@ -137,36 +132,31 @@ void check_physics(std::map<std::string, bright::base::ServerActor>& monsters, s
   auto did_monster_collide_with_monster = [&] (std::map<std::string, bright::base::ServerActor>::value_type& pair) {
     std::string monsterName = pair.first;
     bright::base::ServerActor& monster = pair.second;
-    if ( monster.have_update() ){
-      auto pMonsterAABB = monster.aabb();
+    auto pMonsterAABB = monster.aabb();
   
-      auto check_monster = [&] (std::map<std::string, bright::base::ServerActor>::value_type& innerPair) -> bool {
-        std::string monsterName2 = innerPair.first;
-        if (monsterName2.compare(monsterName) != 0){
-          bright::base::ServerActor& monster2 = innerPair.second;
-          auto pMonster2AABB = monster2.aabb();
-          bool intersect = pMonsterAABB->intersect(pMonster2AABB);
-          if (intersect){
-            monster.set_to_prev_pos();
-            //monster.pos(glm::vec3(0.0f, 0.0f, 0.0f)); 
-            monster.have_update(true);
-            return true;
-          }
-          else{ return false; }
+    auto check_monster = [&] (std::map<std::string, bright::base::ServerActor>::value_type& innerPair) -> bool {
+      std::string monsterName2 = innerPair.first;
+      if (monsterName2.compare(monsterName) != 0){
+        bright::base::ServerActor& monster2 = innerPair.second;
+        auto pMonster2AABB = monster2.aabb();
+        bool intersect = pMonsterAABB->intersect(pMonster2AABB);
+        if (intersect){
+          monster.set_to_prev_pos();
+          monster.have_update(true);
+          return true;
         }
         else{ return false; }
-      };
-
-      for(auto& monster2 : monsters) {
-        if ( check_monster(monster2) == true ){
-          break;
-        }
       }
+      else{ return false; }
+    };
 
-  
+    for(auto& monster2 : monsters) {
+      if ( check_monster(monster2) == true ){
+        break;
+      }
     }
-  };
 
+  };
   for(auto& monster: monsters){ did_monster_collide_with_monster(monster); } 
 
 

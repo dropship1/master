@@ -38,8 +38,6 @@ public:
   void need_to_send_login_response(bool value);
   const std::string& get_login_response();
 
-  bool need_to_send_update_response();
-  void need_to_send_update_response(bool value);
   UpdateMessage get_one_update();
   void clear_one_update();
   bool any_updates();
@@ -55,8 +53,6 @@ private:
   void add_login_message(std::shared_ptr<NetworkMessage> networkMessage);
   void add_command_message(std::shared_ptr<NetworkMessage> networkMessage);
 
-  bool isLoggedIn_;
-
   bool needToSendLoginResponse_;
   LoginResponseMessage loginResponseMessage_;
 
@@ -64,8 +60,10 @@ private:
   std::vector<UpdateMessage> updateResponses_;
 
   std::map<std::string, std::shared_ptr<bright::base::ServerActor>>& clientActors_;
+  std::shared_ptr<bright::base::ServerActor> clientActor_;
   std::vector<CommandMessage> commands_;
   LoginMessage loginMessage_;
+  bool haveLoginMessage_;
 
   bright::input::ControlState controlState_;
 

@@ -8,7 +8,7 @@ int AIManager::update_monsters(std::map<std::string, ServerActor> &monsters, std
   int monsterMoveCount = 0;
   float speedMetersPerUpdate = 0.1f;
   //Don't do anything if no players
-  if (players.size() == 0) {
+  if ( players.empty() ) {
     return 0;
   }
   // Have each monster point to nearest player, and move towards it.
