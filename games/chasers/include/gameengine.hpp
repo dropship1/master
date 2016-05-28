@@ -23,6 +23,7 @@
 #include "input/rawmouseevent.hpp"
 #include "input/mouseeventlistener.hpp"
 #include "input/mouseevent.hpp"
+#include "input/commandListener.hpp"
 #include "input/utils.hpp"
 #include "input/globalstructs.hpp"
 #include "graphics/utilities.hpp"
@@ -110,6 +111,7 @@ private:
 
   std::shared_ptr<bright::input::InputManager> pInputManager_;
   std::shared_ptr<bright::input::InputContextManager> pInputContextManager_;
+  boost::shared_ptr<bright::input::CommandListener> pCommandListener_;
 
   std::shared_ptr<bright::network::ServerHandler> pServerHandler_;
   boost::shared_ptr<bright::network::ServerConnection> pServerConnection_;

@@ -76,8 +76,6 @@ GameEngine::~GameEngine(){
 
 }
 
-
-
 bool GameEngine::initialize(){
 
   pInputManager_ = std::make_shared<bright::input::InputManager>();
@@ -113,6 +111,9 @@ bool GameEngine::initialize(){
   pServerHandler_ = std::make_shared<bright::network::ServerHandler>(clientName_, "mypassword", pPlayersController_, monsterContollers_);
   pServerConnection_ = boost::make_shared<bright::network::ServerConnection>(service_, pServerHandler_);
   boost::asio::ip::tcp::endpoint ep( boost::asio::ip::address::from_string(ip_), port_);
+
+  pCommandListener_ = boost::make_shared<bright::input::CommandListener>();
+  pInputContextManager_->add_command_event_listener(pCommandListener_);
 
   pInputContextManager_->add_command_event_listener(pServerConnection_);
   std::string controlsContexts = pFileWorker_->get_file_contents("controls_contexts.cfg");

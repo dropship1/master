@@ -75,7 +75,6 @@ void CommandHandler::handle_command(std::shared_ptr<bright::input::CommandEvent>
 
   }
 
-
 }
 
 
@@ -135,6 +134,67 @@ void CommandHandler::update(){
     controlState_.rotations_.clear();
   }
 
+}
+
+void CommandHandler::execute_next_command(){
+
+  auto cmdMessage = get_next_command();
+
+  if( cmdMessage.command_name().compare("STATE") == 0 ){
+  
+    if( cmdMessage.control_type().compare("STATE_ON")  == 0 ){
+      if( cmdMessage.control_name().compare("MOVE_FORWARD") == 0 ){
+        clientActor_->move_fwd(0.2f);
+      }
+      else if( cmdMessage.control_name().compare("MOVE_BACK") == 0 ){
+        clientActor_->move_backward(5.2f);
+      }
+      else if( cmdMessage.control_name().compare("MOVE_LEFT") == 0 ){
+        clientActor_->move_left(0.2f);  
+      }
+      else if( cmdMessage.control_name().compare("MOVE_RIGHT") == 0 ){
+        clientActor_->move_right(0.2f);
+      }
+  
+    }
+    else if( cmdMessage.control_type().compare("STATE_OFF") == 0 ){
+  
+      if( cmdMessage.control_name().compare("MOVE_FORWARD") == 0 ){
+      }
+      else if( cmdMessage.control_name().compare("MOVE_BACK") == 0 ){
+      }
+      else if( cmdMessage.control_name().compare("MOVE_LEFT") == 0 ){
+      }
+      else if( cmdMessage.control_name().compare("MOVE_RIGHT") == 0 ){
+      }
+  
+    }
+  
+  }
+  else if( cmdMessage.command_name().compare("AXIS") == 0 ){
+    std::string::size_type sz;
+    int amount = std::stoi (cmdMessage.control_type(),&sz);
+  
+    if( amount > 0 ){
+      if( cmdMessage.control_name().compare("CAMERA_X_AXIS") == 0 ){
+        clientActor_->rotate_right(0.01f);
+      }
+      else if( cmdMessage.control_name().compare("CAMERA_Y_AXIS") == 0 ){
+        clientActor_->rotate_down(0.01f);
+      }
+    }
+    else if(  amount < 0  ){
+      if( cmdMessage.control_name().compare("CAMERA_X_AXIS") == 0 ){
+        clientActor_->rotate_left(0.01f);
+      }
+      else if( cmdMessage.control_name().compare("CAMERA_Y_AXIS") == 0 ){
+        clientActor_->rotate_up(0.01f);
+      }
+    }
+  
+  }
+
+  remove_one_command();
 }
 
 

@@ -113,7 +113,7 @@ void ServerHandler::handle_update_responses(){
   auto handle_updates = [&] (std::shared_ptr<UpdateMessage> pUpdateMessage) { 
     //what to do with the update message?
     if( pUpdateMessage->is_player() && pUpdateMessage->name().compare(username_) == 0 ){
-      playerController_->update( pUpdateMessage->position(), pUpdateMessage->right(), pUpdateMessage->up(), pUpdateMessage->look() );
+      //playerController_->update( pUpdateMessage->position(), pUpdateMessage->right(), pUpdateMessage->up(), pUpdateMessage->look() );
     }
     else if( pUpdateMessage->is_player() ){
       auto it = monsterContollers_.find( pUpdateMessage->name() );

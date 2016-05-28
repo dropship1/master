@@ -23,6 +23,7 @@ public:
   CommandHandler();
 
   void handle_command(std::shared_ptr<bright::input::CommandEvent> pCommandEvent);
+  void execute_next_command();
   bool more_commands();
   CommandMessage get_next_command();
   void remove_one_command();
@@ -30,6 +31,7 @@ public:
 
 
 private:
+
 
   std::vector<CommandMessage> commands_;
   bright::input::ControlState controlState_;

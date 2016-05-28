@@ -31,6 +31,9 @@
 # VCProject files
 *.vcxproj.filters
 *.vcxproj
+*.sln
+*.sdf
+*.suo
 
 #BOOST stuff
 boost-*
