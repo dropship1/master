@@ -26,3 +26,11 @@
 *.exe
 *.out
 *.app
+
+
+# VCProject files
+*.vcxproj.filters
+*.vcxproj
+
+#BOOST stuff
+boost-*

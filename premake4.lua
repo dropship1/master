@@ -138,8 +138,8 @@ project("besdkServer")
     "include/network/loginmessage.hpp",
     "include/network/loginresponsemessage.hpp",
     "include/network/updatemessage.hpp",
-    "include/network/commandmessage.hpp",
     "include/input/globalstructs.hpp",
+    "include/input/commandmessage.hpp",
     "include/converters/aabbconverter.hpp",
     "include/utils/*.hpp",
     "source/ai/*.cpp",
@@ -154,7 +154,7 @@ project("besdkServer")
     "source/network/loginmessage.cpp",
     "source/network/loginresponsemessage.cpp",
     "source/network/updatemessage.cpp",
-    "source/network/commandmessage.cpp",
+    "source/input/commandmessage.cpp",
     "source/converters/aabbconverter.cpp",
     "source/utils/*.cpp",
   };  
