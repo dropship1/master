@@ -1,12 +1,11 @@
-#ifndef BRIGHT_NETWORK_COMMAND_MESSAGE_H
-#define BRIGHT_NETWORK_COMMAND_MESSAGE_H
+#ifndef BRIGHT_INPUT_COMMAND_MESSAGE_H
+#define BRIGHT_INPUT_COMMAND_MESSAGE_H
 
 #include <string>
-#include "network/globalstructs.hpp"
 
 namespace bright{
   
-    namespace network{
+  namespace input{
 
 /**
  * @ingroup network

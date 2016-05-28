@@ -2,7 +2,7 @@
 #include "network/serverhandler.hpp"
 #include "network/networkmessage.hpp"
 #include "network/loginmessage.hpp"
-#include "network/commandmessage.hpp"
+#include "input/commandmessage.hpp"
 
 #include "base/clientcontroller.hpp"
 

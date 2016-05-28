@@ -11,7 +11,7 @@
 #include "network/loginresponsemessage.hpp"
 #include "network/updatemessage.hpp"
 #include "network/loginmessage.hpp"
-#include "network/commandmessage.hpp"
+#include "input/commandmessage.hpp"
 
 #include "converters/aabbconverter.hpp"
 
@@ -61,7 +61,7 @@ private:
 
   std::map<std::string, std::shared_ptr<bright::base::ServerActor>>& clientActors_;
   std::shared_ptr<bright::base::ServerActor> clientActor_;
-  std::vector<CommandMessage> commands_;
+  std::vector<bright::input::CommandMessage> commands_;
   LoginMessage loginMessage_;
   bool haveLoginMessage_;
 

@@ -71,7 +71,7 @@ void ClientHandler::add_command_message(std::shared_ptr<NetworkMessage> networkM
   in >> commandName;
   in >> controlType;
   in >> data;
-  CommandMessage commandMessage(controlName, commandName, controlType, data);
+  bright::input::CommandMessage commandMessage(controlName, commandName, controlType, data);
   commands_.push_back(commandMessage);
 }
 
@@ -127,7 +127,7 @@ void ClientHandler::clear_one_update(){
 
 void ClientHandler::handle_commands(){
 
-  auto update_controls = [&] (CommandMessage& cmdMessage) { 
+  auto update_controls = [&] (bright::input::CommandMessage& cmdMessage) { 
 
     if( cmdMessage.command_name().compare("STATE") == 0 ){
 

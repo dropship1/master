@@ -15,8 +15,8 @@
 #include <glm/glm.hpp>
 #include <mutex>
 
-#include "network/commandmessage.hpp"
-#include "network/commandhandler.hpp"
+#include "input/commandmessage.hpp"
+#include "input/commandhandler.hpp"
 #include "input/commandeventlistener.hpp"
 #include "input/commandevent.hpp"
 
@@ -92,7 +92,7 @@ private:
   char writeCommandBuffer_[maxMsg];
   bool connected_;
 
-  bright::network::CommandHandler commandHandler_;
+  bright::input::CommandHandler commandHandler_;
   boost::asio::io_service& service_;
 
   std::shared_ptr<ServerHandler> pServerHandler_;
