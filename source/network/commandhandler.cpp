@@ -1,6 +1,6 @@
-#include "network/commandhandler.hpp"
+#include "input/commandhandler.hpp"
 
-using namespace bright::network;
+using namespace bright::input;
 
 
 CommandHandler::CommandHandler(): controlState_(){

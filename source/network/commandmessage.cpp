@@ -1,6 +1,6 @@
-#include "network/commandmessage.hpp"
+#include "input/commandmessage.hpp"
 
-using namespace bright::network;
+using namespace bright::input;
 
 
 CommandMessage::CommandMessage():

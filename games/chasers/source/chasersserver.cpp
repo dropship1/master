@@ -13,8 +13,8 @@ void check_physics(std::map<std::string, bright::base::ServerActor>& monsters, s
 
 int main(int argc, char* argv[]) {
 
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("../data/filelist");
-  //auto pFileWorker = std::make_shared<bright::utils::FileWorker>("games/chasers/data/filelist");
+  //auto pFileWorker = std::make_shared<bright::utils::FileWorker>("../data/filelist");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("games/chasers/data/filelist");
 
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();

@@ -1,5 +1,5 @@
-#ifndef BRIGHT_NETWORK_COMMANDHANDLER_H
-#define BRIGHT_NETWORK_COMMANDHANDLER_H
+#ifndef BRIGHT_INPUT_COMMANDHANDLER_H
+#define BRIGHT_INPUT_COMMANDHANDLER_H
 
 #include <iostream>
 #include <sstream>
@@ -8,13 +8,13 @@
 #include <memory>
 #include <algorithm>
 
-#include "network/commandmessage.hpp"
+#include "input/commandmessage.hpp"
 #include "input/commandevent.hpp"
 #include "input/globalstructs.hpp"
 
 namespace bright{
 
-  namespace network{
+  namespace input{
 
 
 class CommandHandler{

@@ -4,6 +4,7 @@ using namespace bright::network;
 
 ServerConnection::ServerConnection(boost::asio::io_service& service, std::shared_ptr<ServerHandler> pServerHandler) : 
  sock_(service), connected_(false), pServerHandler_(pServerHandler), commandHandler_(), service_(service){
+
 }
 
 
@@ -14,12 +15,23 @@ void ServerConnection::start(boost::asio::ip::tcp::endpoint ep) {
 
 
 void ServerConnection::on_connect(const boost::system::error_code & err) {
-  //std::cout << "ServerConnection On Connect:" << std::endl << std::flush;
+  //std::cout << "ServerConnection On Connect:" << std::endl << std:: flush;
   if (err) {
     stop();
   }
+
   connected_ = true;
+
+  boost::asio::ip::tcp::no_delay option(true);
+  sock_.set_option(option); 
+
   start_reading();
+
+  login();
+  while( !logged_in() ){
+    //process_messages();
+    process();
+  }
 }  
 
 void ServerConnection::stop() {

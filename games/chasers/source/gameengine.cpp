@@ -95,8 +95,8 @@ bool GameEngine::initialize(){
   //games/chasers/data
   //But if you're building this and creating the executable, which goes into the bin directory
   //in games/chaser/bin then you need to specify the path as "../data".
-  pFileWorker_ = std::make_shared<bright::utils::FileWorker>("../data/filelist");
-  //pFileWorker_ = std::make_shared<bright::utils::FileWorker>("games/chasers/data/filelist");
+  //pFileWorker_ = std::make_shared<bright::utils::FileWorker>("../data/filelist");
+  pFileWorker_ = std::make_shared<bright::utils::FileWorker>("games/chasers/data/filelist");
   pResourceManager_ = std::make_shared<bright::base::ResourceManager>(pFileWorker_);
   pFileWorker_->read_in_list_of_files();
   pFileWorker_->create_lookup_map_of_files_content();
@@ -138,13 +138,6 @@ bool GameEngine::initialize(){
 
   pServerConnection_->start(ep);
   boost::thread thread(boost::bind(&boost::asio::io_service::run, &service_));
-  while( !pServerConnection_->connected() ){
-    int i = 0;
-  }
-  pServerConnection_->login();
-  while( !pServerConnection_->logged_in() ){
-    pServerConnection_->process_messages();
-  }
 
   return true;
 }
@@ -384,6 +377,11 @@ void GameEngine::cycle(){
 
   pInputManager_->notify();
 	pInputContextManager_->notify();
+
+  if ( !pServerConnection_->connected() || !pServerConnection_->logged_in() ){
+    return;
+  }
+
   pServerConnection_->send_commands();
   pServerConnection_->process_messages();
 

@@ -10,11 +10,13 @@ ClientConnection::ClientConnection( boost::asio::io_service& ioService,
                                     std::shared_ptr<bright::converters::AABBConverter> pAABBConverter) : 
   sock_(ioService), started_(false), clientHandler_(clientActors, pAABBConverter),
   clientConnections_(clientConnections), commandMessagesMutex_(commandMessagesMutex), ioService_(ioService){
-  
+
 }
 
 void ClientConnection::start(){
   //std::cout << "Server Client Connection Start:" << std::endl << std::flush;
+  boost::asio::ip::tcp::no_delay option(true);
+  sock_.set_option(option);  
   started_ = true;
   std::lock_guard<std::mutex> lock(commandMessagesMutex_);
   clientConnections_.push_back( shared_from_this() );
