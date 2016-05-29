@@ -28,10 +28,6 @@ void ServerConnection::on_connect(const boost::system::error_code & err) {
   start_reading();
 
   login();
-  while( !logged_in() ){
-    //process_messages();
-    process();
-  }
 }  
 
 void ServerConnection::stop() {

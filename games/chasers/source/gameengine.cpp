@@ -390,7 +390,11 @@ void GameEngine::cycle(){
   pCommandListener_->update_commands();
   pCommandListener_->execute_commands();
 
-  if ( !pServerConnection_->connected() || !pServerConnection_->logged_in() ){
+  if ( !pServerConnection_->connected() ){
+    return;
+  }
+  if ( !pServerConnection_->logged_in() ){
+    pServerConnection_->process_messages();
     return;
   }
 

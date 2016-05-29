@@ -39,7 +39,7 @@ void ServerHandler::process_messages(){
   }
   
   
-  if(!isLoggedIn_ && loginResponseMessage_.logged_in()){
+  if( !isLoggedIn_ && loginResponseMessage_.logged_in() ){
     handle_login_response();
     return;
   }
