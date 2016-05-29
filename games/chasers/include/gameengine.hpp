@@ -15,6 +15,7 @@
 #include "context/context.hpp"
 #include "base/clientcontroller.hpp"
 #include "base/resourcemanager.hpp"
+#include "base/serveractor.hpp"
 
 #include "input/inputmanager.hpp"
 #include "input/keyboardeventlistener.hpp"
@@ -123,6 +124,8 @@ private:
   std::map<std::string, std::shared_ptr<bright::graphics::ActorGroupRenderInfo>> monsterGroupRenderInfos_;
   std::shared_ptr<bright::graphics::WorldInfo> pWorldInfo_;
   std::shared_ptr<bright::graphics::Renderer> pRenderer_;
+
+  std::shared_ptr<bright::base::ServerActor> pClientActor_;
   
   std::string ip_;
   int port_;

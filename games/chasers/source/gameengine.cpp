@@ -93,26 +93,35 @@ bool GameEngine::initialize(){
   //games/chasers/data
   //But if you're building this and creating the executable, which goes into the bin directory
   //in games/chaser/bin then you need to specify the path as "../data".
-  //pFileWorker_ = std::make_shared<bright::utils::FileWorker>("../data/filelist");
-  pFileWorker_ = std::make_shared<bright::utils::FileWorker>("games/chasers/data/filelist");
+  pFileWorker_ = std::make_shared<bright::utils::FileWorker>("../data/filelist");
+  //pFileWorker_ = std::make_shared<bright::utils::FileWorker>("games/chasers/data/filelist");
   pResourceManager_ = std::make_shared<bright::base::ResourceManager>(pFileWorker_);
   pFileWorker_->read_in_list_of_files();
   pFileWorker_->create_lookup_map_of_files_content();
   pResourceManager_->initialize();
   pRenderer_ = std::make_shared<bright::graphics::Renderer>();
 
+  load_client_configs();
+
+  pClientActor_ = std::make_shared<bright::base::ServerActor>();
+  //clientActor_->aabb( pAABBConverter_->aabb("cube") );
+  pClientActor_->pos(glm::vec3(50.0f, 30.0f, -50.0f));
+  pClientActor_->rotate_down(55.0f);
+  pClientActor_->name(clientName_);
+  pClientActor_->is_logged_in(true);
+
   pPlanesController_ = std::make_shared<bright::base::ClientController>();
   pPlanesController_->update( glm::vec3(0.0f,-0.5f,0.0f) );
 
   pPlayersController_ = std::make_shared<bright::base::ClientController>();
-  pPlayersController_->update( glm::vec3(0.0f,50.0f,-10.0f), glm::vec3(1.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,1.0f), glm::vec3(0.0f,-1.0f,0.0f) );
+  //pPlayersController_->update( glm::vec3(0.0f,50.0f,-10.0f), glm::vec3(1.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,1.0f), glm::vec3(0.0f,-1.0f,0.0f) );
+  pPlayersController_->update( pClientActor_->pos(), pClientActor_->right(), pClientActor_->up(), pClientActor_->look() );
 
-  load_client_configs();
   pServerHandler_ = std::make_shared<bright::network::ServerHandler>(clientName_, "mypassword", pPlayersController_, monsterContollers_);
   pServerConnection_ = boost::make_shared<bright::network::ServerConnection>(service_, pServerHandler_);
   boost::asio::ip::tcp::endpoint ep( boost::asio::ip::address::from_string(ip_), port_);
 
-  pCommandListener_ = boost::make_shared<bright::input::CommandListener>();
+  pCommandListener_ = boost::make_shared<bright::input::CommandListener>(pClientActor_, pPlayersController_);
   pInputContextManager_->add_command_event_listener(pCommandListener_);
 
   pInputContextManager_->add_command_event_listener(pServerConnection_);
@@ -378,6 +387,8 @@ void GameEngine::cycle(){
 
   pInputManager_->notify();
 	pInputContextManager_->notify();
+  pCommandListener_->update_commands();
+  pCommandListener_->execute_commands();
 
   if ( !pServerConnection_->connected() || !pServerConnection_->logged_in() ){
     return;

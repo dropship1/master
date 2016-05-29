@@ -1,8 +1,8 @@
 #CONFIG FILES
 #Visual studio run config
-path=games/chasers/data/
+#path=games/chasers/data/
 #Binary executable run config
-#path=../data/
+path=../data/
 
 file=shaders.cfg
 file=client.cfg
@@ -18,9 +18,9 @@ file=world.cfg
 
 #SHADERS
 #Visual studio run config
-path=data/Shaders/
+#path=data/Shaders/
 #Binary executable run config
-#path=../../../data/Shaders/
+path=../../../data/Shaders/
 
 alias=pflc.v
 file=per_fragment_lighting_color.vert
@@ -44,9 +44,9 @@ file=per_fragment_color.frag
 
 #MESHES
 #Visual studio run config
-path=data/Meshes/
+#path=data/Meshes/
 #Binary executable run config
-#path=../../../data/Meshes/
+path=../../../data/Meshes/
 
 alias=cube
 file=cube.bin
@@ -63,9 +63,9 @@ file=monster_jetpack_003.mtl
 
 #TEXTURES/IMAGES
 #Visual studio run config
-path=data/Textures/
+#path=data/Textures/
 #Binary executable run config
-#path=../../../data/Textures/
+path=../../../data/Textures/
 
 
 file=default.dds
@@ -80,9 +80,9 @@ file=texture_uv_map_seat.dds
 
 #AABBs
 #Visual studio run config
-path=data/aabbs/
+#path=data/aabbs/
 #Binary executable run config
-#path=../../../data/aabbs/
+path=../../../data/aabbs/
 
 alias=cube_aabb
 file=cube.bin

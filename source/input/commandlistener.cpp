@@ -2,7 +2,7 @@
 
 using namespace bright::input;
 
-CommandListener::CommandListener(): commandHandler_(){
+CommandListener::CommandListener(std::shared_ptr<bright::base::ServerActor> pClientActor, std::shared_ptr<bright::base::ClientController> pClientController): commandHandler_(pClientActor,pClientController){
 }
 
 void CommandListener::on_command_event(std::shared_ptr<bright::input::CommandEvent> pCommandEvent){

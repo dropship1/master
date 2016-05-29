@@ -240,6 +240,7 @@ project("besdkClient")
     "include/converters/*.hpp",
     "include/audio/*.hpp",
     "include/utils/*.hpp",
+    "include/physics/*.hpp",
     "source/base/*.cpp",
     "source/context/*.cpp",
     "source/graphics/*.cpp",
@@ -248,6 +249,7 @@ project("besdkClient")
     "source/audio/*.cpp",
     "source/converters/*.cpp",
     "source/utils/*.cpp",
+    "source/physics/*.cpp",
   };  
   excludes { 
     "include/network/asyncserver.hpp",

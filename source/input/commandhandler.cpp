@@ -3,7 +3,13 @@
 using namespace bright::input;
 
 
+CommandHandler::CommandHandler(std::shared_ptr<bright::base::ServerActor> pClientActor, std::shared_ptr<bright::base::ClientController> pClientController): controlState_(), 
+  pClientActor_(pClientActor), pClientController_(pClientController){
+
+}
+
 CommandHandler::CommandHandler(): controlState_(){
+
 }
 
 
@@ -144,16 +150,20 @@ void CommandHandler::execute_next_command(){
   
     if( cmdMessage.control_type().compare("STATE_ON")  == 0 ){
       if( cmdMessage.control_name().compare("MOVE_FORWARD") == 0 ){
-        clientActor_->move_fwd(0.2f);
+        pClientActor_->move_fwd(0.2f);
+        udpate_player_controller();
       }
       else if( cmdMessage.control_name().compare("MOVE_BACK") == 0 ){
-        clientActor_->move_backward(5.2f);
+        pClientActor_->move_backward(5.2f);
+        udpate_player_controller();
       }
       else if( cmdMessage.control_name().compare("MOVE_LEFT") == 0 ){
-        clientActor_->move_left(0.2f);  
+        pClientActor_->move_left(0.2f);  
+        udpate_player_controller();
       }
       else if( cmdMessage.control_name().compare("MOVE_RIGHT") == 0 ){
-        clientActor_->move_right(0.2f);
+        pClientActor_->move_right(0.2f);
+        udpate_player_controller();
       }
   
     }
@@ -177,18 +187,22 @@ void CommandHandler::execute_next_command(){
   
     if( amount > 0 ){
       if( cmdMessage.control_name().compare("CAMERA_X_AXIS") == 0 ){
-        clientActor_->rotate_right(0.01f);
+        pClientActor_->rotate_right(0.01f);
+        udpate_player_controller();
       }
       else if( cmdMessage.control_name().compare("CAMERA_Y_AXIS") == 0 ){
-        clientActor_->rotate_down(0.01f);
+        pClientActor_->rotate_down(0.01f);
+        udpate_player_controller();
       }
     }
     else if(  amount < 0  ){
       if( cmdMessage.control_name().compare("CAMERA_X_AXIS") == 0 ){
-        clientActor_->rotate_left(0.01f);
+        pClientActor_->rotate_left(0.01f);
+        udpate_player_controller();
       }
       else if( cmdMessage.control_name().compare("CAMERA_Y_AXIS") == 0 ){
-        clientActor_->rotate_up(0.01f);
+        pClientActor_->rotate_up(0.01f);
+        udpate_player_controller();
       }
     }
   
@@ -198,3 +212,8 @@ void CommandHandler::execute_next_command(){
 }
 
 
+void CommandHandler::udpate_player_controller(){
+
+  pClientController_->update(pClientActor_->pos(), pClientActor_->right(), pClientActor_->up(), pClientActor_->look());
+
+}

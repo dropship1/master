@@ -11,6 +11,8 @@
 #include "input/commandmessage.hpp"
 #include "input/commandevent.hpp"
 #include "input/globalstructs.hpp"
+#include "base/serveractor.hpp"
+#include "base/clientcontroller.hpp"
 
 namespace bright{
 
@@ -20,6 +22,7 @@ namespace bright{
 class CommandHandler{
 
 public:
+  CommandHandler(std::shared_ptr<bright::base::ServerActor> pClientActor, std::shared_ptr<bright::base::ClientController> pClientController);
   CommandHandler();
 
   void handle_command(std::shared_ptr<bright::input::CommandEvent> pCommandEvent);
@@ -33,9 +36,14 @@ public:
 private:
 
 
+  std::shared_ptr<bright::base::ServerActor> pClientActor_;
+  std::shared_ptr<bright::base::ClientController> pClientController_;
+
   std::vector<CommandMessage> commands_;
   bright::input::ControlState controlState_;
   std::map<std::string, bool> states_;
+
+  void udpate_player_controller();
 
 };
 
