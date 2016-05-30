@@ -74,7 +74,7 @@ std::vector<glm::vec3> AABBConverter::single_load_obj_verties(std::string path, 
 
   std::vector<glm::vec3> vertices;
 
-  std::cout << "Loading " << file+".obj: " << std::endl << std::flush;
+  //std::cout << "Loading " << file+".obj: " << std::endl << std::flush;
 
   start = clock() / (CLOCKS_PER_SEC / 1000);
 
@@ -84,7 +84,7 @@ std::vector<glm::vec3> AABBConverter::single_load_obj_verties(std::string path, 
 
   std::ifstream in(fullPathAndName, std::ios::in);
   if (!in) { 
-    std::cerr << "AABB Obj file reader: Cannot open " << fullPathAndName << std::endl << std::flush; 
+    //std::cerr << "AABB Obj file reader: Cannot open " << fullPathAndName << std::endl << std::flush; 
     exit(1); 
   }
 
@@ -100,7 +100,7 @@ std::vector<glm::vec3> AABBConverter::single_load_obj_verties(std::string path, 
   end = clock() / (CLOCKS_PER_SEC / 1000);
   dif = end - start;
 
-  std::cout << "Loaded " << dif << " ms" << std::endl << std::flush;
+  //std::cout << "Loaded " << dif << " ms" << std::endl << std::flush;
 
   return vertices;
 }
@@ -110,7 +110,7 @@ std::shared_ptr<bright::physics::AABB> AABBConverter::single_convert_obj_to_aabb
   int start, end;
   int dif;
 
-	std::cout << "Converting " << fileName << ": " << std::endl << std::flush;
+	//std::cout << "Converting " << fileName << ": " << std::endl << std::flush;
 
 	start = clock() / (CLOCKS_PER_SEC / 1000);
 
@@ -119,7 +119,7 @@ std::shared_ptr<bright::physics::AABB> AABBConverter::single_convert_obj_to_aabb
 	end = clock() / (CLOCKS_PER_SEC / 1000);
 	dif = end - start;
 
-	std::cout << "Converted " << dif << " ms" << std::endl << std::flush;
+	//std::cout << "Converted " << dif << " ms" << std::endl << std::flush;
 	
 	return aabb;
 }
@@ -130,7 +130,7 @@ void AABBConverter::single_dump_aabb_binary(std::string path, std::shared_ptr<br
 
   std::string fullPathAndName = path+"/"+aabb->name()+".bin";
 
-	std::cout << "Dumping " << aabb->name() << ": " << std::endl << std::flush;
+	//std::cout << "Dumping " << aabb->name() << ": " << std::endl << std::flush;
 	start = clock() / (CLOCKS_PER_SEC / 1000);
 
   //Write the new aabb out to disk.
@@ -143,7 +143,7 @@ void AABBConverter::single_dump_aabb_binary(std::string path, std::shared_ptr<br
 
   output.close();
 
-	std::cout << "Dumped " << dif << " ms" << std::endl << std::flush;
+	//std::cout << "Dumped " << dif << " ms" << std::endl << std::flush;
 }
 
 std::shared_ptr<bright::physics::AABB> AABBConverter::create_aabb_from_vertices(std::vector<glm::vec3>& vertices, std::string name){
