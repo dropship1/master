@@ -37,3 +37,6 @@
 
 #BOOST stuff
 boost-*
+
+#Glew stuff
+glew-*
