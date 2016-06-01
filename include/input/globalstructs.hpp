@@ -164,11 +164,13 @@ struct Mouse{
 
 
 struct ControlState{
-  ControlState(): moveForward_(false),moveBackward_(false),moveLeft_(false),moveRight_(false){}
+  ControlState(): moveForward_(false),moveBackward_(false),moveLeft_(false),moveRight_(false),fire_(false),altFire_(false){}
   bool moveForward_;
   bool moveBackward_;
   bool moveLeft_;
   bool moveRight_;
+  bool fire_;
+  bool altFire_;
   std::vector<std::string> rotations_;
 };
 

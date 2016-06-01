@@ -67,6 +67,7 @@ void ServerController::update_pos(glm::vec3 pos){
 
 void ServerController::update_rot(glm::vec3 rot){
   rotation_ = rot;
+  calculate_new_direction_vectors();
 }
 
 

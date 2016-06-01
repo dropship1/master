@@ -73,7 +73,7 @@ project(project_name)
     if (intype == "WindowedApp") then
       flags{ "WinMain" }
     end
-    objdir "Debug";
+    objdir(intargetdir .. "/Debug");
     targetname(project_name .. "D");
     links(inlinksD);
 
@@ -89,7 +89,56 @@ project(project_name)
     if (intype == "WindowedApp") then
       flags{ "WinMain" }
     end
-    objdir "Release";
+    objdir(intargetdir .. "/Release");
+    targetname(project_name);
+    links(inlinks);
+
+end
+
+
+
+function create_editor(intype, fullnameofgame, inlibdirs, inincludedirs, infiles, inlinks, inlinksD, inflags, intargetdir)
+project_name = "Editor_" .. fullnameofgame;
+print("    -" .. fullnameofgame);
+project(project_name)
+  kind(intype);
+  targetdir(intargetdir .. "/bin")
+  language "c++"
+
+  libdirs(inlibdirs);
+
+  includedirs(inincludedirs);
+
+  files(infiles);  
+  
+  configuration "windows"
+    defines "WIN32"
+
+  configuration "Debug"
+    defines {"DEBUG", "_DEBUG", "MEMORY_DEBUGGING", "_VARIADIC_MAX=10"};
+    flags{ "Symbols" };
+    flags{ "Unicode" };
+    flags{ inflags };
+    if (intype == "WindowedApp") then
+      flags{ "WinMain" }
+    end
+    objdir(intargetdir .. "/Debug");
+    targetname(project_name .. "D");
+    links(inlinksD);
+
+  configuration "Release"
+    defines {"NDEBUG", "RELEASE", "_VARIADIC_MAX=10"};
+    flags{ "Symbols" };
+    flags{ "Unicode" };
+    flags{ inflags };
+    flags{ "OptimizeSpeed" };
+    flags{ "NoFramePointer" };
+    flags{ "ExtraWarnings" };
+    flags{ "NoEditAndContinue" };
+    if (intype == "WindowedApp") then
+      flags{ "WinMain" }
+    end
+    objdir(intargetdir .. "/Release");
     targetname(project_name);
     links(inlinks);
 
@@ -317,4 +366,80 @@ print();
 
 print("  -Creating Games");
 create_game("WindowedApp", "Chasers", {"lib"}, {besdkdir, "glew-1.11.0/include", "include", "boost-1.58.0", "games/chasers/include/"}, {"games/chasers/source/chasers.cpp", "games/chasers/source/gameengine.cpp", "games/chasers/include/*.hpp", "games/chasers/data/*.*"}, {"besdkClient", "glew32", "opengl32"}, {"besdkClientD", "glew32d", "opengl32"}, {}, "games/chasers");
+print();
+
+--######################### EDITOR ################################################
+
+print();
+print("Creating Bright Editor Solution");
+solution "brightEditor"
+  configurations {"Debug", "Release"}
+  defines {
+        "_CRT_SECURE_NO_WARNINGS", 
+        "_CRT_SECURE_NO_DEPRECATE", 
+        "_SCL_SECURE_NO_WARNINGS"
+    }
+
+print("  -Creating BeSdk Editor Static Lib");
+project("besdkEditor")
+  kind "StaticLib"
+  targetdir "lib"
+  language "c++"
+
+  libdirs {"lib", "lib/OpenAl-Win32/EFX-Util_MT", "lib/OpenAl-Win32/EFX-Util_MTDLL", "lib/OpenAl-Win32", "lib/OpenAl-Win64/EFX-Util_MT", "lib/OpenAl-Win64/EFX-Util_MTDLL", "lib/OpenAl-Win64"}
+
+  includedirs {
+    besdkdir,
+    "glew-1.11.0/include",
+    "include",
+    "boost-1.58.0",
+    "openal-1.1"
+  }
+
+  files {
+    "include/base/*.hpp",
+    "include/context/*.hpp",
+    "include/graphics/*.hpp",
+    "include/input/*.hpp",
+    "include/network/*.hpp",
+    "include/converters/*.hpp",
+    "include/audio/*.hpp",
+    "include/utils/*.hpp",
+    "include/physics/*.hpp",
+    "source/base/*.cpp",
+    "source/context/*.cpp",
+    "source/graphics/*.cpp",
+    "source/input/*.cpp",
+    "source/network/*.cpp",
+    "source/audio/*.cpp",
+    "source/converters/*.cpp",
+    "source/utils/*.cpp",
+    "source/physics/*.cpp",
+  };
+  
+  configuration "windows"
+    defines "WIN32"
+
+  configuration "Debug"
+    flags { "Unicode"};
+    defines {"DEBUG", "_DEBUG", "MEMORY_DEBUGGING", "_VARIADIC_MAX=10"};
+    objdir "Debug";
+    flags "Symbols";
+    targetname "besdkEditorD";
+    links {"glew32d", "opengl32"}
+
+  configuration "Release"
+    defines {"NDEBUG", "RELEASE", "_VARIADIC_MAX=10"};
+    flags { "Unicode" };
+    flags {"OptimizeSpeed", "NoFramePointer", "ExtraWarnings", "NoEditAndContinue"};
+    objdir "Release";
+    targetname "besdkEditor"
+    links {"glew32", "opengl32"}
+
+print();
+
+
+
+print("  -Creating Editors");
+create_editor("WindowedApp", "PhysicsTester", {"lib"}, {besdkdir, "glew-1.11.0/include", "include", "boost-1.58.0", "editors/physics/include/"}, {"editors/physics/source/physics.cpp", "editors/physics/source/gameengine.cpp", "editors/physics/include/*.hpp", "editors/physics/data/*.*"}, {"besdkEditor", "glew32", "opengl32"}, {"besdkEditorD", "glew32d", "opengl32"}, {}, "editors/physics");
 print();

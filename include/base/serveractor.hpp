@@ -72,6 +72,7 @@ public:
 
   bool have_update();
   void have_update(bool value);
+  ServerActor clone();
 
 private:
 

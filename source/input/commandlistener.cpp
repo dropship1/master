@@ -1,8 +1,9 @@
-#include "input/commandListener.hpp"
+#include "input/commandlistener.hpp"
 
 using namespace bright::input;
 
-CommandListener::CommandListener(std::shared_ptr<bright::base::ServerActor> pClientActor, std::shared_ptr<bright::base::ClientController> pClientController): commandHandler_(pClientActor,pClientController){
+CommandListener::CommandListener(std::shared_ptr<bright::base::ServerActor> pClientActor, std::shared_ptr<bright::base::ClientController> pClientController,
+                                 std::shared_ptr<bright::base::ActorCreator> pActorCreator): commandHandler_(pClientActor,pClientController,pActorCreator){
 }
 
 void CommandListener::on_command_event(std::shared_ptr<bright::input::CommandEvent> pCommandEvent){

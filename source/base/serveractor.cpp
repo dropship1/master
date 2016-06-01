@@ -140,3 +140,14 @@ bool ServerActor::have_update(){
 void ServerActor::have_update(bool value){
   haveUpdate_ = value;
 }
+
+ServerActor ServerActor::clone(){
+
+  ServerActor cloned;
+  cloned.pos( pos() );
+  cloned.rotation( rotation() );
+  auto newAabb = std::make_shared<bright::physics::AABB>();
+  newAabb->copy_this( aabb() );
+  cloned.aabb(newAabb);
+  return cloned;
+}

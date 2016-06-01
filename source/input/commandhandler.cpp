@@ -3,8 +3,9 @@
 using namespace bright::input;
 
 
-CommandHandler::CommandHandler(std::shared_ptr<bright::base::ServerActor> pClientActor, std::shared_ptr<bright::base::ClientController> pClientController): controlState_(), 
-  pClientActor_(pClientActor), pClientController_(pClientController){
+CommandHandler::CommandHandler(std::shared_ptr<bright::base::ServerActor> pClientActor, std::shared_ptr<bright::base::ClientController> pClientController, 
+                               std::shared_ptr<bright::base::ActorCreator> pActorCreator): controlState_(),  pClientActor_(pClientActor), pClientController_(pClientController),
+ pActorCreator_(pActorCreator) {
 
 }
 
@@ -41,6 +42,12 @@ void CommandHandler::handle_command(std::shared_ptr<bright::input::CommandEvent>
       else if( cmdMessage.control_name().compare("MOVE_RIGHT") == 0 ){
         controlState_.moveRight_ = true;
       }
+      else if( cmdMessage.control_name().compare("FIRE") == 0 ){
+        controlState_.fire_ = true;
+      }
+      else if( cmdMessage.control_name().compare("ALT_FIRE") == 0 ){
+        controlState_.altFire_ = true;
+      }
     }
     else if( cmdMessage.control_type().compare("STATE_OFF") == 0 ){
       if( cmdMessage.control_name().compare("MOVE_FORWARD") == 0 ){
@@ -54,6 +61,12 @@ void CommandHandler::handle_command(std::shared_ptr<bright::input::CommandEvent>
       }
       else if( cmdMessage.control_name().compare("MOVE_RIGHT") == 0 ){
         controlState_.moveRight_ = false;
+      }
+      else if( cmdMessage.control_name().compare("FIRE") == 0 ){
+        controlState_.fire_ = false;
+      }
+      else if( cmdMessage.control_name().compare("ALT_FIRE") == 0 ){
+        controlState_.altFire_ = false;
       }
     }
   
@@ -118,6 +131,12 @@ void CommandHandler::update(){
   if( controlState_.moveRight_ ){
     commands_.push_back( CommandMessage("MOVE_RIGHT", "STATE", "STATE_ON", "") );
   }
+  if( controlState_.fire_ ){
+    commands_.push_back( CommandMessage("FIRE", "STATE", "STATE_ON", "") );
+  }
+  if( controlState_.altFire_ ){
+    commands_.push_back( CommandMessage("ALT_FIRE", "STATE", "STATE_ON", "") );
+  }
 
   if( !controlState_.rotations_.empty() ){
 
@@ -165,7 +184,14 @@ void CommandHandler::execute_next_command(){
         pClientActor_->move_right(0.2f);
         udpate_player_controller();
       }
-  
+      else if( cmdMessage.control_name().compare("FIRE") == 0 ){
+        pActorCreator_->add_bullet(pClientActor_);
+      }
+      else if( cmdMessage.control_name().compare("ALT_FIRE") == 0 ){
+        pClientActor_->move_fwd(5.2f);
+        udpate_player_controller();
+      }
+
     }
     else if( cmdMessage.control_type().compare("STATE_OFF") == 0 ){
   
@@ -176,6 +202,10 @@ void CommandHandler::execute_next_command(){
       else if( cmdMessage.control_name().compare("MOVE_LEFT") == 0 ){
       }
       else if( cmdMessage.control_name().compare("MOVE_RIGHT") == 0 ){
+      }
+      else if( cmdMessage.control_name().compare("FIRE") == 0 ){
+      }
+      else if( cmdMessage.control_name().compare("ALT_FIRE") == 0 ){
       }
   
     }
@@ -217,3 +247,4 @@ void CommandHandler::udpate_player_controller(){
   pClientController_->update(pClientActor_->pos(), pClientActor_->right(), pClientActor_->up(), pClientActor_->look());
 
 }
+
