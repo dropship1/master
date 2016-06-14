@@ -1,13 +1,13 @@
-#ifndef BRIGHT_BASE_RESOURCE_MANAGER_H
-#define BRIGHT_BASE_RESOURCE_MANAGER_H
+#ifndef BRIGHT_BASE_ACTOR_RENDERING_RESOURCE_MANAGER_H
+#define BRIGHT_BASE_ACTOR_RENDERING_RESOURCE_MANAGER_H
 
 #include "graphics/worldinfo.hpp"
 #include "graphics/loadersmanager.hpp"
 #include "graphics/globalstructs.hpp"
 
-#include "base/actor.hpp"
+#include "base/renderactor.hpp"
 #include "base/mesh.hpp"
-#include "base/clientcontroller.hpp"
+#include "base/actorrendercontroller.hpp"
 
 #include "audio/soundmanager.hpp"
 
@@ -24,10 +24,10 @@ namespace bright{
 
   namespace base{
 
-class ResourceManager{
+class ActorRenderingResourceManager{
 
 public:
-  ResourceManager(std::shared_ptr<bright::utils::FileWorker> pFileWorker);
+  ActorRenderingResourceManager(std::shared_ptr<bright::utils::FileWorker> pFileWorker);
 
   void initialize();
   void load_resources_and_create_render_infos();
@@ -35,8 +35,8 @@ public:
 
   std::shared_ptr<bright::graphics::WorldInfo> world_info();
   std::map<std::string, std::shared_ptr<bright::graphics::ActorGroupRenderInfo>>& actor_group_render_infos();
-  std::map<std::string, std::shared_ptr<ClientController>>& controllers();
-  std::vector<Actor>& ResourceManager::actors();
+  std::map<std::string, std::shared_ptr<ActorRenderController>>& controllers();
+  std::vector<RenderActor>& render_actors();
   bright::graphics::LoadersManager& graphics_loader_manager();
 
 private:
@@ -46,9 +46,9 @@ private:
   bright::converters::MeshConverter meshConverter_;
   bright::graphics::LoadersManager graphicsLoadersManager_;
 
-  std::vector<Actor> actors_;
+  std::vector<RenderActor> renderActors_;
   std::map<std::string, std::shared_ptr<bright::graphics::ActorGroupRenderInfo>> actorGroupRenderInfos_;
-  std::map<std::string, std::shared_ptr<ClientController>> controllers_;
+  std::map<std::string, std::shared_ptr<ActorRenderController>> actorRenderControllers_;
   std::shared_ptr<bright::graphics::WorldInfo> pWorldInfo_;
 
   std::shared_ptr<bright::utils::FileWorker> pFileWorker_;

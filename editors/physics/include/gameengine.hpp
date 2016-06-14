@@ -125,7 +125,10 @@ private:
 
   std::shared_ptr<bright::base::ServerActor> pClientActor_;
   std::map<std::string, bright::base::ServerActor> monsters_;
+  std::map<std::string, bright::base::ServerActor> players_;
   int count;
+
+  std::shared_ptr<bright::converters::AABBConverter> pAABBConverter_;
 
   void check_physics();
   void create_monster_controllers();

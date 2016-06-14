@@ -13,22 +13,20 @@
 #Key=Value
 #...
 
-#<Actor>
-#name= the unique name of this actor
+#<RenderActor>
+#name= the unique name of resource
 #mesh= what mesh to use for this actor (This mesh will implicitly give the textures to use)
 #shader= what shader to use
-#player= whether this is the player or not? if not set then defaults to no
 #cameratype= what type of camera? if not set then defaults to first person
 #</Actor>
 
 #Example
-#<Actor>
-#name=Jake
-#mesh=BOX
+#<RenderActor>
+#name=Box
+#mesh=cube
 #shader=PER_FRAG_VERT_LIGHT
-#player=true
 #cameratype=1st
-#</Actor>
+#</RenderActor>
 
 
 
@@ -36,35 +34,16 @@
 #Start
 #------------------------------
 
-<Actor>
-name=User
+<RenderActor>
+name=Box
 mesh=cube
 shader=PER_FRAG_TEXTURE
-player=true
 cameratype=1st
-</Actor>
+</RenderActor>
 
-
-<Actor>
-name=Zombie_001
+<RenderActor>
+name=Zombie
 mesh=cube
 shader=PER_FRAG_TEXTURE
-player=false
 cameratype=1st
-</Actor>
-
-<Actor>
-name=Zombie_002
-mesh=cube
-shader=PER_FRAG_TEXTURE
-player=false
-cameratype=1st
-</Actor>
-
-<Actor>
-name=Zombie_003
-mesh=cube
-shader=PER_FRAG_TEXTURE
-player=false
-cameratype=1st
-</Actor>
+</RenderActor>

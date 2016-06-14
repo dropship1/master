@@ -175,9 +175,9 @@ project("besdkServer")
 
   files {
     "include/ai/*.hpp",
-    "include/base/serveractor.hpp",
-    "include/base/worldloader.hpp",
-    "include/base/servercontroller.hpp",
+    "include/base/controlactor.hpp",
+    "include/base/actorcontrolsresourcemanager.hpp",
+    "include/base/actorcontrolcontroller.hpp",
     "include/physics/*.hpp",
     "include/network/asyncserver.hpp",
     "include/network/globalstructs.hpp",
@@ -192,9 +192,9 @@ project("besdkServer")
     "include/converters/aabbconverter.hpp",
     "include/utils/*.hpp",
     "source/ai/*.cpp",
-    "source/base/serveractor.cpp",
-    "source/base/worldloader.cpp",
-    "source/base/servercontroller.cpp",
+    "source/base/controlactor.cpp",
+    "source/base/actorcontrolsresourcemanager.cpp",
+    "source/base/actorcontrolcontroller.cpp",
     "source/physics/*.cpp",
     "source/network/asyncserver.cpp",
     "source/network/networkmessage.cpp",
@@ -234,7 +234,7 @@ print("  -Creating BeSdk Server Console based test");
 create_test("ConsoleApp", "Network_AsyncServer", {"lib"}, {besdkdir, "include", "boost-1.58.0"}, {"test/network/asyncserver.cpp"}, {"besdkServer"}, {"besdkServerD"}, {}, "test/network");
 create_test("ConsoleApp", "Network_ClientHandler", {"lib"}, {besdkdir, "include"}, {"test/network/clienthandler.cpp"}, {"besdkServer"}, {"besdkServerD"}, {}, "test/network");
 create_test("ConsoleApp", "AI_AIManager", {"lib"}, { besdkdir, "include"}, {"test/ai/aimanager.cpp"}, {"besdkServer"}, {"besdkServerD"}, {}, "test/ai");
-create_test("ConsoleApp", "Base_WorldLoader", {"lib"}, { besdkdir, "include"}, {"test/base/worldloader.cpp", "test/base/data/filelist", "test/base/data/world.cfg"}, {"besdkServer"}, {"besdkServerD"}, {}, "test/base");
+create_test("ConsoleApp", "Base_ActorControlsResourceManager", {"lib"}, { besdkdir, "include"}, {"test/base/actorcontrolsresourcemanager.cpp", "test/base/data/files.fl", "test/base/data/controlling.wrld"}, {"besdkServer"}, {"besdkServerD"}, {}, "test/base");
 create_test("ConsoleApp", "Physics_AABB", {"lib"}, {besdkdir, "include"}, {"test/physics/aabb.cpp"}, {"besdkServer"}, {"besdkServerD"}, {}, "test/physics");
 create_test("ConsoleApp", "Converters_AABBConverter", {"lib"}, { besdkdir, "include"}, {"test/converters/aabbconverter.cpp"}, {"besdkServer"}, {"besdkServerD"}, {}, "test/converters");
 print();
@@ -302,16 +302,12 @@ project("besdkClient")
   };  
   excludes { 
     "include/network/asyncserver.hpp",
-    "include/converters/aabbconverter.hpp",
     "include/network/clientconnection.hpp",
     "include/network/clienthandler.hpp",
     "source/network/clientconnection.cpp",
     "source/network/clientconnection.cpp",
     "source/network/clienthandler.cpp",
     "source/network/asyncserver.cpp",
-    "include/base/worldloader.hpp",
-    "source/base/worldloader.cpp",
-    "source/converters/aabbconverter.cpp",
   }
   
   configuration "windows"
@@ -359,7 +355,7 @@ create_test("WindowedApp", "Audio_SoundManager", {"lib", "lib/OpenAl-Win32/EFX-U
 create_test("WindowedApp", "Network_ServerConnection", {"lib"}, {besdkdir, "glew-1.11.0/include", "include", "boost-1.58.0"}, {"test/network/serverconnection.cpp", "test/network/data/*.*"}, {"besdkClient", "glew32", "opengl32"}, {"besdkClientD", "glew32d", "opengl32"}, {}, "test/network");
 
 create_test("WindowedApp", "Input_InputContextManager", {"lib"}, {besdkdir, "glew-1.11.0/include", "include", "boost-1.58.0"}, {"test/input/inputcontextmanager.cpp", "test/input/data/controls_config.cfg", "test/input/data/controls_contexts.cfg", "test/input/data/filelist"}, {"besdkClient", "glew32", "opengl32"}, {"besdkClientD", "glew32d", "opengl32"}, {}, "test/input");
-create_test("WindowedApp", "Base_ResourceManager", {"lib"}, {besdkdir, "glew-1.11.0/include", "include"}, {"test/base/resourcemanager.cpp", "test/base/data/*.*"}, {"besdkClient", "glew32", "opengl32"}, {"besdkClientD", "glew32d", "opengl32"}, {}, "test/base");
+create_test("WindowedApp", "Base_ActorRenderingResourceManager", {"lib"}, {besdkdir, "glew-1.11.0/include", "include"}, {"test/base/actorrenderingresourcemanager.cpp", "test/base/data/*.*"}, {"besdkClient", "glew32", "opengl32"}, {"besdkClientD", "glew32d", "opengl32"}, {}, "test/base");
 print();
 
 

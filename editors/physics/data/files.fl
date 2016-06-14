@@ -1,19 +1,18 @@
-#CONFIG FILES
+#All the files we need, this is how the FileWorker figures out what files to read in and then give out the data on request to whoever needs it.
 #Visual studio run config
 #path=editors/physics/data/
 #Binary executable run config
 path=../data/
 
-file=shaders.cfg
-file=client.cfg
-file=controls_contexts.cfg
-file=controls_config.cfg
-file=textures.cfg
-file=meshlist
-file=aabblist
-file=resources.cfg
-file=world.cfg
-
+file=client.net
+file=config.ctrls
+file=contexts.ctrls
+file=aabb.res
+file=mesh.res
+file=rendering.res
+file=shaders.res
+file=textures.res
+file=controlling.wrld
 
 
 #SHADERS

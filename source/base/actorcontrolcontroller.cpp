@@ -1,9 +1,9 @@
-#include "base/servercontroller.hpp"
+#include "base/actorcontrolcontroller.hpp"
 
 using namespace bright::base;
 
 
-ServerController::ServerController(){
+ActorControlController::ActorControlController(){
 
   prevPos_ = glm::vec3(0.0f, 0.0f, 0.0f);
   pos_ = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -17,7 +17,7 @@ ServerController::ServerController(){
 }
 
 
-void ServerController::calculate_new_direction_vectors(){
+void ActorControlController::calculate_new_direction_vectors(){
 
   //http://www.toymaker.info/Games/html/camera.html
   //www.3dgep.com/understanding-the-view-matrix/
@@ -49,29 +49,29 @@ void ServerController::calculate_new_direction_vectors(){
 }
 
 
-void ServerController::update(glm::vec3 pos, glm::vec3 rotation){
+void ActorControlController::update(glm::vec3 pos, glm::vec3 rotation){
   prevPos_ = pos_;
   pos_ = pos;
   rotation_ = rotation;
 }
 
 
-void ServerController::set_to_prev_pos(){
+void ActorControlController::set_to_prev_pos(){
   pos_ = prevPos_;
 }
 
-void ServerController::update_pos(glm::vec3 pos){
+void ActorControlController::update_pos(glm::vec3 pos){
   prevPos_ = pos_;
   pos_ = pos;
 }
 
-void ServerController::update_rot(glm::vec3 rot){
+void ActorControlController::update_rot(glm::vec3 rot){
   rotation_ = rot;
   calculate_new_direction_vectors();
 }
 
 
-void ServerController::update_axes(glm::vec3 eye, glm::vec3 center){
+void ActorControlController::update_axes(glm::vec3 eye, glm::vec3 center){
   glm::mat4 viewMatrix = glm::lookAt(eye, center, glm::vec3(0.0f,1.0f,0.0f));
   viewMatrix = glm::transpose(viewMatrix);
   right_ = glm::vec3(viewMatrix[0].x, viewMatrix[0].y, viewMatrix[0].z);
@@ -80,65 +80,65 @@ void ServerController::update_axes(glm::vec3 eye, glm::vec3 center){
 }
 
 
-glm::vec3 ServerController::pos(){
+glm::vec3 ActorControlController::pos(){
   return pos_;
 }
 
 
-glm::vec3 ServerController::prev_pos(){
+glm::vec3 ActorControlController::prev_pos(){
   return prevPos_;
 }
 
 
-glm::vec3 ServerController::rotation(){
+glm::vec3 ActorControlController::rotation(){
   return rotation_;
 }
 
-glm::vec3 ServerController::right(){
+glm::vec3 ActorControlController::right(){
   return right_;
 }
 
-glm::vec3 ServerController::up(){
+glm::vec3 ActorControlController::up(){
   return up_;
 }
 
-glm::vec3 ServerController::look(){
+glm::vec3 ActorControlController::look(){
   return look_;
 }
 
 
-void ServerController::rotate_left(float amount){
+void ActorControlController::rotate_left(float amount){
   rotate_y(amount);
   calculate_new_direction_vectors();
 }
 
-void ServerController::rotate_right(float amount){
+void ActorControlController::rotate_right(float amount){
   rotate_y(-amount);
   calculate_new_direction_vectors();
 }
 
-void ServerController::rotate_up(float amount){
+void ActorControlController::rotate_up(float amount){
   rotate_x(amount);
   calculate_new_direction_vectors();
 }
 
-void ServerController::rotate_down(float amount){
+void ActorControlController::rotate_down(float amount){
   rotate_x(-amount);
   calculate_new_direction_vectors();
 }
 
-void ServerController::rotate_roll_left(float amount){
+void ActorControlController::rotate_roll_left(float amount){
   rotate_z(amount);
   calculate_new_direction_vectors();
 }
 
-void ServerController::rotate_roll_right(float amount){
+void ActorControlController::rotate_roll_right(float amount){
   rotate_z(-amount);
   calculate_new_direction_vectors();
 }
 
 
-void ServerController::rotate_x(float amount){
+void ActorControlController::rotate_x(float amount){
 
   float rotateX = amount;
   float testAmount = rotation_.x + rotateX;
@@ -159,7 +159,7 @@ void ServerController::rotate_x(float amount){
 
   
 
-void ServerController::rotate_y(float amount){
+void ActorControlController::rotate_y(float amount){
 
   float rotateY = amount;
   float testAmount = rotation_.y + rotateY;
@@ -180,7 +180,7 @@ void ServerController::rotate_y(float amount){
 
 
 
-void ServerController::rotate_z(float amount){
+void ActorControlController::rotate_z(float amount){
 
   float rotateZ = amount;
   float testAmount = rotation_.z + rotateZ;
@@ -200,28 +200,28 @@ void ServerController::rotate_z(float amount){
 }
 
 
-void ServerController::move_fwd(float amount){
+void ActorControlController::move_fwd(float amount){
   prevPos_ = pos_;
 
   pos_ += look_ * -amount;
 }
 
 
-void ServerController::move_backward(float amount){
+void ActorControlController::move_backward(float amount){
   prevPos_ = pos_;
 
   pos_ += look_ * amount;
 }
 
 
-void ServerController::move_right(float amount){
+void ActorControlController::move_right(float amount){
   prevPos_ = pos_;
 
   pos_ += right_ * amount;
 }
 
 
-void ServerController::move_left(float amount){
+void ActorControlController::move_left(float amount){
   prevPos_ = pos_;
 
   pos_ += right_ * -amount;
@@ -229,14 +229,14 @@ void ServerController::move_left(float amount){
 
 
 
-void ServerController::move_up(float amount){
+void ActorControlController::move_up(float amount){
   prevPos_ = pos_;
 
   pos_ += up_ * amount;
 }
 
 
-void ServerController::move_down(float amount){
+void ActorControlController::move_down(float amount){
   prevPos_ = pos_;
 
   pos_ += up_ * -amount;

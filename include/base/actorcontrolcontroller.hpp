@@ -1,5 +1,5 @@
-#ifndef BRIGHT_BASE_SERVER_CONTROLLER_H
-#define BRIGHT_BASE_SERVER_CONTROLLER_H
+#ifndef BRIGHT_BASE_ACTOR_CONTROL_CONTROLLER_H
+#define BRIGHT_BASE_ACTOR_CONTROL_CONTROLLER_H
 
 #include <iostream>
 #include <fstream>
@@ -13,15 +13,17 @@ namespace bright{
 
   namespace base{
 
-class ServerController{
+class ActorControlController{
 
 public:
 
-  ServerController();
+  ActorControlController();
 
   void update(glm::vec3 pos, glm::vec3 rotation);
   void update_pos(glm::vec3 pos);
   void update_rot(glm::vec3 rot);
+
+  //point_at(glm::vec3 pointA, glm::vec3 pointB)
   void update_axes(glm::vec3 eye, glm::vec3 center);
 
   void set_to_prev_pos();

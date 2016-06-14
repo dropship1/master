@@ -1,5 +1,5 @@
-#ifndef BRIGHT_BASE_ACTOR_H
-#define BRIGHT_BASE_ACTOR_H
+#ifndef BRIGHT_BASE_RENDER_ACTOR_H
+#define BRIGHT_BASE_RENDER_ACTOR_H
 
 #include <string>
 #include <vector>
@@ -14,18 +14,18 @@ namespace bright{
 /**
  * @ingroup base
  *
- * @brief The actor class
+ * @brief The render actor class
  * 
  * @details 
- * This is a simple representation of an actor in the world.
- * An actor can be anything, from a camera to a flower.
+ * This is a simple representation of an render actor in the world.
+ * An render actor can be anything, from a camera to a flower.
  * This class is more metadata than anything
  * Example Usage:
  * @code
  * @endcode
  *
  */
-class Actor{
+class RenderActor{
 
 public:
 
@@ -34,12 +34,6 @@ public:
  * @details
  */
   Actor();
-
-  glm::vec3 pos();
-  void pos(glm::vec3 pos);
-
-  glm::vec3 rotation();
-  void rotation(glm::vec3 rotation);
 
   std::string mesh();
   void mesh(std::string mesh);
@@ -53,18 +47,13 @@ public:
   std::string camera_type();
   void camera_type(std::string cameraType);
 
-  bool is_player();
-  void is_player(bool value);
 
 private:
 
-  glm::vec3 pos_;
-  glm::vec3 rotation_;
   std::string mesh_;
   std::string shader_;
   std::string name_;
   std::string cameraType_;
-  bool isPlayer_;
 
 
 };

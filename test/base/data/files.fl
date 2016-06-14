@@ -4,11 +4,11 @@ path=test/base/data/
 #Binary executable run config
 #path=../data/
 
-file=shaders.cfg
-file=textures.cfg
-file=meshlist
-file=resources.cfg
-file=world.cfg
+file=shaders.res
+file=textures.res
+file=mesh.res
+file=rendering.res
+file=controlling.wrld
 
 
 

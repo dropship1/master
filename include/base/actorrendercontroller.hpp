@@ -1,5 +1,5 @@
-#ifndef BRIGHT_BASE_CLIENT_CONTROLLER_H
-#define BRIGHT_BASE_CLIENT_CONTROLLER_H
+#ifndef BRIGHT_BASE_ACTOR_RENDER_CONTROLLER_H
+#define BRIGHT_BASE_ACTOR_RENDER_CONTROLLER_H
 
 #include <iostream>
 #include <fstream>
@@ -15,11 +15,11 @@ namespace bright{
 
   namespace base{
 
-class ClientController{
+class ActorRenderController{
 
 public:
 
-  ClientController();
+  ActorRenderController();
 
   void update(glm::vec3 pos, glm::vec3 right, glm::vec3 up, glm::vec3 look);
   void update(glm::vec3 pos);

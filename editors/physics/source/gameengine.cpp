@@ -103,18 +103,18 @@ bool GameEngine::initialize(){
   pResourceManager_->initialize();
   pRenderer_ = std::make_shared<bright::graphics::Renderer>();
 
-  auto pAABBConverter = std::make_shared<bright::converters::AABBConverter>(pFileWorker_);
-  pAABBConverter->batch_read_obj_aabb_binary();
+  pAABBConverter_ = std::make_shared<bright::converters::AABBConverter>(pFileWorker_);
+  pAABBConverter_->batch_read_obj_aabb_binary();
 
-  pClientActor_ = std::make_shared<bright::base::ServerActor>();
-  pClientActor_->aabb( pAABBConverter->aabb("cube") );
-  pClientActor_->pos(glm::vec3(50.0f, 30.0f, -50.0f));
-  pClientActor_->rotate_down(55.0f);
-  pClientActor_->name("User");
-  pClientActor_->is_logged_in(true);
+  //pClientActor_ = std::make_shared<bright::base::ServerActor>();
+  //pClientActor_->aabb( pAABBConverter_->aabb("cube") );
+  //pClientActor_->pos(glm::vec3(50.0f, 30.0f, -50.0f));
+  //pClientActor_->rotate_down(55.0f);
+  //pClientActor_->name("User");
+  //pClientActor_->is_logged_in(true);
 
-  bright::base::WorldLoader worldLoader(pFileWorker_);
-  worldLoader.load_world(monsters_);
+  bright::base::WorldLoader worldLoader(pFileWorker_, pAABBConverter_);
+  worldLoader.load_world(monsters_, players_);
   create_monster_controllers();
 
   pPlanesController_ = std::make_shared<bright::base::ClientController>();

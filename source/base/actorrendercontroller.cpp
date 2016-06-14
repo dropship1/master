@@ -1,9 +1,9 @@
-#include "base/clientcontroller.hpp"
+#include "base/actorrendercontroller.hpp"
 
 using namespace bright::base;
 
 
-ClientController::ClientController(){
+ActorRenderController::ActorRenderController(){
 
   prevPos_ = glm::vec3(0.0f, 0.0f, 0.0f);
   pos_ = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -17,7 +17,7 @@ ClientController::ClientController(){
 }
 
 
-void ClientController::update(glm::vec3 pos, glm::vec3 right, glm::vec3 up, glm::vec3 look){
+void ActorRenderController::update(glm::vec3 pos, glm::vec3 right, glm::vec3 up, glm::vec3 look){
   prevPos_ = pos_;
   pos_ = pos;
   right_ = right;
@@ -25,23 +25,23 @@ void ClientController::update(glm::vec3 pos, glm::vec3 right, glm::vec3 up, glm:
   look_ = look;
 }
 
-void ClientController::update(glm::vec3 pos){
+void ActorRenderController::update(glm::vec3 pos){
   prevPos_ = pos_;
   pos_ = pos;
 }
 
 
-glm::vec3 ClientController::pos(){
+glm::vec3 ActorRenderController::pos(){
   return pos_;
 }
 
 
-glm::vec3 ClientController::prev_pos(){
+glm::vec3 ActorRenderController::prev_pos(){
   return prevPos_;
 }
 
 
-void ClientController::calculate_model_to_world(){
+void ActorRenderController::calculate_model_to_world(){
 
   glm::mat4 finalMatrix = glm::mat4(1.0f);
 
@@ -74,12 +74,12 @@ void ClientController::calculate_model_to_world(){
 }
 
 
-glm::mat4 ClientController::model_to_world_transformation_matrix(){
+glm::mat4 ActorRenderController::model_to_world_transformation_matrix(){
   calculate_model_to_world();
   return modToWorldMat_;
 }
 
-glm::mat4 ClientController::world_to_camera_transformation_matrix(){
+glm::mat4 ActorRenderController::world_to_camera_transformation_matrix(){
   calculate_model_to_world();
   return worldToCamera_;
 }

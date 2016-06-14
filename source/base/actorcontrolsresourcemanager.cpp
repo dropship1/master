@@ -1,20 +1,18 @@
-#include "base/worldloader.hpp"  
+#include "base/actorcontrolsresourcemanager.hpp"  
 
 using namespace bright::base;
 
-WorldLoader::WorldLoader(std::shared_ptr<bright::utils::FileWorker> pFileWorker) :
-  pFileWorker_(pFileWorker) {
-  pAABBConverter_ = std::make_shared<bright::converters::AABBConverter>(pFileWorker);
+ActorControlsResourceManager::ActorControlsResourceManager(std::shared_ptr<bright::utils::FileWorker> pFileWorker, std::shared_ptr<bright::converters::AABBConverter> pAABBConverter) : pFileWorker_(pFileWorker), pAABBConverter_(pAABBConverter) {
 }
 
-void WorldLoader::load_world(std::map<std::string, ServerActor> &npcs) {
+void ActorControlsResourceManager::load_actor_controls(std::map<std::string, ControlActor> &npcs, std::map<std::string, ControlActor> &players) {
 
-  std::string worldConfig = pFileWorker_->get_file_contents("world.cfg");
-  pAABBConverter_->batch_read_obj_aabb_binary();
+  std::string controlsWorld = pFileWorker_->get_file_contents("controlling.wrld");
 
-  //std::cout << "DEBUG: worldConfig: " << worldConfig << std::endl;
 
-  std::stringstream in(worldConfig);
+  //std::cout << "DEBUG: controlsWorld: " << controlsWorld << std::endl;
+
+  std::stringstream in(controlsWorld);
 
   bool isPlayer = false;
   std::string name;
@@ -26,13 +24,13 @@ void WorldLoader::load_world(std::map<std::string, ServerActor> &npcs) {
   float rotz = 0.0f;
   std::string aabbName;
 
-  bool inServerActorNode = false;
+  bool inControlActorNode = false;
   std::string line; 
   while (getline(in, line)){
     if (line.substr(0,1) == "]" ){
       break;
     }
-    if (inServerActorNode){
+    if (inControlActorNode){
       if(line.substr(0,5) == "NAME="){
         name = line.substr(5);
       }
@@ -61,21 +59,23 @@ void WorldLoader::load_world(std::map<std::string, ServerActor> &npcs) {
         std::istringstream is(line.substr(7));
         is >> std::boolalpha >> isPlayer;
       }
-      else if(line.substr(0,8) == "</Actor>"){
+      else if(line.substr(0,8) == "</ControlActor>"){
+        ControlActor controlActor;
+        controlActor.pos(glm::vec3(posx, posy, posz));
+        controlActor.rotation(glm::vec3(rotx, roty, rotz));
+        controlActor.aabb(aabbName);
+        controlActor.name(name);
         if (!isPlayer) {
-          ServerActor serverActor;
-          serverActor.pos(glm::vec3(posx, posy, posz));
-          serverActor.rotation(glm::vec3(rotx, roty, rotz));
-          serverActor.aabb( pAABBConverter_->aabb(aabbName) );
-          serverActor.aabb()->move(glm::vec3(posx, posy, posz));
-          serverActor.name(name);
-          npcs[name] = serverActor;
+          npcs[name] = controlActor;
+        }
+        if (isPlayer) {
+          players[name] = controlActor;
         }
       }
     }
-    else if (line.substr(0,7) == "<Actor>"){ 
+    else if (line.substr(0,7) == "<ControlActor>"){ 
     }
-    inServerActorNode = true;
+    inControlActorNode = true;
     isPlayer = false;
   }
 }
