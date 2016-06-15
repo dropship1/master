@@ -4,11 +4,10 @@ path=test/graphics/data/
 #Binary executable run config
 #path=../data/
 
-file=shaders.cfg
-file=textures.cfg
-file=meshlist
-file=resources.cfg
-
+file=shaders.res
+file=textures.res
+file=mesh.res
+file=rendering.res
 
 
 #SHADERS

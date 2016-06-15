@@ -1,5 +1,5 @@
 #include <iostream>
-#include "base/worldloader.hpp"
+#include "base/actorcontrolsresourcemanager.hpp"
 #include "utils/fileworker.hpp"
 
 using namespace bright::base;
@@ -37,14 +37,14 @@ int main(int argc, char* argv[]) {
   auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/base/data/filelist");
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
-  WorldLoader worldLoader(pFileWorker);
+  ActorControlsResourceManager actorControlsResourceManager(pFileWorker);
 
   auto npcs = std::map<std::string, ServerActor>();
 
   std::cout << "BEFORE LOADING WORLD:" << std::endl;
   print_world(npcs);
   system("PAUSE");
-  worldLoader.load_world(npcs);
+  actorControlsResourceManager.load_world(npcs);
   std::cout << "AFTER LOADING WORLD:" << std::endl;
   print_world(npcs);
   system("PAUSE");
