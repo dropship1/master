@@ -98,6 +98,7 @@ public:
   bool intersect(std::shared_ptr<AABB> pOtherBB);
 
   void copy_this(std::shared_ptr<AABB> otherAABB);
+  void copy_this(AABB otherAABB);
 
 private:
 

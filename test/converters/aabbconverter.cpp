@@ -7,7 +7,7 @@
 
 int main(){
 
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/converters/data/filelist");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/converters/data/files.fl");
   auto pAABBConverter = std::make_shared<bright::converters::AABBConverter>(pFileWorker);
 
   std::vector<std::string> aabbFileNames;
@@ -18,14 +18,13 @@ int main(){
   //But if you're building this and creating the executable, which goes into the bin directory
   //in test/tools/bin then you need to specify the path as "../meshes/obj".
   //pAABBConverter->batch_convert_obj_and_dump_aabb_binary("../../data/Meshes", aabbFileNames);
-  pAABBConverter->batch_convert_obj_and_dump_aabb_binary("data/Meshes", "data/aabbs",  aabbFileNames);
+  pAABBConverter->batch_convert_obj_and_dump_aabb_binary("data/meshes", "data/aabbs",  aabbFileNames);
 
-  std::vector<std::shared_ptr<bright::physics::AABB>> aabbs;
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
   
   pAABBConverter->batch_read_obj_aabb_binary();
-  auto pAABB = pAABBConverter->aabb("monster_jetpack_003");
+  auto pAABB = pAABBConverter->aabb_shr_ptr_copy("monster_jetpack_003");
   //aabbs = pAABBConverter->batch_read_obj_aabb_binary("test/tools/meshes/obj", aabbFileNames);
   
   //Loop over all aabbs (Add more testing later, this is pretty simple verification)

@@ -3,9 +3,9 @@
 using namespace bright::network;
 
 
-ClientHandler::ClientHandler(std::map<std::string, std::shared_ptr<bright::base::ServerActor>>& clientActors, std::shared_ptr<bright::converters::AABBConverter> pAABBConverter):
-  clientActors_(clientActors), haveLoginMessage_(false), needToSendLoginResponse_(false), needToSendUpdateResponse_(false), pAABBConverter_(pAABBConverter) {
-  clientActor_ = std::make_shared<bright::base::ServerActor>();
+ClientHandler::ClientHandler(std::map<std::string, std::shared_ptr<bright::base::ActorControlController>>& clientActors):
+  clientActors_(clientActors), isLoggedIn_(false), haveLoginMessage_(false), needToSendLoginResponse_(false), needToSendUpdateResponse_(false) {
+  clientActor_ = std::make_shared<bright::base::ActorControlController>();
 }
 
 std::string ClientHandler::username(){
@@ -19,7 +19,7 @@ std::string ClientHandler::password(){
 
 
 bool ClientHandler::is_logged_in(){
-  return clientActor_->is_logged_in();
+  return isLoggedIn_;
 }
 
 void ClientHandler::add_message(std::shared_ptr<NetworkMessage> networkMessage){
@@ -78,12 +78,9 @@ void ClientHandler::add_command_message(std::shared_ptr<NetworkMessage> networkM
 
 void ClientHandler::handle_login(){
 
-  clientActor_->aabb( pAABBConverter_->aabb("cube") );
   clientActor_->pos(glm::vec3(50.0f, 30.0f, -50.0f));
   clientActor_->rotate_down(55.0f);
-  clientActor_->name(username());
-  clientActor_->is_logged_in(true);
-
+  isLoggedIn_ = true;
   loginResponseMessage_ = LoginResponseMessage(true, "login-ok");
   needToSendLoginResponse_ = true;
 

@@ -60,12 +60,12 @@ void ActorControlController::set_to_prev_pos(){
   pos_ = prevPos_;
 }
 
-void ActorControlController::update_pos(glm::vec3 pos){
+void ActorControlController::pos(glm::vec3 pos){
   prevPos_ = pos_;
   pos_ = pos;
 }
 
-void ActorControlController::update_rot(glm::vec3 rot){
+void ActorControlController::rotation(glm::vec3 rot){
   rotation_ = rot;
   calculate_new_direction_vectors();
 }

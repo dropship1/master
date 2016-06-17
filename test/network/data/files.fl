@@ -1,13 +1,13 @@
 #CONFIG FILES
 #Visual studio run config
-#path=test/network/data/
+path=test/network/data/
 #Binary executable run config
-path=../data/
+#path=../data/
 
-file=shaders.cfg
-file=client.cfg
-file=controls_contexts.cfg
-file=controls_config.cfg
+file=shaders.res
+file=client.net
+file=contexts.ctrls
+file=config.ctrls
 
 
 
@@ -15,9 +15,9 @@ file=controls_config.cfg
 
 #SHADERS
 #Visual studio run config
-#path=data/shaders/
+path=data/shaders/
 #Binary executable run config
-path=../../../data/Shaders/
+#path=../../../data/shaders/
 
 alias=pflc.v
 file=per_fragment_lighting_color.vert

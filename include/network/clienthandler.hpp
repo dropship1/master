@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <memory>
-#include "base/serveractor.hpp"
+#include "base/actorcontrolcontroller.hpp"
 #include "network/networkmessage.hpp"
 #include "network/loginresponsemessage.hpp"
 #include "network/updatemessage.hpp"
@@ -24,7 +24,7 @@ namespace bright{
 class ClientHandler{
 
 public:
-  ClientHandler(std::map<std::string, std::shared_ptr<bright::base::ServerActor>>& clientActors, std::shared_ptr<bright::converters::AABBConverter> pAABBConverter);
+  ClientHandler(std::map<std::string, std::shared_ptr<bright::base::ActorControlController>>& clientActors);
 
   std::string username();
   std::string password();
@@ -53,14 +53,15 @@ private:
   void add_login_message(std::shared_ptr<NetworkMessage> networkMessage);
   void add_command_message(std::shared_ptr<NetworkMessage> networkMessage);
 
+  bool isLoggedIn_;
   bool needToSendLoginResponse_;
   LoginResponseMessage loginResponseMessage_;
 
   bool needToSendUpdateResponse_;
   std::vector<UpdateMessage> updateResponses_;
 
-  std::map<std::string, std::shared_ptr<bright::base::ServerActor>>& clientActors_;
-  std::shared_ptr<bright::base::ServerActor> clientActor_;
+  std::map<std::string, std::shared_ptr<bright::base::ActorControlController>>& clientActors_;
+  std::shared_ptr<bright::base::ActorControlController> clientActor_;
   std::vector<bright::input::CommandMessage> commands_;
   LoginMessage loginMessage_;
   bool haveLoginMessage_;

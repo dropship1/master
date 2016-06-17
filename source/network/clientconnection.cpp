@@ -5,10 +5,10 @@ using namespace bright::network;
 
 ClientConnection::ClientConnection( boost::asio::io_service& ioService, 
                                     std::vector<boost::shared_ptr<ClientConnection>>& clientConnections,
-                                    std::map<std::string, std::shared_ptr<bright::base::ServerActor>>& clientActors,
+                                    std::map<std::string, std::shared_ptr<bright::base::ActorControlController>>& clientActors,
                                     std::mutex& commandMessagesMutex,
                                     std::shared_ptr<bright::converters::AABBConverter> pAABBConverter) : 
-  sock_(ioService), started_(false), clientHandler_(clientActors, pAABBConverter),
+  sock_(ioService), started_(false), clientHandler_(clientActors),
   clientConnections_(clientConnections), commandMessagesMutex_(commandMessagesMutex), ioService_(ioService){
 
 }

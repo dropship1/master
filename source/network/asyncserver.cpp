@@ -9,7 +9,7 @@ void AsyncServer::handle_accept(boost::shared_ptr<ClientConnection> clientConnec
   acceptor_.async_accept( newClientConnection->sock(), boost::bind(&AsyncServer::handle_accept, shared_from_this(), newClientConnection,_1) );
 }
 
-AsyncServer::AsyncServer(std::map<std::string, std::shared_ptr<bright::base::ServerActor>>& clientActors, std::shared_ptr<bright::converters::AABBConverter> pAABBConverter): 
+AsyncServer::AsyncServer(std::map<std::string, std::shared_ptr<bright::base::ActorControlController>>& clientActors, std::shared_ptr<bright::converters::AABBConverter> pAABBConverter): 
   pAABBConverter_(pAABBConverter), service_(), acceptor_(service_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 8001)), clientActors_(clientActors){
 }
 

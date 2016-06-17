@@ -20,8 +20,8 @@ public:
   ActorControlController();
 
   void update(glm::vec3 pos, glm::vec3 rotation);
-  void update_pos(glm::vec3 pos);
-  void update_rot(glm::vec3 rot);
+  void pos(glm::vec3 pos);
+  void rotation(glm::vec3 rot);
 
   //point_at(glm::vec3 pointA, glm::vec3 pointB)
   void update_axes(glm::vec3 eye, glm::vec3 center);

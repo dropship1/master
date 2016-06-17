@@ -18,7 +18,7 @@
 #include <vector>
 
 #include "network/clientconnection.hpp"
-#include "base/serveractor.hpp"
+#include "base/actorcontrolcontroller.hpp"
 #include "converters/aabbconverter.hpp"
 
 namespace bright{
@@ -29,7 +29,7 @@ namespace bright{
 class AsyncServer : public boost::enable_shared_from_this<AsyncServer> {
 
 public:
-  AsyncServer(std::map<std::string, std::shared_ptr<bright::base::ServerActor>>& clientActors, std::shared_ptr<bright::converters::AABBConverter> pAABBConverter);
+  AsyncServer(std::map<std::string, std::shared_ptr<bright::base::ActorControlController>>& clientActors, std::shared_ptr<bright::converters::AABBConverter> pAABBConverter);
 
   void start();
   void process_messages();
@@ -46,7 +46,7 @@ private:
   boost::asio::io_service service_;
   boost::asio::ip::tcp::acceptor acceptor_;
   std::vector<boost::shared_ptr<ClientConnection>> clientConnections_;
-  std::map<std::string, std::shared_ptr<bright::base::ServerActor>>& clientActors_;
+  std::map<std::string, std::shared_ptr<bright::base::ActorControlController>>& clientActors_;
   std::shared_ptr<bright::converters::AABBConverter> pAABBConverter_;
 
 

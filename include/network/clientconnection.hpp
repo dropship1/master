@@ -16,7 +16,7 @@
 #include <mutex>
 
 #include "network/clienthandler.hpp"
-
+#include "base/actorcontrolcontroller.hpp"
 #include "converters/aabbconverter.hpp"
 
 namespace bright{
@@ -34,7 +34,7 @@ class ClientConnection : public boost::enable_shared_from_this<ClientConnection>
 public:
   ClientConnection( boost::asio::io_service& ioService, 
                     std::vector<boost::shared_ptr<ClientConnection>>& clientConnections,
-                    std::map<std::string, std::shared_ptr<bright::base::ServerActor>>& clientActors, std::mutex& commandMessagesMutex,
+                    std::map<std::string, std::shared_ptr<bright::base::ActorControlController>>& clientActors, std::mutex& commandMessagesMutex,
                     std::shared_ptr<bright::converters::AABBConverter> pAABBConverter);
 
   void start();

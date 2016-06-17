@@ -15,7 +15,20 @@ void AABBConverter::batch_convert_obj_and_dump_aabb_binary(std::string path, std
 	
 }
 
-std::shared_ptr<bright::physics::AABB> AABBConverter::aabb(std::string aabbName){
+
+bright::physics::AABB AABBConverter::aabb_stack_copy(std::string aabbName){
+
+  auto aabbToCopy = aabbs_[aabbName];
+
+  bright::physics::AABB aabb;
+  aabb.copy_this( aabbToCopy );
+
+  return aabb;
+
+}
+
+
+std::shared_ptr<bright::physics::AABB> AABBConverter::aabb_shr_ptr_copy(std::string aabbName){
 
   auto aabbToCopy = aabbs_[aabbName];
 
@@ -28,7 +41,7 @@ std::shared_ptr<bright::physics::AABB> AABBConverter::aabb(std::string aabbName)
 
 void AABBConverter::batch_read_obj_aabb_binary(){
 
-  std::string aabbList =  pFileWorker_->get_file_contents("aabblist");
+  std::string aabbList =  pFileWorker_->get_file_contents("aabb.res");
   std::stringstream in(aabbList);
   std::string line; 
   std::string aabbFile;
@@ -46,24 +59,24 @@ void AABBConverter::batch_read_obj_aabb_binary(){
   std::vector<std::shared_ptr<std::istringstream>> streams = pFileWorker_->get_files_streams(aabbFileList);
   //Loop over all streams
   auto handle_stream = [&] (std::shared_ptr<std::istringstream> pStream) { 
-    auto pAABB = single_read_obj_aabb_binary(pStream);
-    aabbs_[pAABB->name()] = pAABB;
+    auto aabb = single_read_obj_aabb_binary(pStream);
+    aabbs_[aabb.name()] = aabb;
   };
   std::for_each(streams.begin(), streams.end(), handle_stream);
 
 }
 
-std::shared_ptr<bright::physics::AABB> AABBConverter::single_read_obj_aabb_binary(std::shared_ptr<std::istringstream> pStream){
+bright::physics::AABB AABBConverter::single_read_obj_aabb_binary(std::shared_ptr<std::istringstream> pStream){
 
-  auto pAABB = std::make_shared<bright::physics::AABB>();
-  pAABB->from_stream(*pStream);
+  bright::physics::AABB aabb;
+  aabb.from_stream(*pStream);
 
-  return pAABB;
+  return aabb;
 }
 
 void AABBConverter::single_convert_obj_and_dump_aabb_binary(std::string path, std::string outputPath, std::string file){  
   std::vector<glm::vec3> vertices = single_load_obj_verties(path, file);
-	std::shared_ptr<bright::physics::AABB> aabb = single_convert_obj_to_aabb(outputPath, vertices, file); 
+	auto aabb = single_convert_obj_to_aabb(outputPath, vertices, file); 
 	single_dump_aabb_binary(outputPath, aabb);
 }
 
@@ -105,7 +118,7 @@ std::vector<glm::vec3> AABBConverter::single_load_obj_verties(std::string path, 
   return vertices;
 }
 
-std::shared_ptr<bright::physics::AABB> AABBConverter::single_convert_obj_to_aabb(std::string path, std::vector<glm::vec3>& vertices, std::string fileName){
+bright::physics::AABB AABBConverter::single_convert_obj_to_aabb(std::string path, std::vector<glm::vec3>& vertices, std::string fileName){
 
   int start, end;
   int dif;
@@ -124,11 +137,11 @@ std::shared_ptr<bright::physics::AABB> AABBConverter::single_convert_obj_to_aabb
 	return aabb;
 }
 
-void AABBConverter::single_dump_aabb_binary(std::string path, std::shared_ptr<bright::physics::AABB> aabb){
+void AABBConverter::single_dump_aabb_binary(std::string path, bright::physics::AABB& aabb){
   int start, end;
   int dif;
 
-  std::string fullPathAndName = path+"/"+aabb->name()+".bin";
+  std::string fullPathAndName = path+"/"+aabb.name()+".bin";
 
 	//std::cout << "Dumping " << aabb->name() << ": " << std::endl << std::flush;
 	start = clock() / (CLOCKS_PER_SEC / 1000);
@@ -136,7 +149,7 @@ void AABBConverter::single_dump_aabb_binary(std::string path, std::shared_ptr<br
   //Write the new aabb out to disk.
   std::fstream output(fullPathAndName, std::ios::out | std::ios::trunc | std::ios::binary);
   //std::fstream output(fullPathAndName, std::ios::out | std::ios::trunc);
-  aabb->to_stream(output);
+  aabb.to_stream(output);
 
 	end = clock() / (CLOCKS_PER_SEC / 1000);
 	dif = end - start;
@@ -146,17 +159,17 @@ void AABBConverter::single_dump_aabb_binary(std::string path, std::shared_ptr<br
 	//std::cout << "Dumped " << dif << " ms" << std::endl << std::flush;
 }
 
-std::shared_ptr<bright::physics::AABB> AABBConverter::create_aabb_from_vertices(std::vector<glm::vec3>& vertices, std::string name){
+bright::physics::AABB AABBConverter::create_aabb_from_vertices(std::vector<glm::vec3>& vertices, std::string name){
 
-  auto aabb = std::make_shared<bright::physics::AABB>(); 
-  aabb->name(name);
+  bright::physics::AABB aabb; 
+  aabb.name(name);
 
   auto handler = [&] (glm::vec3 vertex) { 
-    aabb->add(vertex);
+    aabb.add(vertex);
   };
   std::for_each(vertices.begin(), vertices.end(), handler);
 
-  aabb->finalize();
+  aabb.finalize();
 
   return aabb;
 }

@@ -4,9 +4,7 @@
 #include <memory>
 #include <map>
 #include <iostream>
-#include "base/serveractor.hpp"
-
-using namespace bright::base;
+#include "base/actorcontrolcontroller.hpp"
 
 namespace bright{
 
@@ -17,7 +15,7 @@ namespace bright{
       AIManager();
 
       // Return number of monsters that are moved but haven't yet reached player.
-      int AIManager::update_monsters(std::map<std::string, ServerActor> &monsters, std::map<std::string, std::shared_ptr<ServerActor>> &players);
+      int AIManager::update_monsters(std::map<std::string, bright::base::ActorControlController> &monsters, std::map<std::string, std::shared_ptr<bright::base::ActorControlController>> &players);
     };
 
   }

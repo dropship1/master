@@ -4,7 +4,7 @@ using namespace bright::ai;
 
 AIManager::AIManager() {
 }
-int AIManager::update_monsters(std::map<std::string, ServerActor> &monsters, std::map<std::string, std::shared_ptr<ServerActor>> &players) {
+int AIManager::update_monsters(std::map<std::string, bright::base::ActorControlController> &monsters, std::map<std::string, std::shared_ptr<bright::base::ActorControlController>> &players) {
   int monsterMoveCount = 0;
   float speedMetersPerUpdate = 0.1f;
   //Don't do anything if no players
@@ -22,7 +22,7 @@ int AIManager::update_monsters(std::map<std::string, ServerActor> &monsters, std
     double nearestDistanceSquared = 0.0f;
     glm::vec3 nearestPositionDelta;
     bool isFirstPlayer = true;
-    std::shared_ptr<ServerActor> pNearestPlayer;
+    std::shared_ptr<bright::base::ActorControlController> pNearestPlayer;
     for(auto iterPlayer = players.begin(); iterPlayer != players.end(); ++iterPlayer) {
       auto pPlayer = (*iterPlayer).second;
       auto playerPos = pPlayer->pos();
@@ -43,7 +43,7 @@ int AIManager::update_monsters(std::map<std::string, ServerActor> &monsters, std
 
     //Point monster to nearest player, use normalized vector
     auto normalizedMonsterDirection = normalize(nearestPositionDelta);
-    monster.point_at( monsterPos, pNearestPlayer->pos() );
+    monster.update_axes( monsterPos, pNearestPlayer->pos() );
 
     // Move monster towards nearest player
     if (nearestDistance < speedMetersPerUpdate) {
@@ -54,7 +54,6 @@ int AIManager::update_monsters(std::map<std::string, ServerActor> &monsters, std
       //std::cout << "MONSTER LURCHES TOWARD PLAYER..." << std::endl;
       monster.pos( monster.pos() + (normalizedMonsterDirection * speedMetersPerUpdate) );
       monsterMoveCount += 1;
-      monster.have_update(true);
     }
     //std::wcout << "monsterMoveCount: " << monsterMoveCount << std::endl;
   } // end monster loop

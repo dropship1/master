@@ -1,26 +1,2 @@
 TODO FILE:
 
-  Need to make the concept throughout the system of "Render and Control"
-  This will break things apart between controlling and rendering, which will basically keep the separation needed for a Server and Client,
-  but also let the client easily use the "Controlling" classes without it seeming confusing that they have names like "Server" or "Network" since the names would be "Control"Something
-  and instead of "Client" it would be "Render"Something.
-  This way we can make a single player game.. and then later make a multiplayer game easily just by adding a "Controlling" part to a new "Server"
-  and also keeping both the rendering and controlling on the client, since for performance(latency in a client/server model where the server is the authority), 
-  you still want the client to move the player(control it) but only stop it or change that if the server (who is also controlling the player/monsters) decided 
-  that the client shouldn't have made that move otherwise you just let that client "control"/Move go through.
-  -Already changed the ServerController and ClientController to be "ActorControlController" and "ActorRenderController" respectively
-  -Need to change the name of "world.cfg" and "resources.cfg" to "control.cfg" and "rendering.cfg" respectively.
-  -Stuff in the control.cfg has to do with the "ActorControlController" and controlling the world (position and rotation and such, physics)
-  -Stuff in the rendering.cfg has to do with the "ActorRenderController" and rendering the world (meshes, shader, cameratypes, actorResourceName(name used to lookup a type of actor(like a shared resource)
-  -Need to change WorldLoader to "ActorControlsResourceManager" which, sets up the "World" by reading (From control.cfg file):
-     -<Actor> nodes
-     -Is the actor a player or monster? (What type basically, probably more types later, just monster/player for now) (string data)
-     -position/rotation in the world (float data)
-     -Physics data (since this is related to "controling") for now the type of AABB(Axially aligned bounding box), cube supported so far
-     -Name of the actor (Name displayed in game)
-  -Need to change ResourceManager to "ActorRenderingResourceManager" which, sets up the Rendering part of the "World" by reading (From rendering.cfg file):
-    -<ActorResource> nodes
-    -mesh assigned to this resource
-    -shader used to render this resources
-    -cameratype to use if viewing the world from this resources point of view
-    -name used to lookup this resource to assign it to an Actor

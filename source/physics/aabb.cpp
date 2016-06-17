@@ -223,6 +223,29 @@ void AABB::to_stream(std::ostream &out){
 
 }
 
+void AABB::copy_this(AABB otherAABB){
+  min_ = otherAABB.min();
+
+  max_ = otherAABB.max();
+
+  name_ = otherAABB.name();
+
+  halfWidth_  = otherAABB.half_width();
+  halfHeight_ = otherAABB.half_height();
+  halfLength_ = otherAABB.half_length();
+
+  width_  = otherAABB.width();
+  height_ = otherAABB.height();
+  length_ = otherAABB.length();
+
+  halfDimensions_ = otherAABB.half_dimensions();
+
+  prevPos_ = otherAABB.prev_pos();
+
+  currPos_ = otherAABB.curr_pos();
+
+}
+
 
 void AABB::copy_this(std::shared_ptr<AABB> otherAABB){
   min_ = otherAABB->min();
