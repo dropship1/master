@@ -1,5 +1,5 @@
-#ifndef BRIGHT_AI_AIMANAGER_H
-#define BRIGHT_AI_AIMANAGER_H
+#ifndef BRIGHT_PHYSICS_PHYSICSMANAGER_H
+#define BRIGHT_PHYSICS_PHYSICSMANAGER_H
 
 #include <memory>
 #include <map>
@@ -10,14 +10,14 @@
 
 namespace bright{
 
-  namespace ai{
+  namespace physics{
 
-class AIManager {
+class PhysicsManager {
 public:
-  AIManager(std::shared_ptr<bright::base::ActorControlsResourceManager> pActorControlsResourceManager);
+  PhysicsManager(std::shared_ptr<bright::base::ActorControlsResourceManager> pActorControlsResourceManager);
 
-  // Return number of monsters that are moved but haven't yet reached player.
-  int AIManager::handle_ai();
+  void handle_physics();
+
 private:
 
   std::map<std::string, bright::base::ControlActor>& controlPlayers_;
@@ -27,9 +27,9 @@ private:
   std::map<std::string, bright::physics::AABB>& playerAABBs_;
   std::map<std::string, bright::physics::AABB>& npcAABBs_;
 
+
+
 };
-
-
 
   }
 }

@@ -14,6 +14,8 @@ ActorControlController::ActorControlController(){
   look_ = glm::vec3(0.0f,0.0f,1.0f);
   right_ = glm::vec3(1.0f,0.0f,0.0f);
 
+  hasChangedThisFrame_ = false;
+
 }
 
 
@@ -104,6 +106,16 @@ glm::vec3 ActorControlController::up(){
 
 glm::vec3 ActorControlController::look(){
   return look_;
+}
+
+
+bool ActorControlController::has_changed_this_frame(){
+  return hasChangedThisFrame_;
+}
+
+
+void ActorControlController::has_changed_this_frame(bool value){
+  hasChangedThisFrame_ = value;
 }
 
 

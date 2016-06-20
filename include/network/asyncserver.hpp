@@ -29,14 +29,14 @@ namespace bright{
 class AsyncServer : public boost::enable_shared_from_this<AsyncServer> {
 
 public:
-  AsyncServer(std::map<std::string, std::shared_ptr<bright::base::ActorControlController>>& clientActors, std::shared_ptr<bright::converters::AABBConverter> pAABBConverter);
+  AsyncServer(std::map<std::string, bright::base::ActorControlController>& playerControllers);
 
   void start();
   void process_messages();
   boost::asio::io_service& service();
   void send_login_responses();
   void send_update_responses();
-  void send_monster_responses(std::vector<std::string> monsterResponses);
+  void send_npc_updates(std::vector<std::string> npcResponses);
   std::mutex commandMessagesMutex_;
 
 private:
@@ -46,8 +46,7 @@ private:
   boost::asio::io_service service_;
   boost::asio::ip::tcp::acceptor acceptor_;
   std::vector<boost::shared_ptr<ClientConnection>> clientConnections_;
-  std::map<std::string, std::shared_ptr<bright::base::ActorControlController>>& clientActors_;
-  std::shared_ptr<bright::converters::AABBConverter> pAABBConverter_;
+  std::map<std::string, bright::base::ActorControlController>& playerControllers_;
 
 
 };

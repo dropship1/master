@@ -9,7 +9,6 @@
 #include <GL/wglew.h>
 #include <map>
 #include "glm/glm.hpp"
-#include "base/actor.hpp"
 #include "input/globalstructs.hpp"
 #include "graphics/globalstructs.hpp"
 

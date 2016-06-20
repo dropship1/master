@@ -3,9 +3,8 @@
 using namespace bright::network;
 
 
-ClientHandler::ClientHandler(std::map<std::string, std::shared_ptr<bright::base::ActorControlController>>& clientActors):
-  clientActors_(clientActors), isLoggedIn_(false), haveLoginMessage_(false), needToSendLoginResponse_(false), needToSendUpdateResponse_(false) {
-  clientActor_ = std::make_shared<bright::base::ActorControlController>();
+ClientHandler::ClientHandler(std::map<std::string, bright::base::ActorControlController>& playerControllers):
+  playerControllers_(playerControllers), isLoggedIn_(false), haveLoginMessage_(false), needToSendLoginResponse_(false), needToSendUpdateResponse_(false) {
 }
 
 std::string ClientHandler::username(){
@@ -78,13 +77,9 @@ void ClientHandler::add_command_message(std::shared_ptr<NetworkMessage> networkM
 
 void ClientHandler::handle_login(){
 
-  clientActor_->pos(glm::vec3(50.0f, 30.0f, -50.0f));
-  clientActor_->rotate_down(55.0f);
   isLoggedIn_ = true;
   loginResponseMessage_ = LoginResponseMessage(true, "login-ok");
   needToSendLoginResponse_ = true;
-
-  clientActors_[username()] = clientActor_;
 
 }
 
@@ -124,25 +119,27 @@ void ClientHandler::clear_one_update(){
 
 void ClientHandler::handle_commands(){
 
+  auto& playerController_= playerControllers_[username()];
+
   auto update_controls = [&] (bright::input::CommandMessage& cmdMessage) { 
 
     if( cmdMessage.command_name().compare("STATE") == 0 ){
 
       if( cmdMessage.control_type().compare("STATE_ON")  == 0 ){
         if( cmdMessage.control_name().compare("MOVE_FORWARD") == 0 ){
-          clientActor_->move_fwd(0.2f);
+          playerController_.move_fwd(0.2f);
           add_update_response();
         }
         else if( cmdMessage.control_name().compare("MOVE_BACK") == 0 ){
-          clientActor_->move_backward(5.2f);
+          playerController_.move_backward(5.2f);
           add_update_response();
         }
         else if( cmdMessage.control_name().compare("MOVE_LEFT") == 0 ){
-          clientActor_->move_left(0.2f);  
+          playerController_.move_left(0.2f);  
           add_update_response();
         }
         else if( cmdMessage.control_name().compare("MOVE_RIGHT") == 0 ){
-          clientActor_->move_right(0.2f);
+          playerController_.move_right(0.2f);
           add_update_response();
         }
 
@@ -167,21 +164,21 @@ void ClientHandler::handle_commands(){
 
       if( amount > 0 ){
         if( cmdMessage.control_name().compare("CAMERA_X_AXIS") == 0 ){
-          clientActor_->rotate_right(0.01f);
+          playerController_.rotate_right(0.01f);
           add_update_response();
         }
         else if( cmdMessage.control_name().compare("CAMERA_Y_AXIS") == 0 ){
-          clientActor_->rotate_down(0.01f);
+          playerController_.rotate_down(0.01f);
           add_update_response();
         }
       }
       else if(  amount < 0  ){
         if( cmdMessage.control_name().compare("CAMERA_X_AXIS") == 0 ){
-          clientActor_->rotate_left(0.01f);
+          playerController_.rotate_left(0.01f);
           add_update_response();
         }
         else if( cmdMessage.control_name().compare("CAMERA_Y_AXIS") == 0 ){
-          clientActor_->rotate_up(0.01f);
+          playerController_.rotate_up(0.01f);
           add_update_response();
         }
       }
@@ -202,7 +199,8 @@ void ClientHandler::empty_commands(){
 
 
 void ClientHandler::add_update_response(){
-  updateResponses_.push_back( UpdateMessage(username(), clientActor_->pos(), clientActor_->right(), clientActor_->up(), clientActor_->look(), true) );
+  auto& playerController_= playerControllers_[username()];
+  updateResponses_.push_back( UpdateMessage(username(), playerController_.pos(), playerController_.right(), playerController_.up(), playerController_.look(), true) );
 }
 
 

@@ -33,7 +33,7 @@ public:
  * @brief Construct a new default actor.
  * @details
  */
-  Actor();
+  RenderActor();
 
   std::string mesh();
   void mesh(std::string mesh);

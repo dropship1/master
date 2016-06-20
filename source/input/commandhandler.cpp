@@ -3,16 +3,13 @@
 using namespace bright::input;
 
 
-CommandHandler::CommandHandler(std::shared_ptr<bright::base::ServerActor> pClientActor, std::shared_ptr<bright::base::ClientController> pClientController, 
-                               std::shared_ptr<bright::base::ActorCreator> pActorCreator): controlState_(),  pClientActor_(pClientActor), pClientController_(pClientController),
- pActorCreator_(pActorCreator) {
+CommandHandler::CommandHandler(bright::base::ActorControlController& actorControlController, bright::base::ActorRenderController& actorRenderController, 
+                               std::shared_ptr<bright::base::ActorCreator> pActorCreator): 
+  controlState_(),  actorControlController_(actorControlController), 
+  actorRenderController_(actorRenderController),
+  pActorCreator_(pActorCreator) {
 
 }
-
-CommandHandler::CommandHandler(): controlState_(){
-
-}
-
 
 void CommandHandler::handle_command(std::shared_ptr<bright::input::CommandEvent> pCommandEvent){
 
@@ -169,27 +166,22 @@ void CommandHandler::execute_next_command(){
   
     if( cmdMessage.control_type().compare("STATE_ON")  == 0 ){
       if( cmdMessage.control_name().compare("MOVE_FORWARD") == 0 ){
-        pClientActor_->move_fwd(0.2f);
-        udpate_player_controller();
+        actorControlController_.move_fwd(0.2f);
       }
       else if( cmdMessage.control_name().compare("MOVE_BACK") == 0 ){
-        pClientActor_->move_backward(5.2f);
-        udpate_player_controller();
+        actorControlController_.move_backward(5.2f);
       }
       else if( cmdMessage.control_name().compare("MOVE_LEFT") == 0 ){
-        pClientActor_->move_left(0.2f);  
-        udpate_player_controller();
+        actorControlController_.move_left(0.2f);  
       }
       else if( cmdMessage.control_name().compare("MOVE_RIGHT") == 0 ){
-        pClientActor_->move_right(0.2f);
-        udpate_player_controller();
+        actorControlController_.move_right(0.2f);
       }
       else if( cmdMessage.control_name().compare("FIRE") == 0 ){
-        pActorCreator_->add_bullet(pClientActor_);
+        pActorCreator_->add_bullet(actorControlController_);
       }
       else if( cmdMessage.control_name().compare("ALT_FIRE") == 0 ){
-        pClientActor_->move_fwd(5.2f);
-        udpate_player_controller();
+        actorControlController_.move_fwd(5.2f);
       }
 
     }
@@ -217,34 +209,29 @@ void CommandHandler::execute_next_command(){
   
     if( amount > 0 ){
       if( cmdMessage.control_name().compare("CAMERA_X_AXIS") == 0 ){
-        pClientActor_->rotate_right(0.01f);
-        udpate_player_controller();
+        actorControlController_.rotate_right(0.01f);
       }
       else if( cmdMessage.control_name().compare("CAMERA_Y_AXIS") == 0 ){
-        pClientActor_->rotate_down(0.01f);
-        udpate_player_controller();
+        actorControlController_.rotate_down(0.01f);
       }
     }
     else if(  amount < 0  ){
       if( cmdMessage.control_name().compare("CAMERA_X_AXIS") == 0 ){
-        pClientActor_->rotate_left(0.01f);
-        udpate_player_controller();
+        actorControlController_.rotate_left(0.01f);
       }
       else if( cmdMessage.control_name().compare("CAMERA_Y_AXIS") == 0 ){
-        pClientActor_->rotate_up(0.01f);
-        udpate_player_controller();
+        actorControlController_.rotate_up(0.01f);
       }
     }
   
   }
 
   remove_one_command();
+  udpate_render_controller();
 }
 
 
-void CommandHandler::udpate_player_controller(){
-
-  pClientController_->update(pClientActor_->pos(), pClientActor_->right(), pClientActor_->up(), pClientActor_->look());
-
+void CommandHandler::udpate_render_controller(){
+  actorRenderController_.update( actorControlController_.pos(), actorControlController_.right(), actorControlController_.up(), actorControlController_.look() );
 }
 

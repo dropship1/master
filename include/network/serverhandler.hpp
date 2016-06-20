@@ -8,7 +8,7 @@
 #include <memory>
 #include <algorithm>
 
-#include "base/clientcontroller.hpp"
+#include "base/actorcontrolcontroller.hpp"
 #include "network/networkmessage.hpp"
 #include "network/loginmessage.hpp"
 #include "network/loginresponsemessage.hpp"
@@ -27,8 +27,8 @@ class ServerHandler{
 public:
   ServerHandler( std::string username, 
                  std::string password, 
-                 std::shared_ptr<bright::base::ClientController> playerController, 
-                 std::map<std::string, std::shared_ptr<bright::base::ClientController>>& monsterContollers);
+                 std::map<std::string, bright::base::ActorControlController>& playerContollers, 
+                 std::map<std::string, bright::base::ActorControlController>& npcContollers);
 
   std::string username(){ return username_; }
   std::string password(){ return password_; }
@@ -55,7 +55,7 @@ private:
   std::string username_;
   std::string password_;
 
-  std::vector<std::shared_ptr<UpdateMessage>> updateMessages_;
+  std::vector<UpdateMessage> updateMessages_;
 
   LoginMessage loginMessage_;
   std::string loginReqestMessage_;
@@ -64,8 +64,8 @@ private:
 
   std::mutex updateMessagesMutex_;
 
-  std::shared_ptr<bright::base::ClientController> playerController_;
-  std::map<std::string, std::shared_ptr<bright::base::ClientController>>& monsterContollers_;
+  std::map<std::string, bright::base::ActorControlController>& playerControllers_;
+  std::map<std::string, bright::base::ActorControlController>& npcContollers_;
 
 };
 

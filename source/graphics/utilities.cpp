@@ -6,23 +6,23 @@ namespace bright{
 
 
 
-std::shared_ptr<bright::graphics::ActorGroupRenderInfo> create_cube(){ 
+bright::graphics::ActorGroupRenderInfo create_cube(){ 
 
-  auto pCubeGroupRenderInfo = std::make_shared<bright::graphics::ActorGroupRenderInfo>();
+  bright::graphics::ActorGroupRenderInfo cubeGroupRenderInfo;
 
-  auto pCubeRenderInfo = std::make_shared<bright::graphics::ActorRenderInfo>();
-  pCubeRenderInfo->hasTexture_ = false;
+  bright::graphics::ActorRenderInfo cubeRenderInfo;
+  cubeRenderInfo.hasTexture_ = false;
 
   auto pCubeData = std::make_shared<bright::base::ActorData>();    
   generate_cube_coords(pCubeData);
   generate_cube_normals_coords(pCubeData);
   generate_cube_texture_coords(pCubeData);
 
-  load_data_into_graphics_memory(pCubeRenderInfo, pCubeData);
+  load_data_into_graphics_memory(cubeRenderInfo, pCubeData);
 
-  pCubeGroupRenderInfo->actorRenderInfos_["cube"] = pCubeRenderInfo;
+  cubeGroupRenderInfo.actorRenderInfos_["cube"] = cubeRenderInfo;
 
-  return pCubeGroupRenderInfo;
+  return cubeGroupRenderInfo;
 }
 
 
@@ -202,23 +202,22 @@ void generate_cube_texture_coords(std::shared_ptr<bright::base::ActorData> pCube
 }
 
 
-std::shared_ptr<bright::graphics::ActorGroupRenderInfo> create_plane(float size){ 
+bright::graphics::ActorGroupRenderInfo create_plane(float size){ 
 
-  auto pPlaneGroupRenderInfo = std::make_shared<bright::graphics::ActorGroupRenderInfo>();
-  auto pPlaneRenderInfo = std::make_shared<bright::graphics::ActorRenderInfo>();
-  pPlaneRenderInfo->hasTexture_ = false;
+  bright::graphics::ActorGroupRenderInfo planeGroupRenderInfo;
+  bright::graphics::ActorRenderInfo planeRenderInfo;
+  planeRenderInfo.hasTexture_ = false;
 
   auto pPlaneData = std::make_shared<bright::base::ActorData>();
   generate_plane_coords(pPlaneData, size);
   generate_plane_normals_coords(pPlaneData);
   generate_plane_texture_coords(pPlaneData);
 
-  load_data_into_graphics_memory(pPlaneRenderInfo, pPlaneData);
+  load_data_into_graphics_memory(planeRenderInfo, pPlaneData);
 
-  pPlaneGroupRenderInfo->actorRenderInfos_["plane"] = pPlaneRenderInfo;
+  planeGroupRenderInfo.actorRenderInfos_["plane"] = planeRenderInfo;
 
-  return pPlaneGroupRenderInfo;
-
+  return planeGroupRenderInfo;
 }
 
 
@@ -280,40 +279,40 @@ void generate_plane_texture_coords(std::shared_ptr<bright::base::ActorData> pPla
 }
 
 
-void load_data_into_graphics_memory(std::shared_ptr<bright::graphics::ActorRenderInfo> pActorRenderInfo, std::shared_ptr<bright::base::ActorData> pActorData){ 
+void load_data_into_graphics_memory(bright::graphics::ActorRenderInfo& actorRenderInfo, std::shared_ptr<bright::base::ActorData> pActorData){ 
 
-  glGenBuffers(1, &pActorRenderInfo->vbo_);
-  glGenBuffers(1, &pActorRenderInfo->tbo_);
-  glGenBuffers(1, &pActorRenderInfo->nbo_);
-  glGenVertexArrays(1, &pActorRenderInfo->vao_);
+  glGenBuffers(1, &actorRenderInfo.vbo_);
+  glGenBuffers(1, &actorRenderInfo.tbo_);
+  glGenBuffers(1, &actorRenderInfo.nbo_);
+  glGenVertexArrays(1, &actorRenderInfo.vao_);
   
-  pActorRenderInfo->vertexCoordsSize_ = pActorData->vertexCoords_.size();
+  actorRenderInfo.vertexCoordsSize_ = pActorData->vertexCoords_.size();
   
   //MAKE VBOs
-  glBindBuffer(GL_ARRAY_BUFFER, pActorRenderInfo->vbo_);
+  glBindBuffer(GL_ARRAY_BUFFER, actorRenderInfo.vbo_);
   glBufferData(GL_ARRAY_BUFFER, pActorData->vertexCoords_.size()*sizeof(glm::vec4), &pActorData->vertexCoords_[0], GL_STATIC_DRAW);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-  glBindBuffer(GL_ARRAY_BUFFER, pActorRenderInfo->nbo_);
+  glBindBuffer(GL_ARRAY_BUFFER, actorRenderInfo.nbo_);
   glBufferData(GL_ARRAY_BUFFER, pActorData->normalCoords_.size()*sizeof(glm::vec3), &pActorData->normalCoords_[0], GL_STATIC_DRAW);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-  glBindBuffer(GL_ARRAY_BUFFER, pActorRenderInfo->tbo_);
+  glBindBuffer(GL_ARRAY_BUFFER, actorRenderInfo.tbo_);
   glBufferData(GL_ARRAY_BUFFER, pActorData->textureCoords_.size()*sizeof(glm::vec3), &pActorData->textureCoords_[0], GL_STATIC_DRAW);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   //Make VAO
-  glBindVertexArray(pActorRenderInfo->vao_);
+  glBindVertexArray(actorRenderInfo.vao_);
   
-  glBindBuffer(GL_ARRAY_BUFFER, pActorRenderInfo->vbo_);
+  glBindBuffer(GL_ARRAY_BUFFER, actorRenderInfo.vbo_);
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
-  glBindBuffer(GL_ARRAY_BUFFER, pActorRenderInfo->nbo_);
+  glBindBuffer(GL_ARRAY_BUFFER, actorRenderInfo.nbo_);
   glEnableVertexAttribArray(1);
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-  glBindBuffer(GL_ARRAY_BUFFER, pActorRenderInfo->tbo_);
+  glBindBuffer(GL_ARRAY_BUFFER, actorRenderInfo.tbo_);
   glEnableVertexAttribArray(2);
   glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
 

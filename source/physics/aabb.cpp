@@ -130,6 +130,30 @@ bool AABB::intersect(std::shared_ptr<AABB> pOtherBB){
   return intersect;
 }
 
+bool AABB::intersect(AABB& pOtherBB){
+
+  bool intersect = false;
+
+  glm::vec3 otherMax = pOtherBB.curr_pos() + pOtherBB.half_dimensions();
+  glm::vec3 otherMin = pOtherBB.curr_pos() - pOtherBB.half_dimensions();
+
+  glm::vec3 thisMax = currPos_ + halfDimensions_;
+  glm::vec3 thisMin = currPos_ - halfDimensions_;
+  
+  glm::vec3 distanceLeft = otherMin - thisMax;
+  glm::vec3 distanceRight =  thisMin - otherMax;
+  glm::vec3 distances = glm::max(distanceLeft, distanceRight);
+  float max = distances.x;
+  if (distances.y > max){ max = distances.y; }
+  if (distances.z > max){ max = distances.z; }
+  
+  if(max < 0){
+    intersect = true;
+  }
+
+  return intersect;
+}
+
 
 void AABB::add(glm::vec3 point){
 

@@ -49,6 +49,9 @@ public:
   glm::vec3 up();
   glm::vec3 look();
 
+  bool has_changed_this_frame();
+  void has_changed_this_frame(bool value);
+
 private:
 
   void rotate_x(float amount);
@@ -64,6 +67,8 @@ private:
   glm::vec3 up_;
   glm::vec3 look_;
   glm::vec3 right_;
+
+  bool hasChangedThisFrame_;
 
 };
 

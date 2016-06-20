@@ -50,19 +50,19 @@ std::map<std::string, bright::physics::AABB>& ActorControlsResourceManager::play
 
 void ActorControlsResourceManager::create_controllers(){
 
-  auto create_npc_controller = [&] (ControlActor& controlActor) { 
+  auto create_npc_controller = [&] (std::map<std::string, ControlActor>::value_type& pair) { 
     ActorControlController actorController;
-    actorController.pos( controlActor.pos() );
-    actorController.rotation( controlActor.rotation() );
-    NpcControllers_[controlActor.name()] = actorController;
+    actorController.pos( pair.second.pos() );
+    actorController.rotation( pair.second.rotation() );
+    NpcControllers_[pair.second.name()] = actorController;
   };
   std::for_each(controlNpcs_.begin(), controlNpcs_.end(), create_npc_controller);
 
-  auto create_player_controller = [&] (ControlActor& controlActor) { 
+  auto create_player_controller = [&] (std::map<std::string, ControlActor>::value_type& pair) { 
     ActorControlController actorController;
-    actorController.pos( controlActor.pos() );
-    actorController.rotation( controlActor.rotation() );
-    playerControllers_[controlActor.name()] = actorController;
+    actorController.pos( pair.second.pos() );
+    actorController.rotation( pair.second.rotation() );
+    playerControllers_[pair.second.name()] = actorController;
   };
   std::for_each(controlPlayers_.begin(), controlPlayers_.end(), create_player_controller);
 
@@ -71,13 +71,13 @@ void ActorControlsResourceManager::create_controllers(){
 
 void ActorControlsResourceManager::assign_aabbs(){
 
-  auto assign_npc_aabb = [&] (ControlActor& controlActor) { 
-    npcAABBs_[controlActor.name()] = aabbConverter_.aabb_stack_copy( controlActor.aabb() );
+  auto assign_npc_aabb = [&] (std::map<std::string, ControlActor>::value_type& pair) { 
+    npcAABBs_[pair.second.name()] = aabbConverter_.aabb_stack_copy( pair.second.aabb() );
   };
   std::for_each(controlNpcs_.begin(), controlNpcs_.end(), assign_npc_aabb);
 
-  auto assign_player_aabb = [&] (ControlActor& controlActor) { 
-    playerAABBs_[controlActor.name()] = aabbConverter_.aabb_stack_copy( controlActor.aabb() );
+  auto assign_player_aabb = [&] (std::map<std::string, ControlActor>::value_type& pair) { 
+    playerAABBs_[pair.second.name()] = aabbConverter_.aabb_stack_copy( pair.second.aabb() );
   };
   std::for_each(controlPlayers_.begin(), controlPlayers_.end(), assign_player_aabb);
 
@@ -145,7 +145,7 @@ void ActorControlsResourceManager::load_control_actors() {
         controlActor.rotation(glm::vec3(rotx, roty, rotz));
         controlActor.aabb(aabbName);
         controlActor.name(name);
-        controlActor.is_player(true);
+        controlActor.is_player(isPlayer);
         if (!isPlayer) {
           controlNpcs_[name] = controlActor;
         }

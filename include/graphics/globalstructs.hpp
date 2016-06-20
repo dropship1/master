@@ -73,7 +73,7 @@ struct ActorGroupRenderInfo{
     hasShader_  = false;
   }
 
-  std::shared_ptr<ActorRenderInfo> actor_render_info(std::string name){
+  ActorRenderInfo& actor_render_info(std::string name){
     return actorRenderInfos_[name];
   }
 
@@ -83,7 +83,7 @@ struct ActorGroupRenderInfo{
 
   bool hasShader_;
 
-  std::map<std::string, std::shared_ptr<ActorRenderInfo>> actorRenderInfos_;
+  std::map<std::string, ActorRenderInfo> actorRenderInfos_;
   std::string cameraType_;
 
 };

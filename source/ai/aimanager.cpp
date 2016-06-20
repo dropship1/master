@@ -2,36 +2,45 @@
 
 using namespace bright::ai;
 
-AIManager::AIManager() {
-}
-int AIManager::update_monsters(std::map<std::string, bright::base::ActorControlController> &monsters, std::map<std::string, std::shared_ptr<bright::base::ActorControlController>> &players) {
-  int monsterMoveCount = 0;
-  float speedMetersPerUpdate = 0.1f;
-  //Don't do anything if no players
-  if ( players.empty() ) {
-    return 0;
-  }
-  // Have each monster point to nearest player, and move towards it.
-  for(auto iterMonster = monsters.begin(); iterMonster != monsters.end(); ++iterMonster) {
-    auto &monster = (*iterMonster).second;
-    auto monsterPos = monster.pos();
 
-    // Find nearest player
-    // Use squared distance instead of distance, because it takes more time to find square root.
-    // Wait until we find nearest player to get actual distance.
+AIManager::AIManager(std::shared_ptr<bright::base::ActorControlsResourceManager> pActorControlsResourceManager) :
+  controlPlayers_(pActorControlsResourceManager->control_players() ),
+  controlNpcs_(pActorControlsResourceManager->control_npcs() ),
+  playerControllers_(pActorControlsResourceManager->player_controllers() ),
+  npcControllers_(pActorControlsResourceManager->npc_controllers() ),
+  playerAABBs_(pActorControlsResourceManager->player_aabbs() ),
+  npcAABBs_(pActorControlsResourceManager->npc_aabbs() ) {
+
+}
+
+
+int AIManager::handle_ai() {
+  int npcMoveCount = 0;
+  float speedMetersPerUpdate = 0.1f;
+
+  // Have each npc point to nearest player, and move towards it.
+  for(auto iterNpc = controlNpcs_.begin(); iterNpc != controlNpcs_.end(); ++iterNpc) {
+    auto &controlNpc = (*iterNpc).second;
+    auto& npcController = npcControllers_[controlNpc.name()];
+    auto npcPos = npcController.pos();
+
+    //Find nearest player
+    //Use squared distance instead of distance, because it takes more time to find square root.
+    //Wait until we find nearest player to get actual distance.
     double nearestDistanceSquared = 0.0f;
     glm::vec3 nearestPositionDelta;
     bool isFirstPlayer = true;
-    std::shared_ptr<bright::base::ActorControlController> pNearestPlayer;
-    for(auto iterPlayer = players.begin(); iterPlayer != players.end(); ++iterPlayer) {
-      auto pPlayer = (*iterPlayer).second;
-      auto playerPos = pPlayer->pos();
+    glm::vec3 nearestPlayerPos;
+    for(auto iterPlayer = controlPlayers_.begin(); iterPlayer != controlPlayers_.end(); ++iterPlayer) {
+      auto &controlPlayer = (*iterPlayer).second;
+      auto& playerController = playerControllers_[controlPlayer.name()];
+      auto playerPos = playerController.pos();
 
-      auto positionDelta = playerPos - monsterPos;
+      auto positionDelta = playerPos - npcPos;
       double distanceSquared = dot(positionDelta, positionDelta);
 
       if ( isFirstPlayer || (distanceSquared < nearestDistanceSquared) ) {
-        pNearestPlayer = pPlayer;
+        nearestPlayerPos = playerPos;
         nearestPositionDelta = positionDelta;
         nearestDistanceSquared = distanceSquared;
         isFirstPlayer = false;
@@ -41,23 +50,24 @@ int AIManager::update_monsters(std::map<std::string, bright::base::ActorControlC
     double nearestDistance = sqrt(nearestDistanceSquared);
     //std::cout << "nearestDistance: " << nearestDistance << std::endl;
 
-    //Point monster to nearest player, use normalized vector
-    auto normalizedMonsterDirection = normalize(nearestPositionDelta);
-    monster.update_axes( monsterPos, pNearestPlayer->pos() );
+    //Point npc to nearest player, use normalized vector
+    auto normalizedNpcDirection = normalize(nearestPositionDelta);
+    npcController.update_axes( npcPos, nearestPlayerPos );
 
-    // Move monster towards nearest player
+    // Move npc towards nearest player
     if (nearestDistance < speedMetersPerUpdate) {
-      monster.pos( pNearestPlayer->pos() );
-      //std::cout << "MONSTER REACHED PLAYER!!!  :O" << std::endl;
+      npcController.pos( nearestPlayerPos );
+      //std::cout << "NPC REACHED PLAYER!!!  :O" << std::endl;
     }
     else {
-      //std::cout << "MONSTER LURCHES TOWARD PLAYER..." << std::endl;
-      monster.pos( monster.pos() + (normalizedMonsterDirection * speedMetersPerUpdate) );
-      monsterMoveCount += 1;
+      //std::cout << "NPC LURCHES TOWARD PLAYER..." << std::endl;
+      //npcController.pos( npcController.pos() + (normalizedNpcDirection * speedMetersPerUpdate) );
+      npcController.move_fwd( speedMetersPerUpdate );
+      npcMoveCount += 1;
     }
-    //std::wcout << "monsterMoveCount: " << monsterMoveCount << std::endl;
-  } // end monster loop
+    //std::wcout << "npcMoveCount: " << npcMoveCount << std::endl;
+  } // end npc loop
 
-  return monsterMoveCount;
+  return npcMoveCount;
 }
 

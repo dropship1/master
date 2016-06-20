@@ -1,0 +1,107 @@
+﻿                                                    
+#------------------------------
+#Explanation
+#------------------------------
+
+#This is a Comment   
+
+#Format explained
+#<Node>
+#Key=Value
+#...
+#<Node>
+#Key=Value
+#...
+
+#<ControlActor>
+#NAME= the unique name of this ControlActor (known inside the world)
+#POSX= the position on the x axis in the world
+#POSY= the position on the y axis in the world
+#POSZ= the position on the z axis in the world
+#ROTX= the rotation amount around the x axis in the world (pitch)
+#ROTY= the rotation amount around the y axis in the world (yaw)
+#ROTZ= the rotation amount around the z axis in the world (roll)
+#PLAYER= whether this is the player or not? if not set then defaults to no
+#AABB= what axial aligned bounding box to use for this ControlActor for collision detection
+#</ControlActor>
+
+#Example
+#<ControlActor>
+#NAME=Jake
+#POSX=1.0
+#POSY=1.0
+#POSZ=25.0
+#ROTX=0.0
+#ROTY=0.0
+#ROTZ=0.0
+#PLAYER=true
+#AABB=cube_aabb
+#</ControlActor>
+
+
+
+#------------------------------
+#Start
+#------------------------------
+
+<ControlActor>
+NAME=Lucy
+POSX=1.0
+POSY=0.0
+POSZ=19.0
+ROTX=0.0
+ROTY=0.0
+ROTZ=0.0
+PLAYER=true
+AABB=cube
+</ControlActor>
+
+<ControlActor>
+NAME=Kane
+POSX=1.0
+POSY=0.0
+POSZ=10.0
+ROTX=0.0
+ROTY=0.0
+ROTZ=0.0
+PLAYER=true
+AABB=cube
+</ControlActor>
+
+<ControlActor>
+NAME=Zombie_001
+POSX=1.0
+POSY=0.0
+POSZ=10.0
+ROTX=0.0
+ROTY=0.0
+ROTZ=0.0
+PLAYER=false
+AABB=cube
+</ControlActor>
+
+<ControlActor>
+NAME=Zombie_002
+POSX=11.0
+POSY=0.0
+POSZ=6.0
+ROTX=0.0
+ROTY=0.0
+ROTZ=0.0
+PLAYER=false
+AABB=cube
+</ControlActor>
+
+<ControlActor>
+NAME=Zombie_003
+POSX=3.0
+POSY=0.0
+POSZ=4.0
+ROTX=0.0
+ROTY=0.0
+ROTZ=0.0
+PLAYER=false
+AABB=cube
+</ControlActor>
+
+]

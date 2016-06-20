@@ -4,30 +4,27 @@
 
 #include "utils/fileworker.hpp"
 #include "converters/aabbconverter.hpp"
+#include "base/actorcontrolsresourcemanager.hpp"
 
-void handle_monsters(std::map<std::string, bright::base::ActorControlController>& monsters, std::vector<std::string>& monsterResponses, bool left);
+void handle_npcs(std::map<std::string, bright::base::ActorControlController>& npcControllers, std::vector<std::string>& npcResponses, bool left);
 
 
 int main(int argc, char* argv[]) {
 
-  std::vector<std::string> monsterResponses;
-
-  std::map<std::string, bright::base::ActorControlController> monsters;
-  monsters["Monster1"] = bright::base::ActorControlController();
-  monsters["Monster2"] = bright::base::ActorControlController();
-  monsters["Monster1"].move_left(10.0f);
-  monsters["Monster2"].move_right(10.0f);
-
-  std::map<std::string, std::shared_ptr<bright::base::ActorControlController>> clientActors;
-  clientActors["Jake"] = std::make_shared<bright::base::ActorControlController>();
-  clientActors["Leo"] = std::make_shared<bright::base::ActorControlController>();
+  std::vector<std::string> npcResponses;
 
   auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/network/data/files.fl");
-  auto pAABBConverter = std::make_shared<bright::converters::AABBConverter>(pFileWorker);
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
 
-  auto pAsyncServer = boost::make_shared<bright::network::AsyncServer>(clientActors, pAABBConverter);
+  auto pActorControlResourceManager = std::make_shared<bright::base::ActorControlsResourceManager>(pFileWorker);
+  pActorControlResourceManager->initialize();
+
+  auto& npcControllers = pActorControlResourceManager->npc_controllers();
+  auto& playerControllers = pActorControlResourceManager->player_controllers();
+
+
+  auto pAsyncServer = boost::make_shared<bright::network::AsyncServer>(playerControllers);
   pAsyncServer->start();
   boost::thread thread(boost::bind(&boost::asio::io_service::run, &pAsyncServer->service()));
 
@@ -50,9 +47,9 @@ int main(int argc, char* argv[]) {
       if (count > 200){ count = 0; }
       
       ++count;
-      handle_monsters(monsters, monsterResponses, left);
-      pAsyncServer->send_monster_responses(monsterResponses);
-      monsterResponses.clear();
+      handle_npcs(npcControllers, npcResponses, left);
+      pAsyncServer->send_npc_updates(npcResponses);
+      npcResponses.clear();
     }
 
     end = clock();
@@ -62,16 +59,16 @@ int main(int argc, char* argv[]) {
 }
 
 
-void handle_monsters(std::map<std::string, bright::base::ActorControlController>& monsters, std::vector<std::string>& monsterResponses, bool left){
+void handle_npcs(std::map<std::string, bright::base::ActorControlController>& npcControllers, std::vector<std::string>& npcResponses, bool left){
 
-  auto make_a_monster_response = [&] (std::map<std::string, bright::base::ActorControlController>::value_type& pair) { 
-    std::string monsterName = pair.first;
-    bright::base::ActorControlController& monster = pair.second;
-    if (left){  monster.move_left(0.2f); }
-    else{  monster.move_right(0.2f); }
-    bright::network::UpdateMessage updateMsg(monsterName, monster.pos(), monster.right(), monster.up(), monster.look(), false);
-    monsterResponses.push_back( updateMsg.full_message() );
+  auto make_a_npc_response = [&] (std::map<std::string, bright::base::ActorControlController>::value_type& pair) { 
+    std::string npcName = pair.first;
+    auto& npcController = pair.second;
+    if (left){  npcController.move_left(0.2f); }
+    else{  npcController.move_right(0.2f); }
+    bright::network::UpdateMessage updateMsg(npcName, npcController.pos(), npcController.right(), npcController.up(), npcController.look(), false);
+    npcResponses.push_back( updateMsg.full_message() );
   };
-  std::for_each(monsters.begin(), monsters.end(), make_a_monster_response);
+  std::for_each(npcControllers.begin(), npcControllers.end(), make_a_npc_response);
 
 }

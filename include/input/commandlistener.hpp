@@ -4,8 +4,8 @@
 #include "input/commandeventlistener.hpp"
 #include "input/commandevent.hpp"
 #include "input/commandhandler.hpp"
-#include "base/serveractor.hpp"
-#include "base/clientcontroller.hpp"
+#include "base/actorcontrolcontroller.hpp"
+#include "base/actorrendercontroller.hpp"
 #include "base/actorcreator.hpp"
 
 namespace bright{
@@ -15,7 +15,7 @@ namespace bright{
 class CommandListener : public CommandEventListener{
 
 public:
-  CommandListener(std::shared_ptr<bright::base::ServerActor> pClientActor, std::shared_ptr<bright::base::ClientController> pClientController,
+  CommandListener(bright::base::ActorControlController& actorControlController, bright::base::ActorRenderController& actorRenderController,
                   std::shared_ptr<bright::base::ActorCreator> pActorCreator);
 
   void update_commands();

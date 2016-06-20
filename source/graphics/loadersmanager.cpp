@@ -13,11 +13,11 @@ LoadersManager::LoadersManager(std::shared_ptr<bright::utils::FileWorker> pFileW
 void LoadersManager::load(){
 
   std::vector<std::shared_ptr<ShaderConfig>> shaderConfigs;
-  load_shader_configs("shaders.cfg", shaderConfigs);
+  load_shader_configs("shaders.res", shaderConfigs);
   load_shaders(shaderConfigs);
 
   std::vector<std::shared_ptr<TextureConfig>> textureConfigs;
-  load_texture_configs("textures.cfg", textureConfigs);
+  load_texture_configs("textures.res", textureConfigs);
   load_textures(textureConfigs);
 
   //"data/lights.cfg"

@@ -27,16 +27,18 @@ class UpdateMessage{
 
 public:
   UpdateMessage();
-  UpdateMessage(std::string name, glm::vec3 position, bool isPlayer);
-  UpdateMessage(std::string name, glm::vec3 position, glm::vec3 right, glm::vec3 up, glm::vec3 look, bool isPlayer);
+  //UpdateMessage(std::string name, glm::vec3 position, bool isPlayer);
+  UpdateMessage(std::string name, glm::vec3 position, glm::vec3 rotation, bool isPlayer);
+  //UpdateMessage(std::string name, glm::vec3 position, glm::vec3 right, glm::vec3 up, glm::vec3 look, bool isPlayer);
 
   std::string& name();
   bool is_player();
 
   glm::vec3 position();
-  glm::vec3 right();
-  glm::vec3 up();
-  glm::vec3 look();
+  glm::vec3 rotation();
+  //glm::vec3 right();
+  //glm::vec3 up();
+  //glm::vec3 look();
 
   std::string full_message();
 
@@ -44,9 +46,10 @@ private:
 
   std::string name_;
   glm::vec3 position_;
-  glm::vec3 right_;
-  glm::vec3 up_;
-  glm::vec3 look_;
+  glm::vec3 rotation_;
+  //glm::vec3 right_;
+  //glm::vec3 up_;
+  //glm::vec3 look_;
   bool isPlayer_;
 
 };

@@ -43,7 +43,7 @@ public:
  * @param pActorRenderInfo All the relevant actor info needed to know how to render the actor.
  * @param pWorldData All the relevant world info needed to know how to render the actor in the world.
  */
-  void render(std::shared_ptr<bright::graphics::ActorGroupRenderInfo> pActorRenderInfo, std::shared_ptr<WorldInfo> pWorldInfo);
+  void render(ActorGroupRenderInfo& actorGroupRenderInfo, WorldInfo& worldInfo);
 
 private:
 

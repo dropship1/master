@@ -5,11 +5,12 @@
 #include "utils/fileworker.hpp"
 #include "converters/aabbconverter.hpp"
 #include "network/updatemessage.hpp"
+#include "physics/physicsmanager.hpp"
+
 #include <boost/make_shared.hpp>
 #include <ctime>
 
-void create_monster_update_responses(std::map<std::string, bright::base::ActorControlController>& monsters, std::vector<std::string>& monsterResponses);
-void check_physics(std::map<std::string, bright::base::ActorControlController>& monsters, std::map<std::string, bright::base::ActorControlController>& clientActors);
+void create_npc_update_responses(std::map<std::string, bright::base::ActorControlController>& npcControllers, std::vector<std::string>& npcResponses);
 
 
 int main(int argc, char* argv[]) {
@@ -20,20 +21,21 @@ int main(int argc, char* argv[]) {
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
 
-  auto actorControlsResourceManager = std::make_shared<bright::base::ActorControlsResourceManager>(pFileWorker);
-  actorControlsResourceManager.initialize();
+  auto pActorControlsResourceManager = std::make_shared<bright::base::ActorControlsResourceManager>(pFileWorker);
+  pActorControlsResourceManager->initialize();
 
-  std::vector<std::string> monsterResponses;
-  auto controlPlayers = actorControlsResourceManager->control_players();
-  auto controlNpcs = actorControlsResourceManager->control_npcs();
-  auto playerControllers = actorControlsResourceManager->player_controllers();
-  auto npcControllers = actorControlsResourceManager->npc_controllers();
-  auto playerAABBs = actorControlsResourceManager->player_aabbs();
-  auto npcAABBs = actorControlsResourceManager->npc_aabbs();
+  std::vector<std::string> npcResponses;
+  auto controlPlayers = pActorControlsResourceManager->control_players();
+  auto controlNpcs = pActorControlsResourceManager->control_npcs();
+  auto playerControllers = pActorControlsResourceManager->player_controllers();
+  auto npcControllers = pActorControlsResourceManager->npc_controllers();
+  auto playerAABBs = pActorControlsResourceManager->player_aabbs();
+  auto npcAABBs = pActorControlsResourceManager->npc_aabbs();
 
-  bright::ai::AIManager aiManager;
+  bright::ai::AIManager aiManager(pActorControlsResourceManager);
+  bright::physics::PhysicsManager physicsManager(pActorControlsResourceManager);
 
-  auto pAsyncServer = boost::make_shared<bright::network::AsyncServer>(clientActors);
+  auto pAsyncServer = boost::make_shared<bright::network::AsyncServer>(playerControllers);
   pAsyncServer->start();
   boost::thread thread(boost::bind(&boost::asio::io_service::run, &pAsyncServer->service()));
 
@@ -45,14 +47,14 @@ int main(int argc, char* argv[]) {
 
     if (elapsed_secs > 0.03 ){
       begin = clock();      
-      aiManager.update_monsters(monsters, clientActors);
+      aiManager.handle_ai();
     }
 
-    check_physics(monsters, clientActors);
+    physicsManager.handle_physics();
 
-    create_monster_update_responses(monsters, monsterResponses);
-    pAsyncServer->send_monster_responses(monsterResponses);
-    monsterResponses.clear();
+    create_npc_update_responses(npcControllers, npcResponses);
+    pAsyncServer->send_monster_responses(npcResponses);
+    npcResponses.clear();
 
     pAsyncServer->send_login_responses();
 
@@ -69,96 +71,17 @@ int main(int argc, char* argv[]) {
 }
 
 
-void create_monster_update_responses(std::map<std::string, bright::base::ActorControlController>& monsters, std::vector<std::string>& monsterResponses){
+void create_npc_update_responses(std::map<std::string, bright::base::ActorControlController>& npcControllers, std::vector<std::string>& npcResponses){
 
-  auto make_a_monster_response = [&] (std::map<std::string, bright::base::ActorControlController>::value_type& pair) {
-    std::string monsterName = pair.first;
-    bright::base::ActorControlController& monster = pair.second;
-    if ( monster.have_update() ){
-      bright::network::UpdateMessage updateMsg(monsterName, monster.pos(), monster.right(), monster.up(), monster.look(), false);
-      monsterResponses.push_back( updateMsg.full_message() );
-      monster.have_update(false);
+  auto make_an_npc_response = [&] (std::map<std::string, bright::base::ActorControlController>::value_type& pair) {
+    std::string npcName = pair.first;
+    bright::base::ActorControlController& npc = pair.second;
+    if ( npc.have_update() ){
+      bright::network::UpdateMessage updateMsg(npcName, npc.pos(), npc.right(), npc.up(), npc.look(), false);
+      npcResponses.push_back( updateMsg.full_message() );
+      npc.have_update(false);
     }
   };
-  std::for_each(monsters.begin(), monsters.end(), make_a_monster_response);
-
-}
-
-
-
-void check_physics(std::map<std::string, bright::base::ActorControlController>& monsters, std::map<std::string, bright::base::ActorControlController>& clientActors){
-
-  auto did_monster_collide_with_client = [&] (std::map<std::string, bright::base::ActorControlController>::value_type& pair) {
-    std::string monsterName = pair.first;
-    bright::base::ActorControlController& monster = pair.second;
-    auto pMonsterAABB = monster.aabb();
-
-    auto check_client = [&] (std::map<std::string, std::shared_ptr<bright::base::ActorControlController>>::value_type& innerPair) {
-      std::string clientName = innerPair.first;
-      auto pClient = innerPair.second;
-      if (pClient->is_logged_in()){
-        auto pClientAABB = pClient->aabb();
-        bool intersect = pMonsterAABB->intersect(pClientAABB);
-        if (intersect){
-          monster.set_to_prev_pos();
-        }
-      }
-    };
-    std::for_each(clientActors.begin(), clientActors.end(), check_client);
-  };
-  std::for_each(monsters.begin(), monsters.end(), did_monster_collide_with_client);
-
-  auto did_client_collide_with_monster = [&] (std::map<std::string, std::shared_ptr<bright::base::ActorControlController>>::value_type& pair) {
-     std::string clientName = pair.first;
-     auto pClient = pair.second;
-     if (pClient->is_logged_in()){
-      auto pClientAABB = pClient->aabb();
-
-      auto check_monster = [&] (std::map<std::string, bright::base::ActorControlController>::value_type& innerPair) {
-        std::string monsterName = innerPair.first;
-        bright::base::ActorControlController& monster = innerPair.second;
-        auto pMonsterAABB = monster.aabb();
-
-        bool intersect = pClientAABB->intersect(pMonsterAABB);
-        if (intersect){
-          pClient->set_to_prev_pos();
-        }
-      };
-      std::for_each(monsters.begin(), monsters.end(), check_monster);
-
-    }
-  };
-  std::for_each(clientActors.begin(), clientActors.end(), did_client_collide_with_monster);
-
-  auto did_monster_collide_with_monster = [&] (std::map<std::string, bright::base::ActorControlController>::value_type& pair) {
-    std::string monsterName = pair.first;
-    bright::base::ActorControlController& monster = pair.second;
-    auto pMonsterAABB = monster.aabb();
-  
-    auto check_monster = [&] (std::map<std::string, bright::base::ActorControlController>::value_type& innerPair) -> bool {
-      std::string monsterName2 = innerPair.first;
-      if (monsterName2.compare(monsterName) != 0){
-        bright::base::ActorControlController& monster2 = innerPair.second;
-        auto pMonster2AABB = monster2.aabb();
-        bool intersect = pMonsterAABB->intersect(pMonster2AABB);
-        if (intersect){
-          monster.set_to_prev_pos();
-          monster.have_update(true);
-          return true;
-        }
-        else{ return false; }
-      }
-      else{ return false; }
-    };
-
-    for(auto& monster2 : monsters) {
-      if ( check_monster(monster2) == true ){
-        break;
-      }
-    }
-
-  };
-  for(auto& monster: monsters){ did_monster_collide_with_monster(monster); } 
-
+  std::for_each(npcControllers.begin(), npcControllers.end(), make_an_npc_response);
 
 }

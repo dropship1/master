@@ -3,28 +3,31 @@
 #include <chrono>
 #include <thread>
 
+#include "base/actorcontrolsresourcemanager.hpp"
 #include "ai/aimanager.hpp"
+#include "utils/fileworker.hpp"
+
 
 using namespace bright::ai;
 
-void print_board(std::map<std::string, bright::base::ActorControlController> &monsters, std::map<std::string, std::shared_ptr<bright::base::ActorControlController>> &players) {
+void print_board(std::map<std::string, bright::base::ActorControlController>& npcControllers, std::map<std::string, bright::base::ActorControlController>& playerControllers) {
   int playerSymbol = 1;
-  int monsterSymbol = 3;
+  int npcSymbol = 3;
   int playerAndNpcSymbol = 4;
   int boardHeight = 20;
   int boardWidth = 20;
   int board[400] = {}; // height * width
 
-  for (auto iter = monsters.begin(); iter != monsters.end(); ++iter) {
-    auto monster = (*iter).second;
-    int x = (int)(monster.pos().x);
-    int z = (int)(monster.pos().z);
-    board[boardHeight * z + x] = monsterSymbol;
+  for (auto iter = npcControllers.begin(); iter != npcControllers.end(); ++iter) {
+    auto npc = (*iter).second;
+    int x = (int)(npc.pos().x);
+    int z = (int)(npc.pos().z);
+    board[boardHeight * z + x] = npcSymbol;
   }
-  for (auto iter = players.begin(); iter != players.end(); ++iter) {
+  for (auto iter = playerControllers.begin(); iter != playerControllers.end(); ++iter) {
     auto player = (*iter).second;
-    int x = (int)(player->pos().x);
-    int z = (int)(player->pos().z);
+    int x = (int)(player.pos().x);
+    int z = (int)(player.pos().z);
     if (board[boardHeight * z + x] == 3) {
       board[boardHeight * z + x] = playerAndNpcSymbol;
     }
@@ -49,45 +52,28 @@ void print_board(std::map<std::string, bright::base::ActorControlController> &mo
 int main(int argc, char* argv[]) {
 
   std::cout << "STARTING AI TEST...." << std::endl;
-  AIManager aimanager;
 
-  float monsterPositions[]  = { 0.0f,  0.0f, 10.0f,
-                                3.0f,  0.0f, 1.0f,
-                                14.0f, 0.0f, 2.0f };
 
-  // Setup Monster positions and rotations
-  auto monsters = std::map<std::string, bright::base::ActorControlController>();
-  for (int i = 0; i < 9; i += 3) {
-    bright::base::ActorControlController monster;
-    monster.pos(glm::vec3(monsterPositions[i],
-                monsterPositions[i+1],
-                monsterPositions[i+2]) );
-    monsters["Zombie" + std::to_string(i)] = monster;
-  }
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/ai/data/files.fl");
+  pFileWorker->read_in_list_of_files();
+  pFileWorker->create_lookup_map_of_files_content();
+  auto pActorControlResourceManager = std::make_shared<bright::base::ActorControlsResourceManager>(pFileWorker);
+  pActorControlResourceManager->initialize();
 
-  float playerPositions[]  = { 5.0f,  0.0f, 5.0f,
-                               2.0f,  0.0f, 11.0f,
-                               19.0f, 0.0f, 19.0f };
+  bright::ai::AIManager aiManager(pActorControlResourceManager);
 
-  // Setup player positions and rotations
-  auto players = std::map<std::string, std::shared_ptr<bright::base::ActorControlController>>();
-  for (int i = 0; i < 9; i += 3) {
-    auto pPlayer = std::make_shared<bright::base::ActorControlController>();
-    pPlayer->pos(glm::vec3(playerPositions[i],
-                playerPositions[i+1],
-                playerPositions[i+2]) );
-    players["Player" + std::to_string(i)] = pPlayer;
-  }
+  auto& npcContollers = pActorControlResourceManager->npc_controllers();
+  auto& playerControllers = pActorControlResourceManager->player_controllers();
 
-  int monsterMoveCount = 0;
+  int npcMoveCount = 0;
   do {
 
-    //Let loose the monsters!
-    monsterMoveCount = aimanager.update_monsters(monsters, players);
+    //Let loose the npcs!
+    npcMoveCount = aiManager.handle_ai();
     system("cls");
-    print_board(monsters, players);
+    print_board(npcContollers, playerControllers);
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
-  } while(monsterMoveCount != 0) ;
+  } while(npcMoveCount != 0) ;
 
   std::cout << "FINISHED AI TEST." << std::endl;
   system("PAUSE");

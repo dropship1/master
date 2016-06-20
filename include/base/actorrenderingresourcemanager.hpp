@@ -33,23 +33,23 @@ public:
   void load_resources_and_create_render_infos();
   void create_world_info();
 
-  std::shared_ptr<bright::graphics::WorldInfo> world_info();
-  std::map<std::string, std::shared_ptr<bright::graphics::ActorGroupRenderInfo>>& actor_group_render_infos();
-  std::map<std::string, std::shared_ptr<ActorRenderController>>& controllers();
+  bright::graphics::WorldInfo& world_info();
+  std::map<std::string, bright::graphics::ActorGroupRenderInfo>& actor_group_render_infos();
+  std::map<std::string, ActorRenderController>& actor_render_controllers();
   std::vector<RenderActor>& render_actors();
   bright::graphics::LoadersManager& graphics_loader_manager();
 
 private:
-  void load_mesh_to_graphics_card(std::shared_ptr<Mesh> pChildMesh, std::shared_ptr<bright::graphics::ActorRenderInfo> pActorRenderInfo);
+  void load_mesh_to_graphics_card(std::shared_ptr<Mesh> pChildMesh, bright::graphics::ActorRenderInfo& actorRenderInfo);
 
   bright::audio::SoundManager soundManager_;
   bright::converters::MeshConverter meshConverter_;
   bright::graphics::LoadersManager graphicsLoadersManager_;
 
   std::vector<RenderActor> renderActors_;
-  std::map<std::string, std::shared_ptr<bright::graphics::ActorGroupRenderInfo>> actorGroupRenderInfos_;
-  std::map<std::string, std::shared_ptr<ActorRenderController>> actorRenderControllers_;
-  std::shared_ptr<bright::graphics::WorldInfo> pWorldInfo_;
+  std::map<std::string, bright::graphics::ActorGroupRenderInfo> actorGroupRenderInfos_;
+  std::map<std::string, ActorRenderController> actorRenderControllers_;
+  bright::graphics::WorldInfo worldInfo_;
 
   std::shared_ptr<bright::utils::FileWorker> pFileWorker_;
 

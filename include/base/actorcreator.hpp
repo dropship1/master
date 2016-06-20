@@ -6,8 +6,8 @@
 #include <map>
 #include <memory>
 
-#include "base/clientcontroller.hpp"
-#include "base/serveractor.hpp"
+#include "base/actorcontrolcontroller.hpp"
+#include "base/controlactor.hpp"
 #include "utils/utilities.hpp"
 #include "utils/fileworker.hpp"
 
@@ -21,14 +21,13 @@ public:
   ActorCreator(std::shared_ptr<bright::utils::FileWorker> pFileWorker);
   ActorCreator();
 
-  void add_bullet(std::shared_ptr<bright::base::ServerActor> pClientActor);
-  std::vector<std::shared_ptr<bright::base::ServerActor>>& ActorCreator::get_bullets();
+  void add_bullet(bright::base::ActorControlController& currentActorController);
+
+  std::vector<bright::base::ActorControlController>& ActorCreator::get_bullets();
 
 private:
 
-  std::shared_ptr<bright::utils::FileWorker> pFileWorker_;
-
-  std::vector<std::shared_ptr<bright::base::ServerActor>> bullets_;
+  std::vector<bright::base::ActorControlController> bullets_;
 
 };
 

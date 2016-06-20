@@ -3,29 +3,17 @@
 using namespace bright::base;
 
 
-ActorCreator::ActorCreator(std::shared_ptr<bright::utils::FileWorker> pFileWorker): 
-  pFileWorker_(pFileWorker){
-}
-
 ActorCreator::ActorCreator(){
 }
 
 
-
-
-void ActorCreator::add_bullet(std::shared_ptr<bright::base::ServerActor> pClientActor){
-
-  auto pBullet = std::make_shared<bright::base::ServerActor>( pClientActor->clone() );
-  bullets_.push_back(pBullet);
-
+void ActorCreator::add_bullet(bright::base::ActorControlController& currentActorController){
+  bullets_.push_back(currentActorController);
 }
 
 
-
-std::vector<std::shared_ptr<bright::base::ServerActor>>& ActorCreator::get_bullets(){
-
+std::vector<bright::base::ActorControlController>& ActorCreator::get_bullets(){
   return bullets_;
-
 }
 
 

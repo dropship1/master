@@ -14,6 +14,7 @@ ActorRenderController::ActorRenderController(){
   look_ = glm::vec3(0.0f,0.0f,1.0f);
   right_ = glm::vec3(1.0f,0.0f,0.0f);
 
+  calculate_model_to_world();
 }
 
 
@@ -23,6 +24,7 @@ void ActorRenderController::update(glm::vec3 pos, glm::vec3 right, glm::vec3 up,
   right_ = right;
   up_ = up;
   look_ = look;
+  calculate_model_to_world();
 }
 
 void ActorRenderController::update(glm::vec3 pos){
@@ -75,11 +77,9 @@ void ActorRenderController::calculate_model_to_world(){
 
 
 glm::mat4 ActorRenderController::model_to_world_transformation_matrix(){
-  calculate_model_to_world();
   return modToWorldMat_;
 }
 
 glm::mat4 ActorRenderController::world_to_camera_transformation_matrix(){
-  calculate_model_to_world();
   return worldToCamera_;
 }

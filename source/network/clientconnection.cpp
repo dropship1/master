@@ -5,11 +5,9 @@ using namespace bright::network;
 
 ClientConnection::ClientConnection( boost::asio::io_service& ioService, 
                                     std::vector<boost::shared_ptr<ClientConnection>>& clientConnections,
-                                    std::map<std::string, std::shared_ptr<bright::base::ActorControlController>>& clientActors,
                                     std::mutex& commandMessagesMutex,
-                                    std::shared_ptr<bright::converters::AABBConverter> pAABBConverter) : 
-  sock_(ioService), started_(false), clientHandler_(clientActors),
-  clientConnections_(clientConnections), commandMessagesMutex_(commandMessagesMutex), ioService_(ioService){
+                                    std::map<std::string, bright::base::ActorControlController>& playerControllers ) : 
+  sock_(ioService), started_(false), clientConnections_(clientConnections), commandMessagesMutex_(commandMessagesMutex), ioService_(ioService), clientHandler_(playerControllers){
 
 }
 
@@ -65,25 +63,25 @@ void ClientConnection::on_write_other_update(const boost::system::error_code &er
 }
 
 
-void ClientConnection::handle_send_monster_updates(std::vector<std::string> msgs){
+void ClientConnection::handle_send_npc_updates(std::vector<std::string> msgs){
   if ( !clientHandler_.is_logged_in() ) { return; }
-  monsterMsgs_ = msgs;
-  send_monster_updates();
+  npcMsgs_ = msgs;
+  send_npc_updates();
 }
 
-void ClientConnection::send_monster_updates(){
+void ClientConnection::send_npc_updates(){
   //std::cout << "Server Client Connection Do Write:" << std::endl << std::flush;
-  std::string msg = monsterMsgs_[0];
-  monsterMsgs_.erase( monsterMsgs_.begin() );
-  strcpy(writeMonsterBuffer_, msg.c_str());
-  async_write(sock_, boost::asio::buffer(writeMonsterBuffer_, msg.size()), MEM_FN2(on_write_monster_update,_1,_2));
+  std::string msg = npcMsgs_[0];
+  npcMsgs_.erase( npcMsgs_.begin() );
+  strcpy(writeNpcBuffer_, msg.c_str());
+  async_write(sock_, boost::asio::buffer(writeNpcBuffer_, msg.size()), MEM_FN2(on_write_npc_update,_1,_2));
 }
 
 
-void ClientConnection::on_write_monster_update(const boost::system::error_code &err, size_t bytes){
-  writeMonsterBuffer_[0] = 0;
-  if ( monsterMsgs_.empty() ){ return; }
-  send_monster_updates();
+void ClientConnection::on_write_npc_update(const boost::system::error_code &err, size_t bytes){
+  writeNpcBuffer_[0] = 0;
+  if ( npcMsgs_.empty() ){ return; }
+  send_npc_updates();
 }
 
 
@@ -196,7 +194,7 @@ void ClientConnection::send_update_responses(){
   ioService_.post(MEM_FN(handler_send_update_responses));
 }
 
-void ClientConnection::send_monster_updates(std::vector<std::string> msgs){
+void ClientConnection::send_npc_updates(std::vector<std::string> msgs){
   if ( msgs.empty() ){ return; }
-  ioService_.post(MEM_FN1(handle_send_monster_updates, msgs));
+  ioService_.post(MEM_FN1(handle_send_npc_updates, msgs));
 }

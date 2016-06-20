@@ -6,7 +6,8 @@
 #include "base/globalstructs.hpp"
 #include "context/contextmanager.hpp"
 #include "context/context.hpp"
-#include "base/clientcontroller.hpp"
+#include "base/actorrendercontroller.hpp"
+#include "base/actorcontrolcontroller.hpp"
 #include <memory>
 #include <algorithm>
 
@@ -28,7 +29,7 @@
 
 
 std::shared_ptr<bright::context::ContextManager> pContextManager;
-std::shared_ptr<bright::base::ClientController> pController;
+bright::base::ActorRenderController actorRenderController;
 
 
 enum WinKeys {
@@ -52,6 +53,7 @@ enum WinKeys {
 
 std::shared_ptr<bright::input::InputManager> pInputManager;
 
+
 class KeyboardListener: public bright::input::KeyboardEventListener{
 public:
   KeyboardListener();
@@ -64,6 +66,12 @@ public:
 
 
 class RawMouseListener: public bright::input::RawMouseEventListener{
+public:
+  RawMouseListener(): movedLeft(false), movedRight(false), movedUp(false), movedDown(false){}
+  bool movedLeft;
+  bool movedRight;
+  bool movedUp;
+  bool movedDown;
   void on_raw_mouse_event(std::shared_ptr<bright::input::RawMouseEvent> pRawMouseInputEvent);
 };
 
@@ -327,8 +335,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   //test/graphics/data
   //But if you're building this and creating the executable, which goes into the bin directory
   //in test/graphics/bin then you need to specify the path as "../data".
-  //auto pFileWorker = std::make_shared<bright::utils::FileWorker>("../data/filelist");
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/graphics/data/filelist");
+  //auto pFileWorker = std::make_shared<bright::utils::FileWorker>("../data/files.fl");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/graphics/data/files.fl");
   auto pLoadersManager = std::make_shared<bright::graphics::LoadersManager>(pFileWorker);
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
@@ -339,46 +347,45 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   auto pShader = pLoadersManager->shaders("PER_FRAG_LIGHT_TEXTURE");
   auto pTexture = pLoadersManager->textures("default.dds");
 
-  auto pPlaneGroupRenderInfo = bright::graphics::create_plane(5.0f);
-  pPlaneGroupRenderInfo->pShader_ = pColorShader;
-  pPlaneGroupRenderInfo->hasShader_ = true;
-  pPlaneGroupRenderInfo->cameraType_ = "3rd Person";
+  auto planeGroupRenderInfo = bright::graphics::create_plane(5.0f);
+  planeGroupRenderInfo.pShader_ = pColorShader;
+  planeGroupRenderInfo.hasShader_ = true;
+  planeGroupRenderInfo.cameraType_ = "1st";
 
-  auto pCubeGroupRenderInfo = bright::graphics::create_cube();
-  pCubeGroupRenderInfo->pShader_ = pShader;
-  pCubeGroupRenderInfo->hasShader_ = true;
-  pCubeGroupRenderInfo->cameraType_ = "3rd Person";
+  auto cubeGroupRenderInfo = bright::graphics::create_cube();
+  cubeGroupRenderInfo.pShader_ = pShader;
+  cubeGroupRenderInfo.hasShader_ = true;
+  cubeGroupRenderInfo.cameraType_ = "1st";
 
-  auto pController1 = std::make_shared<bright::base::ClientController>();
-  pController1->update( glm::vec3(0.0f,5.0f,0.0f) );
-  pCubeGroupRenderInfo->modToWorld_ = pController1->model_to_world_transformation_matrix();
-  pCubeGroupRenderInfo->actorRenderInfos_["cube"]->diffuseColor_ = glm::vec4(0.0f,0.0f,1.0f,1.0f);
-  pCubeGroupRenderInfo->actorRenderInfos_["cube"]->pTexture_ = pTexture;
-  pCubeGroupRenderInfo->actorRenderInfos_["cube"]->hasTexture_ = true;
+  bright::base::ActorControlController controller1;
 
+  bright::base::ActorRenderController renderController1;
+  renderController1.update( glm::vec3(0.0f,5.0f,0.0f) );
+  cubeGroupRenderInfo.modToWorld_ = renderController1.model_to_world_transformation_matrix();
+  cubeGroupRenderInfo.actorRenderInfos_["cube"].diffuseColor_ = glm::vec4(0.0f,0.0f,1.0f,1.0f);
+  cubeGroupRenderInfo.actorRenderInfos_["cube"].pTexture_ = pTexture;
+  cubeGroupRenderInfo.actorRenderInfos_["cube"].hasTexture_ = true;
 
-  pController1->update( glm::vec3(0.0f,-5.0f,0.0f) );
-  pPlaneGroupRenderInfo->modToWorld_ = pController1->model_to_world_transformation_matrix();
-  pPlaneGroupRenderInfo->actorRenderInfos_["plane"]->diffuseColor_ = glm::vec4(0.0f,1.0f,0.0f,1.0f);
+  renderController1.update( glm::vec3(0.0f,-5.0f,0.0f) );
+  planeGroupRenderInfo.modToWorld_ = renderController1.model_to_world_transformation_matrix();
+  planeGroupRenderInfo.actorRenderInfos_["plane"].diffuseColor_ = glm::vec4(0.0f,1.0f,0.0f,1.0f);
 
-  pController = std::make_shared<bright::base::ClientController>();
-  pController->update( glm::vec3(0.0f,5.0f,20.0f) );
+  bright::base::ActorRenderController controller;
+  controller.update( glm::vec3(0.0f,5.0f,20.0f) );
 
-  auto pWorldInfo = std::make_shared<bright::graphics::WorldInfo>();
-  pWorldInfo->world_to_cam_matrix( "3rd Person", pController->world_to_camera_transformation_matrix() );
-
+  bright::graphics::WorldInfo worldInfo;
+  worldInfo.world_to_cam_matrix( "1st", controller.world_to_camera_transformation_matrix() );
 
   bright::graphics::Light ambientLight;
   ambientLight.lightDirection_ = glm::vec3(0.0f, 50.0f, 0.0f);
   ambientLight.lightIntensity_ = glm::vec4(0.25f, 0.25f, 0.25f, 1.0f);
-  pWorldInfo->ambient_light(ambientLight);
+  worldInfo.ambient_light(ambientLight);
 
   bright::graphics::Light directionalLight;
   directionalLight.lightDirection_ = glm::vec3(0.0f, 30.0f, 100.0f);
   directionalLight.lightIntensity_ = glm::vec4(0.2f, 0.2f, 0.2f, 0.5f);
-  pWorldInfo->directional_light(directionalLight);
+  worldInfo.directional_light(directionalLight);
 
- 
   //Show and update the window
   pContextManager->show_window(false);
   pContextManager->initialize();
@@ -396,22 +403,39 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
     else{
       pInputManager->notify();
       if(pKeyboardListener->w_){
-        pController->update(pController->pos()+glm::vec3(0.0f,0.0f,0.4f));
+        controller1.move_fwd(1.0f);
       }
       if(pKeyboardListener->s_){
-        pController->update(pController->pos()+glm::vec3(0.0f,0.0f,-0.4f));
+        controller1.move_backward(1.0f);
       }
       if(pKeyboardListener->a_){
-        pController->update(pController->pos()+glm::vec3(0.0f,0.4f,0.0f));
+        controller1.move_left(1.0f);
       }
       if(pKeyboardListener->d_){
-        pController->update(pController->pos()+glm::vec3(0.0f,-0.4f,0.0f));
+        controller1.move_right(1.0f);
       }
-      pWorldInfo->world_to_cam_matrix( "3rd Person", pController->world_to_camera_transformation_matrix() );
+      if(pRawMouseListener->movedDown){
+        controller1.rotate_down(0.1f);
+      }
+      else if(pRawMouseListener->movedUp){
+        controller1.rotate_up(0.1f);
+      }
+      else if(pRawMouseListener->movedLeft){
+        controller1.rotate_left(0.1f);
+      }
+      else if(pRawMouseListener->movedRight){
+        controller1.rotate_right(0.1f);
+      }
+      controller.update( controller1.pos(), controller1.right(), controller1.up(), controller1.look() );
+      worldInfo.world_to_cam_matrix( "1st", controller.world_to_camera_transformation_matrix() );
       pContextManager->begin_rendering();
-      pRenderer->render(pPlaneGroupRenderInfo, pWorldInfo);
-      pRenderer->render(pCubeGroupRenderInfo, pWorldInfo);
+      pRenderer->render(planeGroupRenderInfo, worldInfo);
+      pRenderer->render(cubeGroupRenderInfo, worldInfo);
       pContextManager->end_rendering();
+      pRawMouseListener->movedLeft = false;
+      pRawMouseListener->movedRight = false;
+      pRawMouseListener->movedUp = false;
+      pRawMouseListener->movedDown = false;
     }
   }
   return (int)msg.wParam;
@@ -491,12 +515,16 @@ void RawMouseListener::on_raw_mouse_event(std::shared_ptr<bright::input::RawMous
   //
   if ( pRawMouseInputEvent->raw_mouse_event_type() == bright::input::MouseEventType::MOVEMENT){ 
     if (pRawMouseInputEvent->delta_rate_x() < 0){ 
+      movedLeft = true;
     }
     else if (pRawMouseInputEvent->delta_rate_x() > 0){ 
+      movedRight = true;
     }
     else if (pRawMouseInputEvent->delta_rate_y() < 0){ 
+      movedUp = true;
     }
     else if (pRawMouseInputEvent->delta_rate_y() > 0){ 
+      movedDown = true;
     }
   //  std::cout << "2 : MOVEMENT" << std::endl << std::flush; 
   //  std::cout << "deltaX: " << pRawMouseInputEvent->delta_rate_x() << std::endl << std::flush;

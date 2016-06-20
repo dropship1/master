@@ -16,12 +16,12 @@
 
 int main(int argc, char* argv[]) {
 
-  std::map<std::string, std::shared_ptr<bright::base::ActorControlController>> clientActors;
+  std::map<std::string, bright::base::ActorControlController> playerControllers;
 
   //Add client (as ServerActors) to our clients map
-  auto client1 = std::make_shared<bright::base::ActorControlController>();
-  client1->pos( glm::vec3(5.0f,7.0f,22.0f) );
-  client1->rotation( glm::vec3(7.0f,5.0f,3.0f) );
+  bright::base::ActorControlController client1;
+  client1.pos( glm::vec3(5.0f,7.0f,22.0f) );
+  client1.rotation( glm::vec3(7.0f,5.0f,3.0f) );
   //client1->("client1");
 
   auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/network/data/files.fl");
@@ -29,10 +29,10 @@ int main(int argc, char* argv[]) {
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
 
-  clientActors["client1"] = client1;
+  playerControllers["client1"] = client1;
 
   //Create a client handler
-  bright::network::ClientHandler client1Handler(clientActors);
+  bright::network::ClientHandler client1Handler(playerControllers);
 
 
   //Create some fake login messages for the client handler to process
@@ -58,8 +58,8 @@ int main(int argc, char* argv[]) {
 
   //Lets see if we can change client1's position
   //Lets see if we can change client1's rotation
-  glm::vec3 client1CurrPos = clientActors["client1"]->pos();
-  glm::vec3 client1CurrRot = clientActors["client1"]->rotation();
+  glm::vec3 client1CurrPos = playerControllers["client1"].pos();
+  glm::vec3 client1CurrRot = playerControllers["client1"].rotation();
   std::cout << "Did clients position change?" << std::flush << std::endl;
   std::cout << "Did clients rotation change?" << std::flush << std::endl;
   std::cout << "Before Client1 processed its messages" << std::flush << std::endl;
@@ -68,8 +68,8 @@ int main(int argc, char* argv[]) {
   std::cout << std::flush << std::endl;
 
   client1Handler.process_messages();
-  client1CurrPos = clientActors["client1"]->pos();
-  client1CurrRot = clientActors["client1"]->rotation();
+  client1CurrPos = playerControllers["client1"].pos();
+  client1CurrRot = playerControllers["client1"].rotation();
   std::cout << "After Client1 processed its messages" << std::flush << std::endl;
   std::cout << "pos " << client1CurrPos.x << ":" << client1CurrPos.y << ":" << client1CurrPos.z << std::flush << std::endl;
   std::cout << "rotation " << client1CurrRot.x << ":" << client1CurrRot.y << ":" << client1CurrRot.z << std::flush << std::endl;

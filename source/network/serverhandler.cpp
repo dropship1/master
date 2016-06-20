@@ -5,9 +5,9 @@ using namespace bright::network;
 
 ServerHandler::ServerHandler( std::string username, 
                               std::string password, 
-                              std::shared_ptr<bright::base::ClientController> playerController, 
-                              std::map<std::string, std::shared_ptr<bright::base::ClientController>>& monsterContollers):
-  username_(username), password_(password), isLoggedIn_(false), playerController_(playerController), monsterContollers_(monsterContollers),
+                              std::map<std::string, bright::base::ActorControlController>& playerContollers,
+                              std::map<std::string, bright::base::ActorControlController>& npcContollers):
+  username_(username), password_(password), isLoggedIn_(false), playerControllers_(playerContollers), npcContollers_(npcContollers),
   loginMessage_(username_, password_) {
 }
 
@@ -37,8 +37,7 @@ void ServerHandler::process_messages(){
     empty_updates();
     return;
   }
-  
-  
+
   if( !isLoggedIn_ && loginResponseMessage_.logged_in() ){
     handle_login_response();
     return;
@@ -72,9 +71,7 @@ void ServerHandler::add_update_message(std::shared_ptr<NetworkMessage> pNetworkM
   std::istringstream in( pNetworkMessage->data() );
   std::string name;
   glm::vec3 position;
-  glm::vec3 right;
-  glm::vec3 up;
-  glm::vec3 look;
+  glm::vec3 rotation;
   std::string isP;
   bool isPlayer = false;
   in >> name;
@@ -82,19 +79,13 @@ void ServerHandler::add_update_message(std::shared_ptr<NetworkMessage> pNetworkM
   in >> position.x;
   in >> position.y;
   in >> position.z;
-  in >> right.x;
-  in >> right.y;
-  in >> right.z;
-  in >> up.x;
-  in >> up.y;
-  in >> up.z;
-  in >> look.x;
-  in >> look.y;
-  in >> look.z;
+  in >> rotation.x;
+  in >> rotation.y;
+  in >> rotation.z;
   if (isP.compare("true") == 0){
     isPlayer = true;
   }
-  updateMessages_.push_back( std::make_shared<UpdateMessage>(name, position, right, up, look, isPlayer) );
+  updateMessages_.push_back( UpdateMessage(name, position, rotation, isPlayer) );
 }
 
 
@@ -110,24 +101,24 @@ void ServerHandler::handle_login_response(){
 
 void ServerHandler::handle_update_responses(){
 
-  auto handle_updates = [&] (std::shared_ptr<UpdateMessage> pUpdateMessage) { 
+  auto handle_updates = [&] (UpdateMessage& updateMessage) { 
     //what to do with the update message?
-    if( pUpdateMessage->is_player() && pUpdateMessage->name().compare(username_) == 0 ){
-      //playerController_->update( pUpdateMessage->position(), pUpdateMessage->right(), pUpdateMessage->up(), pUpdateMessage->look() );
+    if( updateMessage.is_player() && updateMessage.name().compare(username_) == 0 ){
+      playerControllers_[updateMessage.name()].update( updateMessage.position(), updateMessage.rotation() );
     }
-    else if( pUpdateMessage->is_player() ){
-      auto it = monsterContollers_.find( pUpdateMessage->name() );
-      if ( it == monsterContollers_.end() ){
-        monsterContollers_[pUpdateMessage->name()] = std::make_shared<bright::base::ClientController>();
+    else if( updateMessage.is_player() ){
+      auto it = playerControllers_.find( updateMessage.name() );
+      if ( it == playerControllers_.end() ){
+        playerControllers_[updateMessage.name()] = bright::base::ActorControlController();
       }
-      monsterContollers_[pUpdateMessage->name()]->update( pUpdateMessage->position(), pUpdateMessage->right(), pUpdateMessage->up(), pUpdateMessage->look() );
+      playerControllers_[updateMessage.name()].update( updateMessage.position(), updateMessage.rotation() );
     }
     else{
-      auto it = monsterContollers_.find( pUpdateMessage->name() );
-      if ( it == monsterContollers_.end() ){
-        monsterContollers_[pUpdateMessage->name()] = std::make_shared<bright::base::ClientController>();
+      auto it = npcContollers_.find( updateMessage.name() );
+      if ( it == npcContollers_.end() ){
+        npcContollers_[updateMessage.name()] = bright::base::ActorControlController();
       }
-      monsterContollers_[pUpdateMessage->name()]->update( pUpdateMessage->position(), pUpdateMessage->right(), pUpdateMessage->up(), pUpdateMessage->look() );
+      npcContollers_[updateMessage.name()].update( updateMessage.position(), updateMessage.rotation() );
     }
   };
   std::for_each(updateMessages_.begin(), updateMessages_.end(), handle_updates);

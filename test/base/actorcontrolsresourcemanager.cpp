@@ -1,11 +1,13 @@
 #include <iostream>
+#include <string>
+#include <chrono>
+#include <thread>
+
 #include "base/actorcontrolsresourcemanager.hpp"
 #include "utils/fileworker.hpp"
 
-using namespace bright::base;
-using namespace bright::utils;
 
-void print_world(std::map<std::string, ControlActor> &npcs, std::map<std::string, ControlActor> &players) {
+void print_world(std::map<std::string, bright::base::ActorControlController>& npcs, std::map<std::string, bright::base::ActorControlController>& players) {
   int npcSymbol = 3;
   int playerSymbol = 1;
   int playerAndNpcSymbol = 4;
@@ -50,18 +52,18 @@ int main(int argc, char* argv[]) {
   auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/base/data/files.fl");
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
-  ActorControlsResourceManager actorControlsResourceManager(pFileWorker);
+  auto pActorControlResourceManager = std::make_shared<bright::base::ActorControlsResourceManager>(pFileWorker);
 
-  auto npcControllers = actorControlsResourceManager.npc_controllers();
-  auto playerControllers = actorControlsResourceManager.player_controllers();
+  auto& npcControllers = pActorControlResourceManager->npc_controllers();
+  auto& playerControllers = pActorControlResourceManager->player_controllers();
 
   std::cout << "BEFORE LOADING WORLD:" << std::endl;
-  print_world(npcs, players);
-  system("PAUSE");
-  actorControlsResourceManager.load_control_actors(npcs, players);
+  print_world(npcControllers, playerControllers);
+  pActorControlResourceManager->initialize();
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  system("cls");
   std::cout << "AFTER LOADING WORLD:" << std::endl;
-  print_world(npcs, players);
-  system("PAUSE");
+  print_world(npcControllers, playerControllers);
   std::cout << "FINISHED WORLD_LOADER TEST." << std::endl;
   system("PAUSE");
 }

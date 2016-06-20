@@ -24,7 +24,7 @@ namespace bright{
 class ClientHandler{
 
 public:
-  ClientHandler(std::map<std::string, std::shared_ptr<bright::base::ActorControlController>>& clientActors);
+  ClientHandler(std::map<std::string, bright::base::ActorControlController>& playerControllers);
 
   std::string username();
   std::string password();
@@ -60,15 +60,12 @@ private:
   bool needToSendUpdateResponse_;
   std::vector<UpdateMessage> updateResponses_;
 
-  std::map<std::string, std::shared_ptr<bright::base::ActorControlController>>& clientActors_;
-  std::shared_ptr<bright::base::ActorControlController> clientActor_;
+  std::map<std::string, bright::base::ActorControlController>& playerControllers_;
   std::vector<bright::input::CommandMessage> commands_;
   LoginMessage loginMessage_;
   bool haveLoginMessage_;
 
   bright::input::ControlState controlState_;
-
-  std::shared_ptr<bright::converters::AABBConverter> pAABBConverter_;
 
 
 };
