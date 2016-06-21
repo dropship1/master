@@ -13,7 +13,7 @@
 #Key=Value
 #...
 #Example
-#<Texture>
+#<Mesh>
 #file=cube
 
 #Mesh

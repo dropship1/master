@@ -5,18 +5,18 @@ using namespace bright::graphics;
 
 LoadersManager::LoadersManager(std::shared_ptr<bright::utils::FileWorker> pFileWorker):
   pFileWorker_(pFileWorker), 
-  pTextureLoader_( std::make_shared<TextureLoader>() ),
-  pShaderLoader_( std::make_shared<ShaderLoader>() ){
+  textureLoader_(),
+  shaderLoader_(){
 }
 
 //load_obj_file
 void LoadersManager::load(){
 
-  std::vector<std::shared_ptr<ShaderConfig>> shaderConfigs;
+  std::vector<ShaderConfig> shaderConfigs;
   load_shader_configs("shaders.res", shaderConfigs);
   load_shaders(shaderConfigs);
 
-  std::vector<std::shared_ptr<TextureConfig>> textureConfigs;
+  std::vector<TextureConfig> textureConfigs;
   load_texture_configs("textures.res", textureConfigs);
   load_textures(textureConfigs);
 
@@ -24,7 +24,7 @@ void LoadersManager::load(){
 
 }
 
-void LoadersManager::load_texture_configs(std::string fullPathAndName, std::vector<std::shared_ptr<TextureConfig>>& textureConfigs){
+void LoadersManager::load_texture_configs(std::string fullPathAndName, std::vector<TextureConfig>& textureConfigs){
 
   std::string fileContents = pFileWorker_->get_file_contents(fullPathAndName);
   std::stringstream in(fileContents);
@@ -43,11 +43,11 @@ void LoadersManager::load_texture_configs(std::string fullPathAndName, std::vect
         filename = line.substr(5);
       }
       else if(line.substr(0,10) == "</Texture>"){
-        auto pTextureConfig = std::make_shared<TextureConfig>();
-        pTextureConfig->filename_ = filename;
-        pTextureConfig->fileContents_ = pFileWorker_->get_file_contents(filename);
-        pTextureConfig->fileStringStream_ = pFileWorker_->get_file_stringstream(filename);
-        textureConfigs.push_back(pTextureConfig);
+        TextureConfig textureConfig;
+        textureConfig.filename_ = filename;
+        textureConfig.fileContents_ = pFileWorker_->get_file_contents(filename);
+        textureConfig.fileStringStream_ = pFileWorker_->get_file_stringstream(filename);
+        textureConfigs.push_back(textureConfig);
         inTextureNode = false;
       }
     }
@@ -59,7 +59,7 @@ void LoadersManager::load_texture_configs(std::string fullPathAndName, std::vect
 
 }
 
-void LoadersManager::load_shader_configs(std::string fullPathAndName, std::vector<std::shared_ptr<ShaderConfig>>& shaderConfigs){
+void LoadersManager::load_shader_configs(std::string fullPathAndName, std::vector<ShaderConfig>& shaderConfigs){
 
   std::string vertexFilename;
   std::string fragmentFilename;
@@ -97,23 +97,23 @@ void LoadersManager::load_shader_configs(std::string fullPathAndName, std::vecto
         type = line.substr(5);
       }
       else if(line.substr(0,9) == "</Shader>"){
-        auto pShaderConfig = std::make_shared<ShaderConfig>();
-        pShaderConfig->fragmentFilename_ = fragmentFilename;
-        pShaderConfig->vertexFilename_ = vertexFilename;
-        pShaderConfig->fragmentFileContents_ = pFileWorker_->get_file_contents(fragmentFilename);
-        pShaderConfig->vertexFileContents_ = pFileWorker_->get_file_contents(vertexFilename);
-        pShaderConfig->type_ = type;
-        pShaderConfig->usePerpective_ = false;
+        ShaderConfig shaderConfig;
+        shaderConfig.fragmentFilename_ = fragmentFilename;
+        shaderConfig.vertexFilename_ = vertexFilename;
+        shaderConfig.fragmentFileContents_ = pFileWorker_->get_file_contents(fragmentFilename);
+        shaderConfig.vertexFileContents_ = pFileWorker_->get_file_contents(vertexFilename);
+        shaderConfig.type_ = type;
+        shaderConfig.usePerpective_ = false;
         if (usePerpective){
-          pShaderConfig->usePerpective_ = true;
-          pShaderConfig->camToClipLocationName_ = camToClipLocationName;
+          shaderConfig.usePerpective_ = true;
+          shaderConfig.camToClipLocationName_ = camToClipLocationName;
         }
-        pShaderConfig->hasTextures_ = false;
+        shaderConfig.hasTextures_ = false;
         if (hasTexture){
-          pShaderConfig->hasTextures_ = true;
-          pShaderConfig->textureUniformName_ = textureUniformName;
+          shaderConfig.hasTextures_ = true;
+          shaderConfig.textureUniformName_ = textureUniformName;
         }
-        shaderConfigs.push_back(pShaderConfig);
+        shaderConfigs.push_back(shaderConfig);
         usePerpective = false;
         hasTexture = false;
         inShaderNode = false;
@@ -127,22 +127,22 @@ void LoadersManager::load_shader_configs(std::string fullPathAndName, std::vecto
 
 }
 
-void LoadersManager::load_textures(std::vector<std::shared_ptr<TextureConfig>>& textureConfigs){
+void LoadersManager::load_textures(std::vector<TextureConfig>& textureConfigs){
 
-  auto create_texture_from_config = [&] (std::shared_ptr<TextureConfig> pTextureConfig) { 
-    auto pTexture = pTextureLoader_->create_texture(pTextureConfig);
-    textures_[pTextureConfig->filename_] = pTexture;
+  auto create_texture_from_config = [&] (TextureConfig& textureConfig) { 
+    auto texture = textureLoader_.create_texture(textureConfig);
+    textures_[textureConfig.filename_] = std::make_shared<bright::graphics::Texture>(texture);
   };
   std::for_each(textureConfigs.begin(), textureConfigs.end(), create_texture_from_config);
 
 }
 
 
-void LoadersManager::load_shaders(std::vector<std::shared_ptr<ShaderConfig>>& shaderConfigs){
+void LoadersManager::load_shaders(std::vector<ShaderConfig>& shaderConfigs){
 
-  auto create_shader_from_config = [&] (std::shared_ptr<ShaderConfig> pShaderConfig) { 
-    auto pShader = pShaderLoader_->load_single_shader_program(pShaderConfig);
-    shaders_[pShaderConfig->type_] = pShader;
+  auto create_shader_from_config = [&] (ShaderConfig& shaderConfig) { 
+    auto shader = shaderLoader_.load_single_shader_program(shaderConfig);
+    shaders_[shaderConfig.type_] = std::make_shared<bright::graphics::Shader>(shader);
   };
   std::for_each(shaderConfigs.begin(), shaderConfigs.end(), create_shader_from_config);
 

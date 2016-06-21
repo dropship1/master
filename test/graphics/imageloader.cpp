@@ -16,7 +16,7 @@ int main(){
   //in test/tools/bin then you need to specify the path as "../meshes/obj".
   //auto pGliTexture2D = pImageLoader->load_single_dds_image("../data", "default_material.dds");
   //auto pGliTexture2D = pImageLoader->load_single_dds_image("test/graphics/data", "default_material.dds");
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/graphics/data/filelist");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/graphics/data/files.fl");
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
 

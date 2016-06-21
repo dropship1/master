@@ -48,17 +48,24 @@ struct TextureConfig{
 
 
 struct ActorRenderInfo{
+  ActorRenderInfo(std::shared_ptr<Texture> pTexture): pTexture_(pTexture){ 
+    hasTexture_ = true;
+    vertexCoordsSize_ = 0;
+    diffuseColor_ = glm::vec4(1.0f,0.0f,0.0f,1.0f);
+  }
+
   ActorRenderInfo(){ 
     hasTexture_ = false;
     vertexCoordsSize_ = 0;
     diffuseColor_ = glm::vec4(1.0f,0.0f,0.0f,1.0f);
   }
+
   GLuint vbo_;
   GLuint tbo_;
   GLuint nbo_;
   GLuint vao_;
 
-  std::shared_ptr<bright::graphics::Texture> pTexture_;
+  std::shared_ptr<Texture> pTexture_;
 
   int vertexCoordsSize_;
 
@@ -69,6 +76,10 @@ struct ActorRenderInfo{
 };
 
 struct ActorGroupRenderInfo{
+  ActorGroupRenderInfo(std::shared_ptr<Shader> pShader): pShader_(pShader){ 
+    hasShader_  = true;
+  }
+
   ActorGroupRenderInfo(){ 
     hasShader_  = false;
   }
@@ -77,7 +88,7 @@ struct ActorGroupRenderInfo{
     return actorRenderInfos_[name];
   }
 
-  std::shared_ptr<bright::graphics::Shader> pShader_;
+  std::shared_ptr<Shader> pShader_;
 
   glm::mat4 modToWorld_;
 

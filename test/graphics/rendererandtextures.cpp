@@ -6,7 +6,8 @@
 #include "base/globalstructs.hpp"
 #include "context/contextmanager.hpp"
 #include "context/context.hpp"
-#include "base/clientcontroller.hpp"
+#include "base/actorrendercontroller.hpp"
+#include "base/actorcontrolcontroller.hpp"
 #include <memory>
 #include <algorithm>
 
@@ -28,7 +29,9 @@
 
 
 std::shared_ptr<bright::context::ContextManager> pContextManager;
-std::shared_ptr<bright::base::ClientController> pController;
+bright::base::ActorRenderController renderController;
+bright::base::ActorRenderController render2Controller;
+bright::base::ActorControlController playerController;
 
 
 enum WinKeys {
@@ -328,7 +331,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   //But if you're building this and creating the executable, which goes into the bin directory
   //in test/graphics/bin then you need to specify the path as "../data".
   //auto pFileWorker = std::make_shared<bright::utils::FileWorker>("../data/filelist");
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/graphics/data/filelist");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/graphics/data/files.fl");
   auto pLoadersManager = std::make_shared<bright::graphics::LoadersManager>(pFileWorker);
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
@@ -340,42 +343,39 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   auto pTexture = pLoadersManager->textures("dirt.dds");
 
   auto pPlaneGroupRenderInfo = bright::graphics::create_plane(5.0f);
-  pPlaneGroupRenderInfo->pShader_ = pTextureShader;
-  pPlaneGroupRenderInfo->cameraType_ = "1st";
+  pPlaneGroupRenderInfo.pShader_ = pTextureShader;
+  pPlaneGroupRenderInfo.cameraType_ = "1st";
 
   auto pCubeGroupRenderInfo = bright::graphics::create_cube();
-  pCubeGroupRenderInfo->pShader_ = pTextureShader;
-  pCubeGroupRenderInfo->cameraType_ = "1st";
+  pCubeGroupRenderInfo.pShader_ = pTextureShader;
+  pCubeGroupRenderInfo.cameraType_ = "1st";
 
-  pController = std::make_shared<bright::base::ClientController>();
-  pController->update( glm::vec3(0.0f,5.0f,0.0f) );
-  pCubeGroupRenderInfo->modToWorld_ = pController->model_to_world_transformation_matrix();
-  pCubeGroupRenderInfo->actorRenderInfos_["cube"]->diffuseColor_ = glm::vec4(0.0f,0.0f,1.0f,1.0f);
-  pCubeGroupRenderInfo->actorRenderInfos_["cube"]->pTexture_ = pTexture;
-  pCubeGroupRenderInfo->actorRenderInfos_["cube"]->hasTexture_ = true;
+  renderController.update( glm::vec3(0.0f,5.0f,0.0f) );
+  pCubeGroupRenderInfo.modToWorld_ = renderController.model_to_world_transformation_matrix();
+  pCubeGroupRenderInfo.actorRenderInfos_["cube"].diffuseColor_ = glm::vec4(0.0f,0.0f,1.0f,1.0f);
+  pCubeGroupRenderInfo.actorRenderInfos_["cube"].pTexture_ = pTexture;
+  pCubeGroupRenderInfo.actorRenderInfos_["cube"].hasTexture_ = true;
 
-  pController->update( glm::vec3(0.0f,-5.0f,0.0f) );
-  pPlaneGroupRenderInfo->modToWorld_ = pController->model_to_world_transformation_matrix();
-  pPlaneGroupRenderInfo->actorRenderInfos_["plane"]->diffuseColor_ = glm::vec4(0.0f,1.0f,0.0f,1.0f);
-  pPlaneGroupRenderInfo->actorRenderInfos_["plane"]->pTexture_ = pTexture;
-  pPlaneGroupRenderInfo->actorRenderInfos_["plane"]->hasTexture_ = true;
+  renderController.update( glm::vec3(0.0f,-5.0f,0.0f) );
+  pPlaneGroupRenderInfo.modToWorld_ = renderController.model_to_world_transformation_matrix();
+  pPlaneGroupRenderInfo.actorRenderInfos_["plane"].diffuseColor_ = glm::vec4(0.0f,1.0f,0.0f,1.0f);
+  pPlaneGroupRenderInfo.actorRenderInfos_["plane"].pTexture_ = pTexture;
+  pPlaneGroupRenderInfo.actorRenderInfos_["plane"].hasTexture_ = true;
 
-  pController = std::make_shared<bright::base::ClientController>();
-  pController->update( glm::vec3(0.0f,5.0f,20.0f) );
+  render2Controller.update( glm::vec3(0.0f,5.0f,20.0f) );
 
-  auto pWorldInfo = std::make_shared<bright::graphics::WorldInfo>();
-  pWorldInfo->world_to_cam_matrix( "1st", pController->world_to_camera_transformation_matrix() );
-
+  bright::graphics::WorldInfo worldInfo;
+  worldInfo.world_to_cam_matrix( "1st", render2Controller.world_to_camera_transformation_matrix() );
 
   bright::graphics::Light ambientLight;
   ambientLight.lightDirection_ = glm::vec3(0.0f, 50.0f, 0.0f);
   ambientLight.lightIntensity_ = glm::vec4(0.25f, 0.25f, 0.25f, 1.0f);
-  pWorldInfo->ambient_light(ambientLight);
+  worldInfo.ambient_light(ambientLight);
 
   bright::graphics::Light directionalLight;
   directionalLight.lightDirection_ = glm::vec3(0.0f, 30.0f, 100.0f);
   directionalLight.lightIntensity_ = glm::vec4(0.2f, 0.2f, 0.2f, 0.5f);
-  pWorldInfo->directional_light(directionalLight);
+  worldInfo.directional_light(directionalLight);
 
  
   //Show and update the window
@@ -395,20 +395,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
     else{
       pInputManager->notify();
       if(pKeyboardListener->w_){
-        pController->update(pController->pos()+glm::vec3(0.0f,0.0f,0.4f));
+        playerController.move_fwd(0.2f);
       }
       if(pKeyboardListener->s_){
-        pController->update(pController->pos()+glm::vec3(0.0f,0.0f,-0.4f));
+        playerController.move_backward(0.2f);
       }
       if(pKeyboardListener->a_){
-        pController->update(pController->pos()+glm::vec3(0.0f,0.4f,0.0f));
+        playerController.move_left(0.2f);
       }
       if(pKeyboardListener->d_){
-        pController->update(pController->pos()+glm::vec3(0.0f,-0.4f,0.0f));
+        playerController.move_right(0.2f);
       }
-      pWorldInfo->world_to_cam_matrix( "1st", pController->world_to_camera_transformation_matrix() );
+      render2Controller.update( playerController.pos(), playerController.right(), playerController.up(), playerController.look() );
+      worldInfo.world_to_cam_matrix( "1st", render2Controller.world_to_camera_transformation_matrix() );
       pContextManager->begin_rendering();
-      pRenderer->render(pPlaneGroupRenderInfo, pWorldInfo);
+      pRenderer->render(pPlaneGroupRenderInfo, worldInfo);
       //pRenderer->render(pCubeGroupRenderInfo, pWorldInfo);
       pContextManager->end_rendering();
     }
@@ -490,12 +491,16 @@ void RawMouseListener::on_raw_mouse_event(std::shared_ptr<bright::input::RawMous
   //
   if ( pRawMouseInputEvent->raw_mouse_event_type() == bright::input::MouseEventType::MOVEMENT){ 
     if (pRawMouseInputEvent->delta_rate_x() < 0){
+      playerController.rotate_left(0.1f);
     }
     else if (pRawMouseInputEvent->delta_rate_x() > 0){ 
+      playerController.rotate_right(0.1f);
     }
     else if (pRawMouseInputEvent->delta_rate_y() < 0){ 
+      playerController.rotate_up(0.1f);
     }
     else if (pRawMouseInputEvent->delta_rate_y() > 0){ 
+      playerController.rotate_down(0.1f);
     }
   //  std::cout << "2 : MOVEMENT" << std::endl << std::flush; 
   //  std::cout << "deltaX: " << pRawMouseInputEvent->delta_rate_x() << std::endl << std::flush;

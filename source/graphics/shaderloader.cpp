@@ -6,6 +6,7 @@ using namespace bright::graphics;
 ShaderLoader::ShaderLoader(){
 }
 
+
 void ShaderLoader::validate_shader(GLuint shaderId, GLenum shaderType){
 
   GLint status;
@@ -52,22 +53,22 @@ void ShaderLoader::validate_program(GLuint programId){
 }
 
 
-std::shared_ptr<Shader> ShaderLoader::load_single_shader_program(std::shared_ptr<ShaderConfig> shaderConfig){
+Shader ShaderLoader::load_single_shader_program(ShaderConfig& shaderConfig){
 
-  auto pShader = create_shader_program(shaderConfig);
-  if ( pShader->success_status() ){
-    initialize_shader_program(pShader, shaderConfig);
-    return pShader;
+  auto shader = create_shader_program(shaderConfig);
+  if ( shader.success_status() ){
+    initialize_shader_program(shader, shaderConfig);
+    return shader;
   }
   else{
     //handle error
-    return pShader;
+    return shader;
   }
   
 }
 
 
-void ShaderLoader::initialize_shader_program(std::shared_ptr<Shader> pShader, std::shared_ptr<ShaderConfig> shaderConfig){
+void ShaderLoader::initialize_shader_program(Shader& shader, ShaderConfig& shaderConfig){
 
   std::stringstream vertexShaderFileStream(vertexShaderText_);
   for (std::string line; std::getline(vertexShaderFileStream, line); ){
@@ -77,8 +78,8 @@ void ShaderLoader::initialize_shader_program(std::shared_ptr<Shader> pShader, st
       std::string uniformLocationName = trimedLine.substr(nextSpacePos+1); 
       //trim simicolon off the end
       uniformLocationName = uniformLocationName.substr(0,uniformLocationName.size()-1);
-      GLint location = glGetUniformLocation(pShader->program_id(), uniformLocationName.c_str());
-      pShader->uniform_location(location, uniformLocationName);
+      GLint location = glGetUniformLocation(shader.program_id(), uniformLocationName.c_str());
+      shader.uniform_location(location, uniformLocationName);
     }
   }
 
@@ -90,12 +91,12 @@ void ShaderLoader::initialize_shader_program(std::shared_ptr<Shader> pShader, st
       std::string uniformLocationName = trimedLine.substr(nextSpacePos+1); 
       //trim simicolon off the end
       uniformLocationName = uniformLocationName.substr(0,uniformLocationName.size()-1);
-      GLint location = glGetUniformLocation(pShader->program_id(), uniformLocationName.c_str());
-      pShader->uniform_location(location, uniformLocationName);
+      GLint location = glGetUniformLocation(shader.program_id(), uniformLocationName.c_str());
+      shader.uniform_location(location, uniformLocationName);
     }
   }
 
-  if (shaderConfig->usePerpective_){
+  if (shaderConfig.usePerpective_){
     //http://web.archive.org/web/20140208131757/http://www.arcsynthesis.org/gltut/Positioning/Tut04%20Aspect%20of%20the%20World.html#d0e4422
     //http://stackoverflow.com/questions/15457210/opengl-es-objects-away-from-view-centre-are-stretched
     //Load up the CameraToClipMatrix, this is our perspective adjustment of our camera(transforming our camera into clip space), 
@@ -109,45 +110,45 @@ void ShaderLoader::initialize_shader_program(std::shared_ptr<Shader> pShader, st
     float zNear = 0.25f; 
     float zFar = 200000.0f;
     glm::mat4 persMatrix = glm::perspective(fov, apectRatio, zNear, zFar);
-    glUseProgram(pShader->program_id());
-    unsigned int camToClipLocation = pShader->uniform_location(shaderConfig->camToClipLocationName_);
+    glUseProgram( shader.program_id() );
+    unsigned int camToClipLocation = shader.uniform_location(shaderConfig.camToClipLocationName_);
     glUniformMatrix4fv(camToClipLocation, 1, GL_FALSE, glm::value_ptr(persMatrix));
     glUseProgram(0);
   }
 
-  if (shaderConfig->hasTextures_){
-    pShader->texture_unit(1);
-    glUseProgram(pShader->program_id() );
-    glUniform1i(pShader->uniform_location(shaderConfig->textureUniformName_), pShader->texture_unit());
+  if (shaderConfig.hasTextures_){
+    shader.texture_unit(1);
+    glUseProgram(shader.program_id() );
+    glUniform1i(shader.uniform_location(shaderConfig.textureUniformName_), shader.texture_unit());
     glUseProgram(0);
   }
 
 }
 
 
-std::shared_ptr<Shader> ShaderLoader::create_shader_program(std::shared_ptr<ShaderConfig> shaderConfig){
+Shader ShaderLoader::create_shader_program(ShaderConfig& shaderConfig){
   
-  auto pShader = std::make_shared<Shader>();
+  Shader shader;
 
   //Create a vertex shader
   GLuint vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
-  pShader->vertex_id(vertexShaderId);
+  shader.vertex_id(vertexShaderId);
   
   //Create a fragment shader
   GLuint fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
-  pShader->fragment_id(fragmentShaderId);
+  shader.fragment_id(fragmentShaderId);
   
-  vertexShaderText_ = shaderConfig->vertexFileContents_;
-  fragmentShaderText_ = shaderConfig->fragmentFileContents_;
+  vertexShaderText_ = shaderConfig.vertexFileContents_;
+  fragmentShaderText_ = shaderConfig.fragmentFileContents_;
    
   const char *vertexText = vertexShaderText_.c_str();
   const char *fragmentText = fragmentShaderText_.c_str();
 
   //If either the vertex or fragment shader wouldn't load
   if (vertexText == NULL || fragmentText == NULL) {
-	  pShader->success_status(false);
-	  pShader->status_string("Either vertex shader or fragment shader file data not found.");
-    return pShader;
+	  shader.success_status(false);
+	  shader.status_string("Either vertex shader or fragment shader file data not found.");
+    return shader;
   }
 
   glShaderSource(vertexShaderId, 1, &vertexText, NULL); 
@@ -164,7 +165,7 @@ std::shared_ptr<Shader> ShaderLoader::create_shader_program(std::shared_ptr<Shad
 
   //Create a GLSL program
   GLuint shaderProgramId = glCreateProgram();
-  pShader->program_id(shaderProgramId);
+  shader.program_id(shaderProgramId);
   
   //Attach a vertex shader to the program
   glAttachShader(shaderProgramId, vertexShaderId);
@@ -178,5 +179,5 @@ std::shared_ptr<Shader> ShaderLoader::create_shader_program(std::shared_ptr<Shad
   //Validate the shader program
   validate_program(shaderProgramId);
   
-  return pShader;
+  return shader;
 }

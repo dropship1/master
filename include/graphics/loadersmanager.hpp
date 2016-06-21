@@ -44,19 +44,19 @@ public:
 
 private:
 
-  void load_textures(std::vector<std::shared_ptr<TextureConfig>>& textureConfigs);
-  void load_shaders(std::vector<std::shared_ptr<ShaderConfig>>& shaderFileSets);
+  void load_textures(std::vector<TextureConfig>& textureConfigs);
+  void load_shaders(std::vector<ShaderConfig>& shaderFileSets);
 
-  void load_shader_configs(std::string fullPathAndName, std::vector<std::shared_ptr<ShaderConfig>>& shaderConfigs);
-  void load_texture_configs(std::string fullPathAndName, std::vector<std::shared_ptr<TextureConfig>>& textureConfigs);
+  void load_shader_configs(std::string fullPathAndName, std::vector<ShaderConfig>& shaderConfigs);
+  void load_texture_configs(std::string fullPathAndName, std::vector<TextureConfig>& textureConfigs);
 
-  std::shared_ptr<TextureLoader> pTextureLoader_;
-  std::shared_ptr<ShaderLoader> pShaderLoader_;
+  TextureLoader textureLoader_;
+  ShaderLoader shaderLoader_;
 
   std::map<std::string, std::shared_ptr<Texture>> textures_;
   std::map<std::string, std::shared_ptr<Shader>> shaders_;
-  std::shared_ptr<bright::utils::FileWorker> pFileWorker_;
 
+  std::shared_ptr<bright::utils::FileWorker> pFileWorker_;
 
 };
 

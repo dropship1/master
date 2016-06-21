@@ -73,26 +73,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
   auto pTextureLoader = std::make_shared<bright::graphics::TextureLoader>();
 
-  auto pTextureConfig = std::make_shared<bright::graphics::TextureConfig>();
-  pTextureConfig->filename_ = "dirt.dds";
+  bright::graphics::TextureConfig textureConfig;
+  textureConfig.filename_ = "dirt.dds";
 
   //If you're running this from the debuger/visual studio, then you need to specify the path to the 
   //data directory starting from the "bright" directory, for example:
   //test/graphics/data
   //But if you're building this and creating the executable, which goes into the bin directory
   //in test/graphics/bin then you need to specify the path as "../data".
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/graphics/data/filelist");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/graphics/data/files.fl");
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
 
-  pTextureConfig->fileContents_ = pFileWorker->get_file_contents("dirt.dds");
-  auto pTexture = pTextureLoader->create_texture(pTextureConfig);
+  textureConfig.fileContents_ = pFileWorker->get_file_contents("dirt.dds");
+  auto texture = pTextureLoader->create_texture(textureConfig);
 
   //(Add more testing later, this is pretty simple verification)
   std::cout << "Texture: " << std::endl << std::flush;
-  std::cout << "textureID: " << pTexture->texture_id() << std::endl << std::flush;
-  std::cout << "successStatus: " << pTexture->success_status() << std::endl << std::flush;
-  std::cout << "statusString: " << pTexture->status_string() << std::endl << std::flush;
+  std::cout << "textureID: " << texture.texture_id() << std::endl << std::flush;
+  std::cout << "successStatus: " << texture.success_status() << std::endl << std::flush;
+  std::cout << "statusString: " << texture.status_string() << std::endl << std::flush;
   std::cout << std::endl << std::flush;
 
 
@@ -100,13 +100,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
   //Loop over all uniforms (Add more testing later, this is pretty simple verification)
   std::cout << "Samplers:" << std::endl << std::flush;
-  std::cout << "numSamplers: " << pTexture->num_samplers() << std::endl << std::flush;
+  std::cout << "numSamplers: " << texture.num_samplers() << std::endl << std::flush;
   auto verify_sampler = [&] (unsigned int samplerId) { 
     std::cout << "samplerID: " << samplerId << std::endl << std::flush;
     std::cout << std::endl << std::flush;
   };
 
-  std::for_each(pTexture->samplers().begin(), pTexture->samplers().end(), verify_sampler);
+  std::for_each(texture.samplers().begin(), texture.samplers().end(), verify_sampler);
 
   std::cout << "ctr+c to exit or x on the window" << std::endl;
   while (true){ }

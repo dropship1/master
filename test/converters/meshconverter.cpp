@@ -7,7 +7,7 @@
 
 int main(){
 
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/converters/data/filelist");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/converters/data/files.fl");
   auto pMeshConverter = std::make_shared<bright::converters::MeshConverter>(pFileWorker);
 
   std::vector<std::string> meshFileNames;

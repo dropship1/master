@@ -21,20 +21,32 @@ std::shared_ptr<bright::base::Mesh> MeshConverter::mesh(std::string meshComposit
 
 void MeshConverter::batch_read_obj_mesh_binary(){
 
-  std::string meshList =  pFileWorker_->get_file_contents("meshlist");
+  std::string meshList =  pFileWorker_->get_file_contents("mesh.res");
   std::stringstream in(meshList);
   std::string line; 
   std::string meshFile;
   std::vector<std::string> meshFileList;
+  bool inMeshNode = false; 
   while (getline(in, line)){
-    if (line.substr(0,1) == "]" ){
+    if (line.substr(0,1) == "]"){
       break;
     }
-    if(line.substr(0,5) == "file="){
-      meshFile = line.substr(5);
-      meshFileList.push_back( meshFile );
+    if (inMeshNode){
+      if(line.substr(0,5) == "file="){
+        meshFile = line.substr(5);
+      }
+      else if(line.substr(0,7) == "</Mesh>"){
+        meshFileList.push_back( meshFile );
+        inMeshNode = false;
+      }
+    }
+    else if (line.substr(0,6) == "<Mesh>"){ 
+      inMeshNode = true;
     }
   }
+
+
+
 
   std::vector<std::shared_ptr<std::istringstream>> streams = pFileWorker_->get_files_streams(meshFileList);
   //Loop over all streams
@@ -112,7 +124,9 @@ void MeshConverter::single_dump_mesh_binary(std::string path, std::shared_ptr<br
 	start = clock() / (CLOCKS_PER_SEC / 1000);
 
   //Write the new mesh out to disk.
-  std::fstream output(fullPathAndName, std::ios::out | std::ios::trunc | std::ios::binary);
+  std::ofstream output;
+  output.open(fullPathAndName, std::ios::binary | std::ios::out | std::ios::trunc);
+
   //std::fstream output(fullPathAndName, std::ios::out | std::ios::trunc);
   mesh->to_stream(output);
 

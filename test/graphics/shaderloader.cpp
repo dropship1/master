@@ -79,25 +79,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   //But if you're building this and creating the executable, which goes into the bin directory
   //in test/graphics/bin then you need to specify the path as "../data".
   //pShaderConfig->path_ = "test/graphics/data";
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/graphics/data/filelist");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/graphics/data/files.fl");
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
 
-  auto pShaderConfig = std::make_shared<bright::graphics::ShaderConfig>();
-  pShaderConfig->camToClipLocationName_ = "cameraToClipMatrix";
-  pShaderConfig->type_ = "PER_FRAG_LIGHT_COLOR";
-  pShaderConfig->fragmentFileContents_ = pFileWorker->get_file_contents("pflt.f");
-  pShaderConfig->vertexFileContents_ = pFileWorker->get_file_contents("pflt.v");
-  pShaderConfig->usePerpective_ = true;
-  auto pShader = pShaderLoader->load_single_shader_program(pShaderConfig);
+  bright::graphics::ShaderConfig shaderConfig;
+  shaderConfig.camToClipLocationName_ = "cameraToClipMatrix";
+  shaderConfig.type_ = "PER_FRAG_LIGHT_COLOR";
+  shaderConfig.fragmentFileContents_ = pFileWorker->get_file_contents("pflt.f");
+  shaderConfig.vertexFileContents_ = pFileWorker->get_file_contents("pflt.v");
+  shaderConfig.usePerpective_ = true;
+  auto shader = pShaderLoader->load_single_shader_program(shaderConfig);
 
   //(Add more testing later, this is pretty simple verification)
   std::cout << "Shader: " << std::endl << std::flush;
-  std::cout << "programID: " << pShader->program_id() << std::endl << std::flush;
-  std::cout << "fragmentID_: " << pShader->fragment_id() << std::endl << std::flush;
-  std::cout << "vertextID: " << pShader->vertex_id() << std::endl << std::flush;
-  std::cout << "successStatus: " << pShader->success_status() << std::endl << std::flush;
-  std::cout << "statusString: " << pShader->status_string() << std::endl << std::flush;
+  std::cout << "programID: " << shader.program_id() << std::endl << std::flush;
+  std::cout << "fragmentID_: " << shader.fragment_id() << std::endl << std::flush;
+  std::cout << "vertextID: " << shader.vertex_id() << std::endl << std::flush;
+  std::cout << "successStatus: " << shader.success_status() << std::endl << std::flush;
+  std::cout << "statusString: " << shader.status_string() << std::endl << std::flush;
   std::cout << std::endl << std::flush;
   
   std::map<std::string,unsigned int> uniformLocations_;
@@ -105,7 +105,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   //Loop over all uniforms (Add more testing later, this is pretty simple verification)
   std::cout << "Uniforms:" << std::endl << std::flush;
   auto verify_uniform = [&] (std::string uniformName) { 
-    unsigned int uniformLocation = pShader->uniform_location(uniformName);
+    unsigned int uniformLocation = shader.uniform_location(uniformName);
     std::cout << "uniformName: " << uniformName << std::endl << std::flush;
     std::cout << "uniformLocation: " << uniformLocation << std::endl << std::flush;
     std::cout << std::endl << std::flush;

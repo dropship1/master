@@ -38,14 +38,12 @@ class TextureLoader {
 public:
   TextureLoader();
   
-  std::shared_ptr<Texture> create_texture(std::shared_ptr<bright::graphics::TextureConfig> textureConfig);
+  Texture create_texture(TextureConfig& textureConfig);
 
 private:
-  void create_samplers(std::shared_ptr<Texture> pTexture);
+  void create_samplers(Texture& texture);
 
   ImageLoader imageLoader_;
-  std::map<std::string, std::shared_ptr<Texture>> textures_;
-
 
 };
 

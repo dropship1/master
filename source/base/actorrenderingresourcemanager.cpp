@@ -115,18 +115,13 @@ void ActorRenderingResourceManager::load_resources_and_create_render_infos(){
   //and animation on each child.. )
   auto get_root_mesh = [&] (RenderActor& renderActor) { 
     //This is the rootMesh, it contains metadata
-    auto pRootMesh = meshConverter_.mesh(renderActor.mesh());
-    bright::graphics::ActorGroupRenderInfo rootActorGroupRenderInfo;
+    auto pRootMesh = meshConverter_.mesh( renderActor.mesh() );
+    bright::graphics::ActorGroupRenderInfo rootActorGroupRenderInfo( graphicsLoadersManager_.shaders( renderActor.shader() ) );
     rootActorGroupRenderInfo.cameraType_ = renderActor.camera_type();
-    rootActorGroupRenderInfo.pShader_ = graphicsLoadersManager_.shaders( renderActor.shader() );
-    rootActorGroupRenderInfo.hasShader_ = true;
 
     auto create_render_info = [&] (std::shared_ptr<Mesh> pChildMesh) {
-      bright::graphics::ActorRenderInfo childActorRenderInfo;
-      load_mesh_to_graphics_card(pChildMesh, childActorRenderInfo);
-      childActorRenderInfo.pTexture_ = graphicsLoadersManager_.textures(pChildMesh->material());
-      childActorRenderInfo.hasTexture_ = true;
-      rootActorGroupRenderInfo.actorRenderInfos_[pChildMesh->part_name()] = childActorRenderInfo;
+      rootActorGroupRenderInfo.actorRenderInfos_[pChildMesh->part_name()] = bright::graphics::ActorRenderInfo( graphicsLoadersManager_.textures( pChildMesh->material() ) );
+      load_mesh_to_graphics_card( pChildMesh, rootActorGroupRenderInfo.actorRenderInfos_[pChildMesh->part_name()] );
     };
     std::for_each(pRootMesh->child_meshes().begin(), pRootMesh->child_meshes().end(), create_render_info);
     actorGroupRenderInfos_[renderActor.name()] = rootActorGroupRenderInfo;

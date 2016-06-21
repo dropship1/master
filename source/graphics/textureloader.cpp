@@ -3,21 +3,19 @@
 using namespace bright::graphics;
 
 TextureLoader::TextureLoader(){
-
 }
 
+Texture TextureLoader::create_texture(TextureConfig& textureConfig){
 
-std::shared_ptr<Texture> TextureLoader::create_texture(std::shared_ptr<bright::graphics::TextureConfig> textureConfig){
+  Texture texture;
 
-  auto pTexture = std::make_shared<Texture>();
-
-  std::stringstream stream(textureConfig->fileContents_);
+  std::stringstream stream(textureConfig.fileContents_);
   auto pTexture2D = imageLoader_.load_single_dds_image(stream);
 
   GLuint tid;
   //Allocate a texture name
   glGenTextures(1, &tid);
-  pTexture->texture_id(tid);
+  texture.texture_id(tid);
 
   glBindTexture(GL_TEXTURE_2D, tid);
 
@@ -74,54 +72,54 @@ std::shared_ptr<Texture> TextureLoader::create_texture(std::shared_ptr<bright::g
   } 
 
   glBindTexture(GL_TEXTURE_2D, 0);
-  pTexture->num_samplers(6);
-  create_samplers(pTexture);
+  texture.num_samplers(6);
+  create_samplers(texture);
 
-  return pTexture;
+  return texture;
 }
   
 
-void TextureLoader::create_samplers(std::shared_ptr<Texture> pTexture){
+void TextureLoader::create_samplers(Texture& texture){
 
-  for (int n=0; n < pTexture->num_samplers(); ++n){
+  for (int n=0; n < texture.num_samplers(); ++n){
     GLuint sampler= 0;
     glGenSamplers(1, &sampler);
-    pTexture->samplers(sampler);
+    texture.samplers(sampler);
   }
   
   
-  for(int samplerIx = 0; samplerIx < pTexture->num_samplers(); ++samplerIx){
-    glSamplerParameteri(pTexture->get_sampler_id(samplerIx), GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glSamplerParameteri(pTexture->get_sampler_id(samplerIx), GL_TEXTURE_WRAP_T, GL_REPEAT);
+  for(int samplerIx = 0; samplerIx < texture.num_samplers(); ++samplerIx){
+    glSamplerParameteri(texture.get_sampler_id(samplerIx), GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glSamplerParameteri(texture.get_sampler_id(samplerIx), GL_TEXTURE_WRAP_T, GL_REPEAT);
   }
   
   //Nearest
-  glSamplerParameteri(pTexture->get_sampler_id(0), GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glSamplerParameteri(pTexture->get_sampler_id(0), GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glSamplerParameteri(texture.get_sampler_id(0), GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glSamplerParameteri(texture.get_sampler_id(0), GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   
   //Linear
-  glSamplerParameteri(pTexture->get_sampler_id(1), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glSamplerParameteri(pTexture->get_sampler_id(1), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glSamplerParameteri(texture.get_sampler_id(1), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glSamplerParameteri(texture.get_sampler_id(1), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   
   //Linear mipmap Nearest
-  glSamplerParameteri(pTexture->get_sampler_id(2), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glSamplerParameteri(pTexture->get_sampler_id(2), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+  glSamplerParameteri(texture.get_sampler_id(2), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glSamplerParameteri(texture.get_sampler_id(2), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
   
   //Linear mipmap linear
-  glSamplerParameteri(pTexture->get_sampler_id(3), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glSamplerParameteri(pTexture->get_sampler_id(3), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glSamplerParameteri(texture.get_sampler_id(3), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glSamplerParameteri(texture.get_sampler_id(3), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   
   //Low anisotropic
-  glSamplerParameteri(pTexture->get_sampler_id(4), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glSamplerParameteri(pTexture->get_sampler_id(4), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  glSamplerParameterf(pTexture->get_sampler_id(4), GL_TEXTURE_MAX_ANISOTROPY_EXT, 4.0f);
+  glSamplerParameteri(texture.get_sampler_id(4), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glSamplerParameteri(texture.get_sampler_id(4), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glSamplerParameterf(texture.get_sampler_id(4), GL_TEXTURE_MAX_ANISOTROPY_EXT, 4.0f);
   
   //Max anisotropic
   GLfloat maxAniso = 0.0f;
   glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
   
-  glSamplerParameteri(pTexture->get_sampler_id(5), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glSamplerParameteri(pTexture->get_sampler_id(5), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  glSamplerParameterf(pTexture->get_sampler_id(5), GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
+  glSamplerParameteri(texture.get_sampler_id(5), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glSamplerParameteri(texture.get_sampler_id(5), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glSamplerParameterf(texture.get_sampler_id(5), GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
   
 }
