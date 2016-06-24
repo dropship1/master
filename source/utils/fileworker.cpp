@@ -76,6 +76,23 @@ std::vector<std::shared_ptr<std::istringstream>> FileWorker::get_files_streams(s
 } 
 
 
+std::vector<std::shared_ptr<std::ifstream>> FileWorker::get_binary_input_file_streams(std::vector<std::string> fileAliases){
+
+  std::vector<std::shared_ptr<std::ifstream>> streams;
+  auto add_stream = [&] (std::string alias){
+    std::string fullPathAndFileName = get_full_path_and_file_name(alias);
+    auto pStream = std::make_shared<std::ifstream>(fullPathAndFileName, std::ios::binary);
+    if(!pStream){
+      int somethingWrong = 0;
+    }
+    streams.push_back(pStream);
+  };
+  std::for_each(fileAliases.begin(), fileAliases.end(), add_stream);
+
+  return streams;
+}
+
+
 void FileWorker::create_all_files_map(){
 
   auto find_file_data_and_save_to_map = [&] (std::pair<std::string, std::string> namePair){
@@ -98,6 +115,10 @@ void FileWorker::create_all_files_map(){
 
 std::string FileWorker::get_file_contents(std::string name){
   return allFilesContents_[name];
+}
+
+std::string FileWorker::get_full_path_and_file_name(std::string alias){
+  return fullPathsAndfileNames_[alias];
 }
 
 std::shared_ptr<std::stringstream> FileWorker::get_file_stringstream(std::string name){

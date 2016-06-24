@@ -10,7 +10,6 @@ void MeshConverter::batch_convert_obj_and_dump_mesh_binary(std::string path, std
   auto handle_file = [&] (std::string file) {
     single_convert_obj_and_dump_mesh_binary(path, file);
   };
-
   std::for_each(files.begin(), files.end(), handle_file);
 	
 }
@@ -45,12 +44,9 @@ void MeshConverter::batch_read_obj_mesh_binary(){
     }
   }
 
-
-
-
-  std::vector<std::shared_ptr<std::istringstream>> streams = pFileWorker_->get_files_streams(meshFileList);
+  auto streams = pFileWorker_->get_binary_input_file_streams(meshFileList);
   //Loop over all streams
-  auto handle_stream = [&] (std::shared_ptr<std::istringstream> pStream) { 
+  auto handle_stream = [&] (std::shared_ptr<std::ifstream> pStream) { 
     auto pMesh = single_read_obj_mesh_binary(pStream);
     meshes_[pMesh->composite_name()] = pMesh;
   };
@@ -58,13 +54,14 @@ void MeshConverter::batch_read_obj_mesh_binary(){
 
 }
 
-std::shared_ptr<bright::base::Mesh> MeshConverter::single_read_obj_mesh_binary(std::shared_ptr<std::istringstream> pStream){
 
+std::shared_ptr<bright::base::Mesh> MeshConverter::single_read_obj_mesh_binary(std::shared_ptr<std::ifstream> pStream){
   auto pMesh = std::make_shared<bright::base::Mesh>();
-  pMesh->from_stream(*pStream);
+  pMesh->from_stream(pStream);
 
   return pMesh;
 }
+
 
 void MeshConverter::single_convert_obj_and_dump_mesh_binary(std::string path, std::string file){  
 	std::shared_ptr<Obj> obj = single_load_obj(path, file);
@@ -124,9 +121,11 @@ void MeshConverter::single_dump_mesh_binary(std::string path, std::shared_ptr<br
 	start = clock() / (CLOCKS_PER_SEC / 1000);
 
   //Write the new mesh out to disk.
-  std::ofstream output;
-  output.open(fullPathAndName, std::ios::binary | std::ios::out | std::ios::trunc);
-
+  std::ofstream output(fullPathAndName, std::ios::binary|std::ios::trunc);
+  if (!output) { 
+    std::cerr << "MeshConverter single_dump_mesh_binary: Cannot open " << fullPathAndName << std::endl << std::flush; 
+    exit(1); 
+  }
   //std::fstream output(fullPathAndName, std::ios::out | std::ios::trunc);
   mesh->to_stream(output);
 
@@ -149,30 +148,30 @@ std::shared_ptr<bright::base::Mesh> MeshConverter::load_mesh_from_obj(std::share
   //Loop over each group(which is a mesh)
   int countChildren = 1;
   auto handle_group = [&] (std::shared_ptr<Group> g) { 
-    auto mesh = std::make_shared<bright::base::Mesh>();
-    rootMesh->child_meshes(mesh);
+    auto pMesh = std::make_shared<bright::base::Mesh>();
+    rootMesh->child_meshes(pMesh);
     rootMesh->count_children(countChildren);
     ++countChildren;
-    mesh->composite_name(obj->fileName_);
-    mesh->is_root(false);
-    mesh->has_children(false);
-    mesh->part_name(g->name_);
-    calculate_vertex_faces(mesh, g, obj->groupLibrary_, 0, g->vertexFaceElems_.size());
-    calculate_normal_faces(mesh, g, obj->groupLibrary_, 0, g->normalFaceElems_.size());
-    calculate_texture_faces(mesh, g, obj->groupLibrary_, 0, g->textureFaceElems_.size());
-    calculate_face_indices(mesh);
+    pMesh->composite_name(obj->fileName_);
+    pMesh->is_root(false);
+    pMesh->has_children(false);
+    pMesh->part_name(g->name_);
+    calculate_vertex_faces(pMesh, g, obj->groupLibrary_, 0, g->vertexFaceElems_.size());
+    calculate_normal_faces(pMesh, g, obj->groupLibrary_, 0, g->normalFaceElems_.size());
+    calculate_texture_faces(pMesh, g, obj->groupLibrary_, 0, g->textureFaceElems_.size());
+    calculate_face_indices(pMesh);
     //rootMesh->count_vertex_faces(rootMesh->count_vertex_faces()+mesh->count_vertex_faces());
     if (g->material_ != ""){
       std::shared_ptr<Material> mat = obj->get_material(g->material_);
       if (mat->hasMaps_){
-        mesh->material(mat->map_Kd_);
+        pMesh->material(mat->map_Kd_);
       }
       else{
-        mesh->material("default.dds");
+        pMesh->material("default.dds");
       }
     }
     else{
-      mesh->material("default.dds");
+      pMesh->material("default.dds");
     }
   };
 
@@ -182,39 +181,39 @@ std::shared_ptr<bright::base::Mesh> MeshConverter::load_mesh_from_obj(std::share
   return rootMesh;
 }
 
-void MeshConverter::calculate_vertex_faces(std::shared_ptr<bright::base::Mesh> mesh, std::shared_ptr<Group> g, std::shared_ptr<GroupLibrary> gl, int start, int end){
+void MeshConverter::calculate_vertex_faces(std::shared_ptr<bright::base::Mesh> pMesh, std::shared_ptr<Group> g, std::shared_ptr<GroupLibrary> gl, int start, int end){
   int count = 0;
   for (int i = start; i < end; ++i){
     GLuint ve = g->vertexFaceElems_[i];
-    mesh->vertex_faces( glm::vec4( gl->vertices_[ve].x, gl->vertices_[ve].y, gl->vertices_[ve].z, gl->vertices_[ve].w ) );
+    pMesh->vertex_faces( glm::vec4( gl->vertices_[ve].x, gl->vertices_[ve].y, gl->vertices_[ve].z, gl->vertices_[ve].w ) );
     ++count;
   }
-  mesh->count_vertex_faces(count);
+  pMesh->count_vertex_faces(count);
 }
 
-void MeshConverter::calculate_normal_faces(std::shared_ptr<bright::base::Mesh> mesh, std::shared_ptr<Group> g, std::shared_ptr<GroupLibrary> gl, int start, int end){
+void MeshConverter::calculate_normal_faces(std::shared_ptr<bright::base::Mesh> pMesh, std::shared_ptr<Group> g, std::shared_ptr<GroupLibrary> gl, int start, int end){
   int count = 0;
   for (int i = start; i < end; ++i){
     GLuint ve = g->normalFaceElems_[i];
-    mesh->normal_faces( glm::vec3(gl->normals_[ve].x, gl->normals_[ve].y, gl->normals_[ve].z) );
+    pMesh->normal_faces( glm::vec3(gl->normals_[ve].x, gl->normals_[ve].y, gl->normals_[ve].z) );
     ++count;
   }
-  mesh->count_normal_faces(count);
+  pMesh->count_normal_faces(count);
 }
 
-void MeshConverter::calculate_texture_faces(std::shared_ptr<bright::base::Mesh> mesh, std::shared_ptr<Group> g, std::shared_ptr<GroupLibrary> gl, int start, int end){
+void MeshConverter::calculate_texture_faces(std::shared_ptr<bright::base::Mesh> pMesh, std::shared_ptr<Group> g, std::shared_ptr<GroupLibrary> gl, int start, int end){
   int count = 0;
   for (int i = start; i < end; ++i){
     GLuint ve = g->textureFaceElems_[i];
-    mesh->texture_faces( glm::vec3(gl->textures_[ve].x, gl->textures_[ve].y, gl->textures_[ve].z) );
+    pMesh->texture_faces( glm::vec3(gl->textures_[ve].x, gl->textures_[ve].y, gl->textures_[ve].z) );
     ++count;
   }
-  mesh->count_texture_faces(count);
+  pMesh->count_texture_faces(count);
 }
 
-void MeshConverter::calculate_face_indices(std::shared_ptr<bright::base::Mesh> mesh){
-  mesh->count_faces( mesh->count_vertex_faces() );
-  for (int i = 0; i < mesh->count_faces(); ++i){
-    mesh->face_indices(i);
+void MeshConverter::calculate_face_indices(std::shared_ptr<bright::base::Mesh> pMesh){
+  pMesh->count_faces( pMesh->count_vertex_faces() );
+  for (int i = 0; i < pMesh->count_faces(); ++i){
+    pMesh->face_indices(i);
   }
 }

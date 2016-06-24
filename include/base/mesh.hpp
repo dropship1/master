@@ -9,6 +9,7 @@
 #include <string>
 #include <iostream>
 #include <ostream>
+#include <fstream>
 #include <vector>
 #include <algorithm>
 
@@ -51,7 +52,7 @@ public:
   void texture_faces(glm::vec3 textureFace);
 
   std::vector<std::shared_ptr<Mesh>>& child_meshes();
-  void child_meshes(std::shared_ptr<Mesh> childMesh);
+  void child_meshes(std::shared_ptr<Mesh> pChildMesh);
 
   void count_faces(int count);
   int count_faces();
@@ -104,8 +105,8 @@ public:
   void material(std::string material);
   std::string material();
 
-  void to_stream(std::ostream &out);
-  void from_stream(std::istream &in);
+  void to_stream(std::ofstream &out);
+  void from_stream(std::shared_ptr<std::ifstream> pIn);
 
 
 private:

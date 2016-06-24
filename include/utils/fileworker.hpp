@@ -42,7 +42,8 @@ public:
 
   void config_file_path_and_name(std::string fullPathAndNameOfConfigFile);
   std::string get_file_contents(std::string name);
-  std::vector<std::shared_ptr<std::istringstream>> FileWorker::get_files_streams(std::vector<std::string> files);
+  std::vector<std::shared_ptr<std::istringstream>> get_files_streams(std::vector<std::string> files);
+  std::vector<std::shared_ptr<std::ifstream>> get_binary_input_file_streams(std::vector<std::string> aliasNames);
   void add_file(std::string fullPathAndFileName);
   void add_file(std::string fullPathAndFileName, std::string shortName);
   std::shared_ptr<std::stringstream> get_file_stringstream(std::string name);
@@ -51,6 +52,7 @@ public:
 private:
   void to_stream(std::ostream &out, std::string outputData);
   std::string from_stream(std::fstream &in);
+  std::string get_full_path_and_file_name(std::string alias);
 
   void create_all_files_map();
 
