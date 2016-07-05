@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <algorithm>
 
 #include <boost/make_shared.hpp>
@@ -11,12 +12,17 @@
 #include "graphics/loadersmanager.hpp"
 #include "graphics/globalstructs.hpp"
 #include "graphics/worldinfo.hpp"
-#include "base/globalstructs.hpp"
+#include "graphics/utilities.hpp"
+
 #include "context/contextmanager.hpp"
 #include "context/context.hpp"
-#include "base/clientcontroller.hpp"
-#include "base/resourcemanager.hpp"
-#include "base/serveractor.hpp"
+
+#include "base/globalstructs.hpp"
+#include "base/actorcontrolcontroller.hpp"
+#include "base/actorcontrolsresourcemanager.hpp"
+#include "base/actorrendercontroller.hpp"
+#include "base/actorrenderingresourcemanager.hpp"
+#include "base/actorcreator.hpp"
 
 #include "converters/aabbconverter.hpp"
 
@@ -30,14 +36,8 @@
 #include "input/commandlistener.hpp"
 #include "input/utils.hpp"
 #include "input/globalstructs.hpp"
-#include "graphics/utilities.hpp"
-
-#include "base/worldloader.hpp"
-#include "base/actorcreator.hpp"
-
 #include "input/commandevent.hpp"
 #include "input/inputcontextmanager.hpp"
-#include <sstream>
 
 
 
@@ -103,10 +103,30 @@ private:
 
   std::shared_ptr<bright::base::ActorCreator> pActorCreator_;
 
-  std::shared_ptr<bright::base::ClientController> pPlanesController_;
-  std::shared_ptr<bright::base::ClientController> pPlayersController_;
-  std::map<std::string, std::shared_ptr<bright::base::ClientController>> monsterContollers_;
-  std::map<std::string, std::shared_ptr<bright::base::ClientController>> bulletContollers_;
+  std::map<std::string, bright::base::ActorControlController>& playerContollers_;
+  std::map<std::string, bright::base::ActorControlController>& npcContollers_;
+  //std::map<std::string, bright::base::ActorControlController>& bulletContollers_;
+
+
+  std::map<std::string, bright::base::ControlActor>& controlPlayers_;
+  std::map<std::string, bright::base::ControlActor>& controlNpcs_;
+
+  std::map<std::string, bright::base::ActorRenderController>& actorRenderContollers_;
+  //std::map<std::string, bright::base::ActorRenderController>& bulletRenderContollers_;
+
+  std::map<std::string, bright::graphics::ActorGroupRenderInfo>& actorGroupRenderInfos_;
+
+  std::shared_ptr<bright::base::ActorControlsResourceManager> pActorControlsResourceManager_;
+  std::shared_ptr<bright::base::ActorRenderingResourceManager> pActorRenderingResourceManager_;
+
+  bright::graphics::WorldInfo worldInfo_;
+  std::shared_ptr<bright::graphics::Renderer> pRenderer_;
+
+  std::string playerControlName_;
+  std::string playerRenderName_;
+  std::string playerCameraType_;
+  bright::base::ActorControlController playerController_;
+  bright::base::ActorRenderController playerRenderController_;
 
   std::shared_ptr<bright::utils::FileWorker> pFileWorker_;
 
@@ -114,26 +134,11 @@ private:
   std::shared_ptr<bright::input::InputContextManager> pInputContextManager_;
   boost::shared_ptr<bright::input::CommandListener> pCommandListener_;
 
-  std::shared_ptr<bright::base::ResourceManager> pResourceManager_;
-
-  std::shared_ptr<bright::graphics::ActorGroupRenderInfo> pPlayerGroupRenderInfo_;
-  std::shared_ptr<bright::graphics::ActorGroupRenderInfo> pPlaneGroupRenderInfo_;
-  std::map<std::string, std::shared_ptr<bright::graphics::ActorGroupRenderInfo>> monsterGroupRenderInfos_;
-  std::map<std::string, std::shared_ptr<bright::graphics::ActorGroupRenderInfo>> bulletGroupRenderInfos_;
-  std::shared_ptr<bright::graphics::WorldInfo> pWorldInfo_;
-  std::shared_ptr<bright::graphics::Renderer> pRenderer_;
-
-  std::shared_ptr<bright::base::ServerActor> pClientActor_;
-  std::map<std::string, bright::base::ServerActor> monsters_;
-  std::map<std::string, bright::base::ServerActor> players_;
   int count;
 
-  std::shared_ptr<bright::converters::AABBConverter> pAABBConverter_;
-
-  void check_physics();
-  void create_monster_controllers();
-  void create_bullet_controllers();
-  void update_monster_controllers();
+  //void check_physics();
+  //void create_bullet_controllers();
+  //void update_npc_controllers();
   
 };
 

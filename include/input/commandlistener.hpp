@@ -19,7 +19,6 @@ public:
                   std::shared_ptr<bright::base::ActorCreator> pActorCreator);
 
   void update_commands();
-
   void process_messages();
   void on_command_event(std::shared_ptr<bright::input::CommandEvent> commandEvent);
   void execute_commands();

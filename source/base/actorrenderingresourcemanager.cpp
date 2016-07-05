@@ -63,7 +63,7 @@ void ActorRenderingResourceManager::load_resources_and_create_render_infos(){
 
   std::string mesh;
   std::string shader;
-  std::string name;
+  std::string renderName;
 
   std::string cameraType = "1st";
   bool inRenderActorNode = false;
@@ -74,22 +74,22 @@ void ActorRenderingResourceManager::load_resources_and_create_render_infos(){
       break;
     }
     if (inRenderActorNode){
-      if(line.substr(0,5) == "name="){
-        name = line.substr(5);
+      if(line.substr(0,111) == "RENDERNAME="){
+        renderName = line.substr(11);
       }
-      else if(line.substr(0,5) == "mesh="){
+      else if(line.substr(0,5) == "MESH="){
         mesh = line.substr(5);
       }
-      else if(line.substr(0,7) == "shader="){
+      else if(line.substr(0,7) == "SHADER="){
         shader = line.substr(7);
       }
-      else if(line.substr(0,11) == "cameratype="){
+      else if(line.substr(0,11) == "CAMERATYPE="){
         cameraType = line.substr(11);
       }
       else if(line.substr(0,8) == "</RenderActor>"){
         RenderActor renderActor;
         renderActor.camera_type(cameraType);
-        renderActor.name(name);
+        renderActor.render_name(renderName);
         renderActor.mesh(mesh);
         renderActor.shader(shader);
         renderActors_.push_back(renderActor);
@@ -107,7 +107,7 @@ void ActorRenderingResourceManager::load_resources_and_create_render_infos(){
   //individually yet
   auto create_actor_render_controller = [&] (RenderActor& renderActor) {
     ActorRenderController actortRenderController;
-    actorRenderControllers_[renderActor.name()] = actortRenderController;
+    actorRenderControllers_[renderActor.render_name()] = actortRenderController;
   };
   std::for_each(renderActors_.begin(), renderActors_.end(), create_actor_render_controller);
 
@@ -124,7 +124,7 @@ void ActorRenderingResourceManager::load_resources_and_create_render_infos(){
       load_mesh_to_graphics_card( pChildMesh, rootActorGroupRenderInfo.actorRenderInfos_[pChildMesh->part_name()] );
     };
     std::for_each(pRootMesh->child_meshes().begin(), pRootMesh->child_meshes().end(), create_render_info);
-    actorGroupRenderInfos_[renderActor.name()] = rootActorGroupRenderInfo;
+    actorGroupRenderInfos_[renderActor.render_name()] = rootActorGroupRenderInfo;
     
   };
   std::for_each(renderActors_.begin(), renderActors_.end(), get_root_mesh);

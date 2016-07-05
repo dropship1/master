@@ -14,6 +14,7 @@ void ActorControlsResourceManager::initialize(){
   load_control_actors();
   create_controllers();
   assign_aabbs();
+  load_client_net_info();
 
 }
 
@@ -54,7 +55,7 @@ void ActorControlsResourceManager::create_controllers(){
     ActorControlController actorController;
     actorController.pos( pair.second.pos() );
     actorController.rotation( pair.second.rotation() );
-    NpcControllers_[pair.second.name()] = actorController;
+    NpcControllers_[pair.second.control_name()] = actorController;
   };
   std::for_each(controlNpcs_.begin(), controlNpcs_.end(), create_npc_controller);
 
@@ -62,7 +63,7 @@ void ActorControlsResourceManager::create_controllers(){
     ActorControlController actorController;
     actorController.pos( pair.second.pos() );
     actorController.rotation( pair.second.rotation() );
-    playerControllers_[pair.second.name()] = actorController;
+    playerControllers_[pair.second.control_name()] = actorController;
   };
   std::for_each(controlPlayers_.begin(), controlPlayers_.end(), create_player_controller);
 
@@ -72,12 +73,12 @@ void ActorControlsResourceManager::create_controllers(){
 void ActorControlsResourceManager::assign_aabbs(){
 
   auto assign_npc_aabb = [&] (std::map<std::string, ControlActor>::value_type& pair) { 
-    npcAABBs_[pair.second.name()] = aabbConverter_.aabb_stack_copy( pair.second.aabb() );
+    npcAABBs_[pair.second.control_name()] = aabbConverter_.aabb_stack_copy( pair.second.aabb() );
   };
   std::for_each(controlNpcs_.begin(), controlNpcs_.end(), assign_npc_aabb);
 
   auto assign_player_aabb = [&] (std::map<std::string, ControlActor>::value_type& pair) { 
-    playerAABBs_[pair.second.name()] = aabbConverter_.aabb_stack_copy( pair.second.aabb() );
+    playerAABBs_[pair.second.control_name()] = aabbConverter_.aabb_stack_copy( pair.second.aabb() );
   };
   std::for_each(controlPlayers_.begin(), controlPlayers_.end(), assign_player_aabb);
 
@@ -95,7 +96,8 @@ void ActorControlsResourceManager::load_control_actors() {
   std::stringstream in(controlsWorld);
 
   bool isPlayer = false;
-  std::string name;
+  std::string controlName;
+  std::string renderName;
   float posx = 0.0f;
   float posy = 0.0f;
   float posz = 0.0f;
@@ -111,8 +113,11 @@ void ActorControlsResourceManager::load_control_actors() {
       break;
     }
     if (inControlActorNode){
-      if(line.substr(0,5) == "NAME="){
-        name = line.substr(5);
+      if(line.substr(0,12) == "CONTROLNAME="){
+        controlName = line.substr(12);
+      }
+      if(line.substr(0,11) == "RENDERNAME="){
+        renderName = line.substr(11);
       }
       if(line.substr(0,5) == "POSX="){
         posx = std::stof(line.substr(5));
@@ -144,13 +149,14 @@ void ActorControlsResourceManager::load_control_actors() {
         controlActor.pos(glm::vec3(posx, posy, posz));
         controlActor.rotation(glm::vec3(rotx, roty, rotz));
         controlActor.aabb(aabbName);
-        controlActor.name(name);
+        controlActor.control_name(controlName);
+        controlActor.render_name(renderName);
         controlActor.is_player(isPlayer);
         if (!isPlayer) {
-          controlNpcs_[name] = controlActor;
+          controlNpcs_[controlName] = controlActor;
         }
         if (isPlayer) {
-          controlPlayers_[name] = controlActor;
+          controlPlayers_[controlName] = controlActor;
         }
       }
     }
@@ -159,4 +165,62 @@ void ActorControlsResourceManager::load_control_actors() {
       isPlayer = false;
     }
   }
+}
+
+
+void ActorControlsResourceManager::load_client_net_info(){
+
+  std::string fileContents = pFileWorker_->get_file_contents("client.net");
+
+  std::stringstream in(fileContents);
+
+  std::string::size_type sz;
+  std::string portTemp;
+  std::string clientControlName;
+  std::string clientRenderName;
+  std::string port;
+  std::string ip;
+
+  bool inClientInfoNode = false;
+  std::string line; 
+  while (getline(in, line)){
+    if (line.substr(0,1) == "]" ){
+      break;
+    }
+    if (inClientInfoNode){
+      if(line.substr(0,3) == "IP="){
+        ip = line.substr(3);
+      }
+      else if(line.substr(0,5) == "PORT="){
+        portTemp = line.substr(5);
+        port = std::stoi (portTemp,&sz);
+      }
+      else if(line.substr(0,18) == "CLIENTCONTROLNAME="){
+        clientControlName = line.substr(18);
+      }
+      else if(line.substr(0,17) == "CLIENTRENDERNAME="){
+        clientRenderName = line.substr(17);
+      }
+      else if(line.substr(0,9) == "</ClientInfo>"){
+        inClientInfoNode = false;
+      }
+    }
+    else if (line.substr(0,8) == "<ClientInfo>"){ 
+      inClientInfoNode = true;
+    }
+  }
+
+  clientControlName_ = clientControlName;
+  clientRenderName_ = clientRenderName;
+
+
+}
+
+
+std::string ActorControlsResourceManager::client_control_name(){
+  return clientControlName_;
+}
+
+std::string ActorControlsResourceManager::client_render_name(){
+  return clientRenderName_;
 }

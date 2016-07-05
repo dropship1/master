@@ -46,7 +46,7 @@
 
 
 <ControlActor>
-NAME=Jake
+CONTROLNAME=Jake
 POSX=-50.0
 POSY=20.0
 POSZ=25.0
@@ -55,10 +55,24 @@ ROTY=0.0
 ROTZ=0.0
 PLAYER=true
 AABB=cube
+RENDERNAME=Jake
 </ControlActor>
 
 <ControlActor>
-NAME=Zombie_001
+CONTROLNAME=valkyrie456
+POSX=-50.0
+POSY=20.0
+POSZ=25.0
+ROTX=45.0
+ROTY=0.0
+ROTZ=0.0
+PLAYER=true
+AABB=cube
+RENDERNAME=valkyrie456
+</ControlActor>
+
+<ControlActor>
+CONTROLNAME=Zombie_001
 POSX=-50.0
 POSY=5.0
 POSZ=25.0
@@ -67,10 +81,11 @@ ROTY=0.0
 ROTZ=0.0
 PLAYER=false
 AABB=cube
+RENDERNAME=Zombie
 </ControlActor>
 
 <ControlActor>
-NAME=Zombie_002
+CONTROLNAME=Zombie_002
 POSX=50.0
 POSY=3.0
 POSZ=-25.0
@@ -79,10 +94,11 @@ ROTY=0.0
 ROTZ=0.0
 PLAYER=false
 AABB=cube
+RENDERNAME=Zombie
 </ControlActor>
 
 <ControlActor>
-NAME=Zombie_003
+CONTROLNAME=Zombie_003
 POSX=-50.0
 POSY=4.0
 POSZ=10.0
@@ -91,4 +107,5 @@ ROTY=0.0
 ROTZ=0.0
 PLAYER=false
 AABB=cube
+RENDERNAME=Zombie
 </ControlActor>

@@ -28,6 +28,9 @@ public:
   std::map<std::string, bright::physics::AABB>& npc_aabbs();
   std::map<std::string, bright::physics::AABB>& player_aabbs();
 
+  std::string client_control_name();
+  std::string client_render_name();
+
 private:
   std::shared_ptr<bright::utils::FileWorker> pFileWorker_;
   bright::converters::AABBConverter aabbConverter_;
@@ -39,9 +42,13 @@ private:
   std::map<std::string, bright::physics::AABB> playerAABBs_;
   std::map<std::string, bright::physics::AABB> npcAABBs_;
 
+  std::string clientControlName_;
+  std::string clientRenderName_;
+
   void load_control_actors();
   void create_controllers();
   void assign_aabbs();
+  void load_client_net_info();
 
 
 };

@@ -7,7 +7,7 @@
 #include "base/globalstructs.hpp"
 #include "context/contextmanager.hpp"
 #include "context/context.hpp"
-#include "base/clientcontroller.hpp"
+#include "base/actorcontrolcontroller.hpp"
 #include <memory>
 #include <algorithm>
 
@@ -33,8 +33,8 @@
 void load_client_configs();
 
 std::shared_ptr<bright::context::ContextManager> pContextManager;
-std::shared_ptr<bright::base::ClientController> pModelsController;
-std::map<std::string, std::shared_ptr<bright::base::ClientController>> monsterContollers;
+std::shared_ptr<bright::base::ActorControlController> pModelsController;
+std::map<std::string, std::shared_ptr<bright::base::ActorControlController>> npcContollers;
 std::shared_ptr<bright::utils::FileWorker> pFileWorker;
 std::shared_ptr<bright::input::InputContextManager> pInputContextManager;
 
@@ -316,18 +316,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   //pFileWorker = std::make_shared<bright::utils::FileWorker>("test/network/data/filelist");
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
-
-  pModelsController = std::make_shared<bright::base::ClientController>();
-  pModelsController->update( glm::vec3(0.0f,0.0f,-20.0f) );
-
-  monsterContollers["Leo"] = std::make_shared<bright::base::ClientController>();
-  monsterContollers["Leo"]->update( glm::vec3(0.0f,0.0f,-30.0f) );
-
-  monsterContollers["Monster1"] = std::make_shared<bright::base::ClientController>();
-  monsterContollers["Monster1"]->update( glm::vec3(0.0f,0.0f,30.0f) );
-
-  monsterContollers["Monster2"] = std::make_shared<bright::base::ClientController>();
-  monsterContollers["Monster2"]->update( glm::vec3(30.0f,0.0f,5.0f) );
 
   load_client_configs();
   auto pServerHandler = std::make_shared<bright::network::ServerHandler>(clientName, "mypassword", pModelsController, monsterContollers);

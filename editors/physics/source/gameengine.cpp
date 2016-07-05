@@ -63,97 +63,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, PSTR cmdLine, int
   return TRUE;
 }
 
-LRESULT CALLBACK WndProc(HWND window, UINT msg, WPARAM wparam, LPARAM lparam){
-  return GameEngine::get_engine()->handle_event(window, msg, wparam, lparam);
-}
-
-
-GameEngine::GameEngine(): sleep_(false){
-  //pGameEngine_ = shared_from_this();
-}
-
-GameEngine::~GameEngine(){
-
-}
-
-bool GameEngine::initialize(){
-
-  pInputManager_ = std::make_shared<bright::input::InputManager>();
-  pInputContextManager_ = std::make_shared<bright::input::InputContextManager>();
-  pInputManager_->add_keyboard_event_listener(pInputContextManager_);
-  // TODO: Finish mouse events
-  pInputManager_->add_raw_mouse_event_listener(pInputContextManager_);
-  pInputManager_->add_mouse_event_listener(pInputContextManager_);
-
-  pContextManager_ = std::make_shared<bright::context::ContextManager>();
-  pContextManager_->create_windows_opengl_context(WndProc, "Powered By The Bright Engine", 1280, 768);
-
-  pActorCreator_ = std::make_shared<bright::base::ActorCreator>();
-
-  //If you're running this from the debuger/visual studio, then you need to specify the path to the 
-  //data directory starting from the "bright" directory, for example:
-  //games/chasers/data
-  //But if you're building this and creating the executable, which goes into the bin directory
-  //in games/chaser/bin then you need to specify the path as "../data".
-  pFileWorker_ = std::make_shared<bright::utils::FileWorker>("../data/filelist");
-  //pFileWorker_ = std::make_shared<bright::utils::FileWorker>("editors/physics/data/filelist");
-  pResourceManager_ = std::make_shared<bright::base::ResourceManager>(pFileWorker_);
-  pFileWorker_->read_in_list_of_files();
-  pFileWorker_->create_lookup_map_of_files_content();
-  pResourceManager_->initialize();
-  pRenderer_ = std::make_shared<bright::graphics::Renderer>();
-
-  pAABBConverter_ = std::make_shared<bright::converters::AABBConverter>(pFileWorker_);
-  pAABBConverter_->batch_read_obj_aabb_binary();
-
-  //pClientActor_ = std::make_shared<bright::base::ServerActor>();
-  //pClientActor_->aabb( pAABBConverter_->aabb("cube") );
-  //pClientActor_->pos(glm::vec3(50.0f, 30.0f, -50.0f));
-  //pClientActor_->rotate_down(55.0f);
-  //pClientActor_->name("User");
-  //pClientActor_->is_logged_in(true);
-
-  bright::base::WorldLoader worldLoader(pFileWorker_, pAABBConverter_);
-  worldLoader.load_world(monsters_, players_);
-  create_monster_controllers();
-
-  pPlanesController_ = std::make_shared<bright::base::ClientController>();
-  pPlanesController_->update( glm::vec3(0.0f,-0.5f,0.0f) );
-
-  pPlayersController_ = std::make_shared<bright::base::ClientController>();
-  pPlayersController_->update( pClientActor_->pos(), pClientActor_->right(), pClientActor_->up(), pClientActor_->look() );
-
-  pCommandListener_ = boost::make_shared<bright::input::CommandListener>(pClientActor_, pPlayersController_, pActorCreator_);
-  pInputContextManager_->add_command_event_listener(pCommandListener_);
-
-  std::string controlsContexts = pFileWorker_->get_file_contents("controls_contexts.cfg");
-  pInputContextManager_->initialize(controlsContexts);
-  std::string controlConfig = pFileWorker_->get_file_contents("controls_config.cfg");
-  pInputContextManager_->set_control_config(controlConfig);
-
-  pPlaneGroupRenderInfo_ = bright::graphics::create_plane(20.0f);
-  pPlaneGroupRenderInfo_->modToWorld_ = pPlanesController_->model_to_world_transformation_matrix();
-  pPlaneGroupRenderInfo_->pShader_ = pResourceManager_->graphics_loader_manager().shaders("PER_FRAG_COLOR");
-  pPlaneGroupRenderInfo_->hasShader_ = true;
-  pPlaneGroupRenderInfo_->cameraType_ = "1st";
-  pPlaneGroupRenderInfo_->actorRenderInfos_["plane"]->diffuseColor_ = glm::vec4(0.0f,0.5f,0.0f,1.0f);
-
-  pPlayerGroupRenderInfo_ = pResourceManager_->actor_group_render_infos()["User"];
-
-  pWorldInfo_ = pResourceManager_->world_info();
-  pWorldInfo_->world_to_cam_matrix( "1st", pPlayersController_->world_to_camera_transformation_matrix() );
-
-  //Show and update the window
-  pContextManager_->show_window(false);
-  pContextManager_->initialize();
-
-  count = 1;
-  //Start a thread here to handle background (asynchronous operations) operations
-  //boost::thread thread(boost::bind(&boost::asio::io_service::run, &service_));
-
-  return true;
-}
-
 LRESULT GameEngine::handle_event(HWND window, UINT msg, WPARAM wParam, LPARAM lParam){
   // Route Windows messages to game engine member functions
   switch (msg){
@@ -385,170 +294,267 @@ LRESULT GameEngine::handle_event(HWND window, UINT msg, WPARAM wParam, LPARAM lP
 }
 
 
+LRESULT CALLBACK WndProc(HWND window, UINT msg, WPARAM wparam, LPARAM lparam){
+  return GameEngine::get_engine()->handle_event(window, msg, wparam, lparam);
+}
+
+
+GameEngine::GameEngine(): sleep_(false), 
+                          pFileWorker_(std::make_shared<bright::utils::FileWorker>("editors/physics/data/files.fl")), 
+                          pActorControlsResourceManager_(std::make_shared<bright::base::ActorControlsResourceManager>(pFileWorker_)), 
+                          pActorRenderingResourceManager_(std::make_shared<bright::base::ActorRenderingResourceManager>(pFileWorker_)), 
+                          playerContollers_(pActorControlsResourceManager_->player_controllers()), 
+                          npcContollers_(pActorControlsResourceManager_->npc_controllers()), 
+                          actorRenderContollers_(pActorRenderingResourceManager_->actor_render_controllers()), 
+                          actorGroupRenderInfos_(pActorRenderingResourceManager_->actor_group_render_infos()), 
+                          controlPlayers_(pActorControlsResourceManager_->control_players()), 
+                          controlNpcs_(pActorControlsResourceManager_->control_npcs())
+{
+  //pGameEngine_ = shared_from_this();
+
+  //If you're running this from the debuger/visual studio, then you need to specify the path to the 
+  //data directory starting from the "bright" directory, for example:
+  //games/chasers/data
+  //But if you're building this and creating the executable, which goes into the bin directory
+  //in games/chaser/bin then you need to specify the path as "../data".
+  //pFileWorker_ = std::make_shared<bright::utils::FileWorker>("../data/files.fl");
+}
+
+GameEngine::~GameEngine(){
+
+}
+
+bool GameEngine::initialize(){
+
+  pInputManager_ = std::make_shared<bright::input::InputManager>();
+  pInputContextManager_ = std::make_shared<bright::input::InputContextManager>();
+  pInputManager_->add_keyboard_event_listener(pInputContextManager_);
+  // TODO: Finish mouse events
+  pInputManager_->add_raw_mouse_event_listener(pInputContextManager_);
+  pInputManager_->add_mouse_event_listener(pInputContextManager_);
+
+  std::string controlsContexts = pFileWorker_->get_file_contents("controls_contexts.cfg");
+  pInputContextManager_->initialize(controlsContexts);
+  std::string controlConfig = pFileWorker_->get_file_contents("controls_config.cfg");
+  pInputContextManager_->set_control_config(controlConfig);
+
+  pContextManager_ = std::make_shared<bright::context::ContextManager>();
+  pContextManager_->create_windows_opengl_context(WndProc, "Powered By The Bright Engine", 1280, 768);
+
+  pActorCreator_ = std::make_shared<bright::base::ActorCreator>();
+
+  pFileWorker_->initialize();
+  pActorControlsResourceManager_->initialize();
+  pActorRenderingResourceManager_->initialize();
+  pRenderer_ = std::make_shared<bright::graphics::Renderer>();
+
+  playerControlName_ = pActorControlsResourceManager_->client_control_name();
+  playerRenderName_ = pActorControlsResourceManager_->client_render_name();
+  playerController_ = playerContollers_[playerControlName_];
+  playerRenderController_ = actorRenderContollers_[playerRenderName_];
+  playerCameraType_ = actorGroupRenderInfos_[playerRenderName_].cameraType_;
+
+  pCommandListener_ = boost::make_shared<bright::input::CommandListener>(playerController_, playerRenderController_, pActorCreator_);
+  pInputContextManager_->add_command_event_listener(pCommandListener_);
+
+  worldInfo_ = pActorRenderingResourceManager_->world_info();
+
+  //Show and update the window
+  pContextManager_->show_window(false);
+  pContextManager_->initialize();
+
+  count = 1;
+  //Start a thread here to handle background (asynchronous operations) operations
+  //boost::thread thread(boost::bind(&boost::asio::io_service::run, &service_));
+
+  return true;
+}
+
+
+
 void GameEngine::cycle(){
 
   pInputManager_->notify();
 	pInputContextManager_->notify();
   pCommandListener_->update_commands();
   pCommandListener_->execute_commands();
-  auto bullets = pActorCreator_->get_bullets();
-  count++; 
-  auto move_bullets = [&] (std::shared_ptr<bright::base::ServerActor> pBullet) {
-    //auto it = monsterGroupRenderInfos_.find( monsterName );
-    //if ( it == monsterGroupRenderInfos_.end() ){
-    //  bulletRenderInfos_ = pResourceManager_->actor_group_render_infos()["cube"];
-    //}
-    //pRenderer_->render(monsterGroupRenderInfos_[monsterName], pWorldInfo_);
-    if (!pBullet->have_update()){   
-      if (count <= 200){ pBullet->move_fwd(0.2f);   if ( count == 200){pBullet->rotate_left(180.0f);} } 
-      else if (count > 200){ pBullet->move_backward(0.2f); if ( count == 400){pBullet->rotate_left(180.0f);} }
-    };
-  };
-  std::for_each(bullets.begin(), bullets.end(), move_bullets);
-  create_bullet_controllers();
-  if (count == 400){ count = 0; }
 
-  check_physics();
-  update_monster_controllers();
+  //playerContollers_;
+  //npcContollers_;
+  //actorRenderContollers_;
+  //bulletRenderContollers_;
+  //actorGroupRenderInfos_;
+
+  //auto bullets = pActorCreator_->get_bullets();
+  count++; 
+  //auto move_bullets = [&] (std::shared_ptr<bright::base::ServerActor> pBullet) {
+  //  //auto it = monsterGroupRenderInfos_.find( monsterName );
+  //  //if ( it == monsterGroupRenderInfos_.end() ){
+  //  //  bulletRenderInfos_ = pResourceManager_->actor_group_render_infos()["cube"];
+  //  //}
+  //  //pRenderer_->render(monsterGroupRenderInfos_[monsterName], pWorldInfo_);
+  //  if (!pBullet->have_update()){   
+  //    if (count <= 200){ pBullet->move_fwd(0.2f);   if ( count == 200){pBullet->rotate_left(180.0f);} } 
+  //    else if (count > 200){ pBullet->move_backward(0.2f); if ( count == 400){pBullet->rotate_left(180.0f);} }
+  //  };
+  //};
+  //std::for_each(bullets.begin(), bullets.end(), move_bullets);
+  //create_bullet_controllers();
+  //if (count == 400){ count = 0; }
+  //
+  //check_physics();
+  //update_monster_controllers();
 
 }
 
 void GameEngine::cycle_graphics(){
 
   pContextManager_->begin_rendering();
-  
-  pPlayerGroupRenderInfo_->modToWorld_ = pPlayersController_->model_to_world_transformation_matrix();
-  pWorldInfo_->world_to_cam_matrix( "1st", pPlayersController_->world_to_camera_transformation_matrix() );
-  pRenderer_->render(pPlaneGroupRenderInfo_, pWorldInfo_);
-  pRenderer_->render(pPlayerGroupRenderInfo_, pWorldInfo_);
 
-  auto render_monster_and_add_if_not_seen_yet = [&] (std::map<std::string, std::shared_ptr<bright::base::ClientController>>::value_type& pair) {
-    std::string monsterName = pair.first;
-    auto controller = pair.second;
-    auto it = monsterGroupRenderInfos_.find( monsterName );
-    if ( it == monsterGroupRenderInfos_.end() ){
-      monsterGroupRenderInfos_[monsterName] = pResourceManager_->actor_group_render_infos()[monsterName];
-    }
-    monsterGroupRenderInfos_[monsterName]->modToWorld_ = controller->model_to_world_transformation_matrix();
-    pRenderer_->render(monsterGroupRenderInfos_[monsterName], pWorldInfo_);
+  worldInfo_.world_to_cam_matrix( playerCameraType_, playerRenderController_.world_to_camera_transformation_matrix() );
+
+  auto render_players = [&] (std::map<std::string, bright::base::ControlActor>::value_type& pair) {
+    auto actorGroupRenderInfo = actorGroupRenderInfos_[pair.second.render_name()];
+    auto playerController = playerContollers_[pair.second.control_name()];
+    auto playerRenderController = actorRenderContollers_[pair.second.render_name()];
+    auto pos = playerController.pos();
+    auto right = playerController.right();
+    auto up = playerController.up();
+    auto look = playerController.look();
+    playerRenderController.update(pos, right, up, look);
+    actorGroupRenderInfo.modToWorld_ = playerRenderController.model_to_world_transformation_matrix();
+    pRenderer_->render(actorGroupRenderInfo, worldInfo_);
   };
-  std::for_each(monsterContollers_.begin(), monsterContollers_.end(), render_monster_and_add_if_not_seen_yet);
+  std::for_each(controlPlayers_.begin(), controlPlayers_.end(), render_players);
 
-
-  int count = 0;
-  auto render_bullet_and_add_if_not_seen_yet = [&] (std::map<std::string, std::shared_ptr<bright::base::ClientController>>::value_type& pair) {
-    std::string bulletNumber = pair.first;
-    auto controller = pair.second;
-  //  std::string Result;          // string which will contain the result
-  //  
-  //  std::ostringstream convert;   // stream used for the conversion
-  //  
-  //  convert << count;      // insert the textual representation of 'Number' in the characters in the stream
-  //  
-  //  Result = convert.str(); // set 'Result' to the contents of the stream
-  //  
-  //
-    auto it = bulletGroupRenderInfos_.find( bulletNumber );
-    if ( it == bulletGroupRenderInfos_.end() ){
-      bulletGroupRenderInfos_[bulletNumber] = pResourceManager_->actor_group_render_infos()["User"];
-    }
-    bulletGroupRenderInfos_[bulletNumber]->modToWorld_ = controller->model_to_world_transformation_matrix();
-    pRenderer_->render(bulletGroupRenderInfos_[bulletNumber], pWorldInfo_);
-  //  count++;
+  auto render_npcs = [&] (std::map<std::string, bright::base::ControlActor>::value_type& pair) {
+    auto actorGroupRenderInfo = actorGroupRenderInfos_[pair.second.render_name()];
+    auto npcController = npcContollers_[pair.second.control_name()];
+    auto npcRenderController = actorRenderContollers_[pair.second.render_name()];
+    auto pos = npcController.pos();
+    auto right = npcController.right();
+    auto up = npcController.up();
+    auto look = npcController.look();
+    npcRenderController.update(pos, right, up, look);
+    actorGroupRenderInfo.modToWorld_ = npcRenderController.model_to_world_transformation_matrix();
+    pRenderer_->render(actorGroupRenderInfo, worldInfo_);
   };
-  std::for_each(bulletContollers_.begin(), bulletContollers_.end(), render_bullet_and_add_if_not_seen_yet);
+  std::for_each(controlNpcs_.begin(), controlNpcs_.end(), render_npcs);
+
+  //int count = 0;
+  //auto render_bullet_and_add_if_not_seen_yet = [&] (std::map<std::string, std::shared_ptr<bright::base::ClientController>>::value_type& pair) {
+  //  std::string bulletNumber = pair.first;
+  //  auto controller = pair.second;
+  ////  std::string Result;          // string which will contain the result
+  ////  
+  ////  std::ostringstream convert;   // stream used for the conversion
+  ////  
+  ////  convert << count;      // insert the textual representation of 'Number' in the characters in the stream
+  ////  
+  ////  Result = convert.str(); // set 'Result' to the contents of the stream
+  ////  
+  ////
+  //  auto it = bulletGroupRenderInfos_.find( bulletNumber );
+  //  if ( it == bulletGroupRenderInfos_.end() ){
+  //    bulletGroupRenderInfos_[bulletNumber] = pResourceManager_->actor_group_render_infos()["User"];
+  //  }
+  //  bulletGroupRenderInfos_[bulletNumber]->modToWorld_ = controller->model_to_world_transformation_matrix();
+  //  pRenderer_->render(bulletGroupRenderInfos_[bulletNumber], pWorldInfo_);
+  ////  count++;
+  //};
+  //std::for_each(bulletContollers_.begin(), bulletContollers_.end(), render_bullet_and_add_if_not_seen_yet);
   
   pContextManager_->end_rendering();
 
 }
 
 
-void GameEngine::check_physics(){
-
-  //did_client_collide_with_monster
-   auto pClientActorAABB = pClientActor_->aabb();
-
-   auto check_monster = [&] (std::map<std::string, bright::base::ServerActor>::value_type& innerPair) {
-     std::string monsterName = innerPair.first;
-     bright::base::ServerActor& monster = innerPair.second;
-     auto pMonsterAABB = monster.aabb();
-
-     bool intersect = pClientActorAABB->intersect(pMonsterAABB);
-     if (intersect){
-       pClientActor_->set_to_prev_pos();
-     }
-   };
-   std::for_each(monsters_.begin(), monsters_.end(), check_monster);
-
-
-  auto bullets = pActorCreator_->get_bullets();
-  auto check_bullets = [&] (std::shared_ptr<bright::base::ServerActor> pBullet) {
-    auto pBulletAABB = pBullet->aabb();
-
-    auto check_monster2 = [&] (std::map<std::string, bright::base::ServerActor>::value_type& pair) {
-      std::string monsterName = pair.first;
-      bright::base::ServerActor& monster = pair.second;
-      auto pMonsterAABB = monster.aabb();
-       bool intersect = pBulletAABB->intersect(pMonsterAABB);
-       if (intersect){
-         monster.move_left(5.0f);
-         pBullet->move_fwd(20.0f);
-         pBullet->have_update(true);
-       }  
-    };
-    std::for_each(monsters_.begin(), monsters_.end(), check_monster2);
-
-  };
-  std::for_each(bullets.begin(), bullets.end(), check_bullets);
-
-}
-
-
-
-void GameEngine::create_monster_controllers(){
-
-  auto check_monster = [&] (std::map<std::string, bright::base::ServerActor>::value_type& innerPair) {
-    std::string monsterName = innerPair.first;
-    bright::base::ServerActor& monster = innerPair.second;
-    monsterContollers_[monsterName] = std::make_shared<bright::base::ClientController>();
-    monsterContollers_[monsterName]->update( monster.pos(), monster.right(), monster.up(), monster.look() ); 
-  };
-  std::for_each(monsters_.begin(), monsters_.end(), check_monster);
-
-}
-
-void GameEngine::update_monster_controllers(){
-
-  auto check_monster = [&] (std::map<std::string, bright::base::ServerActor>::value_type& innerPair) {
-    std::string monsterName = innerPair.first;
-    bright::base::ServerActor& monster = innerPair.second;
-    monsterContollers_[monsterName]->update( monster.pos(), monster.right(), monster.up(), monster.look() ); 
-  };
-  std::for_each(monsters_.begin(), monsters_.end(), check_monster);
-
-}
+//void GameEngine::check_physics(){
+//
+//  //did_client_collide_with_monster
+//   auto pClientActorAABB = pClientActor_->aabb();
+//
+//   auto check_monster = [&] (std::map<std::string, bright::base::ServerActor>::value_type& innerPair) {
+//     std::string monsterName = innerPair.first;
+//     bright::base::ServerActor& monster = innerPair.second;
+//     auto pMonsterAABB = monster.aabb();
+//
+//     bool intersect = pClientActorAABB->intersect(pMonsterAABB);
+//     if (intersect){
+//       pClientActor_->set_to_prev_pos();
+//     }
+//   };
+//   std::for_each(monsters_.begin(), monsters_.end(), check_monster);
+//
+//
+//  auto bullets = pActorCreator_->get_bullets();
+//  auto check_bullets = [&] (std::shared_ptr<bright::base::ServerActor> pBullet) {
+//    auto pBulletAABB = pBullet->aabb();
+//
+//    auto check_monster2 = [&] (std::map<std::string, bright::base::ServerActor>::value_type& pair) {
+//      std::string monsterName = pair.first;
+//      bright::base::ServerActor& monster = pair.second;
+//      auto pMonsterAABB = monster.aabb();
+//       bool intersect = pBulletAABB->intersect(pMonsterAABB);
+//       if (intersect){
+//         monster.move_left(5.0f);
+//         pBullet->move_fwd(20.0f);
+//         pBullet->have_update(true);
+//       }  
+//    };
+//    std::for_each(monsters_.begin(), monsters_.end(), check_monster2);
+//
+//  };
+//  std::for_each(bullets.begin(), bullets.end(), check_bullets);
+//
+//}
 
 
-void GameEngine::create_bullet_controllers(){
 
-  auto bullets = pActorCreator_->get_bullets();
-  int count = 0;
-  auto check_bullet = [&] (std::shared_ptr<bright::base::ServerActor> pBullet ) {
+//void GameEngine::create_npc_controllers(){
+//
+//  auto check_monster = [&] (std::map<std::string, bright::base::ServerActor>::value_type& innerPair) {
+//    std::string monsterName = innerPair.first;
+//    bright::base::ServerActor& monster = innerPair.second;
+//    monsterContollers_[monsterName] = std::make_shared<bright::base::ClientController>();
+//    monsterContollers_[monsterName]->update( monster.pos(), monster.right(), monster.up(), monster.look() ); 
+//  };
+//  std::for_each(monsters_.begin(), monsters_.end(), check_monster);
+//
+//}
 
-    std::string Result;          // string which will contain the result
-    
-    std::ostringstream convert;   // stream used for the conversion
-    
-    convert << count;      // insert the textual representation of 'Number' in the characters in the stream
-    
-    Result = convert.str(); // set 'Result' to the contents of the stream
-    auto it = bulletContollers_.find( Result );
-    if ( it == bulletContollers_.end() ){
-      bulletContollers_[Result] = std::make_shared<bright::base::ClientController>();
-    }
-    bulletContollers_[Result]->update( pBullet->pos(), pBullet->right(), pBullet->up(), pBullet->look() ); 
-    count++;
-  };
-  std::for_each(bullets.begin(), bullets.end(), check_bullet);
+//void GameEngine::update_npc_controllers(){
+//
+//  auto check_monster = [&] (std::map<std::string, bright::base::ServerActor>::value_type& innerPair) {
+//    std::string monsterName = innerPair.first;
+//    bright::base::ServerActor& monster = innerPair.second;
+//    monsterContollers_[monsterName]->update( monster.pos(), monster.right(), monster.up(), monster.look() ); 
+//  };
+//  std::for_each(monsters_.begin(), monsters_.end(), check_monster);
+//
+//}
 
-}
+
+//void GameEngine::create_bullet_controllers(){
+//
+//  auto bullets = pActorCreator_->get_bullets();
+//  int count = 0;
+//  auto check_bullet = [&] (std::shared_ptr<bright::base::ActorControlController> pBullet ) {
+//
+//    std::string bulletNumber;          // string which will contain the result
+//    
+//    std::ostringstream convert;   // stream used for the conversion
+//    
+//    convert << count;      // insert the textual representation of 'Number' in the characters in the stream
+//    
+//    bulletNumber = convert.str(); // set 'Result' to the contents of the stream
+//    auto it = bulletContollers_.find( bulletNumber );
+//    if ( it == bulletContollers_.end() ){
+//      bulletContollers_[bulletNumber] = bright::base::ActorControlController();
+//    }
+//    bulletContollers_[bulletNumber].update( pBullet->pos(), pBullet->rotation() ); 
+//    count++;
+//  };
+//  std::for_each(bullets.begin(), bullets.end(), check_bullet);
+//
+//}

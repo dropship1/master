@@ -37,6 +37,8 @@ public:
 
   //void read_in_files_and_create_map();
 
+  void initialize();
+
   void read_in_list_of_files();
   void create_lookup_map_of_files_content();
 

@@ -2,7 +2,7 @@
 
 using namespace bright::base;
 
-ControlActor::ControlActor(): isLoggedIn_(false), isPlayer_(false), name_(""), haveUpdate_(false){
+ControlActor::ControlActor(): isLoggedIn_(false), isPlayer_(false), controlName_(""), renderName_(""), haveUpdate_(false){
 }
 
 
@@ -35,15 +35,24 @@ void ControlActor::is_logged_in(bool value){
 }
 
 
-void ControlActor::name(std::string name){
-  name_ = name;
+void ControlActor::render_name(std::string name){
+  renderName_ = name;
 }
 
 
-std::string ControlActor::name(){
-  return name_;
+std::string ControlActor::render_name(){
+  return renderName_;
 }
 
+
+void ControlActor::control_name(std::string name){
+  controlName_ = name;
+}
+
+
+std::string ControlActor::control_name(){
+  return controlName_;
+}
 
 bool ControlActor::have_update(){
   return haveUpdate_;

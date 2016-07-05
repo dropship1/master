@@ -24,13 +24,13 @@ void RenderActor::shader(std::string shader){
 }
 
 
-std::string RenderActor::name(){
-  return name_;
+std::string RenderActor::render_name(){
+  return renderName_;
 }
 
 
-void RenderActor::name(std::string name){
-  name_ = name;
+void RenderActor::render_name(std::string name){
+  renderName_ = name;
 }
 
 

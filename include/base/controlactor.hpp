@@ -33,8 +33,11 @@ public:
  */
   ControlActor();
 
-  std::string name();
-  void name(std::string name);
+  std::string control_name();
+  void control_name(std::string name);
+
+  std::string render_name();
+  void render_name(std::string name);
 
   std::string aabb();
   void aabb(std::string name);
@@ -58,7 +61,8 @@ public:
 
 private:
 
-  std::string name_;
+  std::string controlName_;
+  std::string renderName_;
   std::string aabb_;
 
   bool isPlayer_;

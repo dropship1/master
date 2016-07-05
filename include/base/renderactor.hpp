@@ -41,8 +41,8 @@ public:
   std::string shader();
   void shader(std::string shader);
 
-  std::string name();
-  void name(std::string name);
+  std::string render_name();
+  void render_name(std::string name);
 
   std::string camera_type();
   void camera_type(std::string cameraType);
@@ -52,7 +52,7 @@ private:
 
   std::string mesh_;
   std::string shader_;
-  std::string name_;
+  std::string renderName_;
   std::string cameraType_;
 
 

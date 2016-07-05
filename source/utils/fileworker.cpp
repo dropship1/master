@@ -6,6 +6,11 @@ using namespace bright::utils;
 FileWorker::FileWorker(std::string fullPathAndNameOfConfigFile): fullPathAndNameOfConfigFile_(fullPathAndNameOfConfigFile){
 }
 
+void FileWorker::initialize(){
+  read_in_list_of_files();
+  create_lookup_map_of_files_content();
+}
+
 
 //void FileWorker::read_in_global_binary_file_and_create_map(std::string fullPathAndName){
 //
@@ -201,6 +206,7 @@ void FileWorker::read_in_list_of_files(){
     }
   }
 
+  int stop = 0;
 }
 
 

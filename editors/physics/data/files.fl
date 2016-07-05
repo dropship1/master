@@ -1,90 +1,99 @@
 #All the files we need, this is how the FileWorker figures out what files to read in and then give out the data on request to whoever needs it.
+
+
+#Configs
 #Visual studio run config
 #path=editors/physics/data/
 #Binary executable run config
-path=../data/
-
-file=client.net
-file=config.ctrls
-file=contexts.ctrls
-file=aabb.res
-file=mesh.res
-file=rendering.res
-file=shaders.res
-file=textures.res
-file=controlling.wrld
-
-
+#path=../data/
 #SHADERS
 #Visual studio run config
 #path=data/shaders/
 #Binary executable run config
-path=../../../data/shaders/
-
-alias=pflc.v
-file=per_fragment_lighting_color.vert
-alias=pflc.f
-file=per_fragment_lighting_color.frag
-
-alias=pflt.v
-file=per_fragment_lighting_texture.vert
-alias=pflt.f
-file=per_fragment_lighting_texture.frag
-
-alias=pft.v
-file=per_fragment_texture.vert
-alias=pft.f
-file=per_fragment_texture.frag
-
-alias=pfc.v
-file=per_fragment_color.vert
-alias=pfc.f
-file=per_fragment_color.frag
-
+#path=../../../data/shaders/
 #MESHES
 #Visual studio run config
 #path=data/meshes/
 #Binary executable run config
-path=../../../data/meshes/
-
-alias=cube
-file=cube.bin
-
-file=cube.mtl
-
-alias=monster_jetpack_003
-file=monster_jetpack_003.bin
-
-file=monster_jetpack_003.mtl
-
-
-
-
+#path=../../../data/meshes/
 #TEXTURES/IMAGES
 #Visual studio run config
 #path=data/textures/
 #Binary executable run config
-path=../../../data/textures/
-
-
-file=default.dds
-file=cube.dds
-file=dirt.dds
-file=texture_uv_map_controller.dds
-file=texture_uv_map_frame.dds
-file=texture_uv_map_mainjet.dds
-file=texture_uv_map_pilot.dds
-file=texture_uv_map_seat.dds
-
-
+#path=../../../data/textures/
 #AABBs
 #Visual studio run config
 #path=data/aabbs/
 #Binary executable run config
-path=../../../data/aabbs/
+#path=../../../data/aabbs/
 
-alias=cube_aabb
-file=cube.bin
 
-alias=monster_jetpack_003_aabb
-file=monster_jetpack_003.bin
+    PathAlias  |       Path
+--------------------------------------------------------------
+ConfigFiles    | editors/physics/data/
+ShaderFiles    | data/shaders/
+TextureFiles   | data/textures/
+AABBFiles      | data/aabbs/
+MeshFiles      | data/meshes/
+#ConfigFiles   | ../data/
+#ShaderFiles   | ../../../data/shaders/
+#TextureFiles  | ../../../data/textures/
+#AABBFiles     | ../../../data/aabbs/
+#MeshFiles     | ../../../data/meshes/
+
+
+
+#CONFIGS
+  DataId   |  PathAlias  | FileName 
+---------------------------------------------------------
+Config1    | ConfigFiles | client.net
+Config2    | ConfigFiles | config.ctrls
+Config3    | ConfigFiles | contexts.ctrls
+Config4    | ConfigFiles | aabb.res
+Config5    | ConfigFiles | mesh.res
+Config6    | ConfigFiles | rendering.res
+Config7    | ConfigFiles | shaders.res
+Config8    | ConfigFiles | textures.res
+Config9    | ConfigFiles | controlling.wrld
+
+
+#SHADERS
+  DataId   |  PathAlias  | FileName 
+---------------------------------------------------------
+Shader1    | ShaderFiles | per_fragment_lighting_color.vert
+Shader2    | ShaderFiles | per_fragment_lighting_color.frag
+Shader3    | ShaderFiles | per_fragment_lighting_texture.vert
+Shader4    | ShaderFiles | per_fragment_lighting_texture.frag
+Shader5    | ShaderFiles | per_fragment_texture.vert
+Shader6    | ShaderFiles | per_fragment_texture.frag
+Shader7    | ShaderFiles | per_fragment_color.vert
+Shader8    | ShaderFiles | per_fragment_color.frag
+
+
+#MESHES
+  DataId   |  PathAlias  | FileName 
+-----------------------------------------------------------
+Mesh1      | MeshFiles   | cube.bin
+Mesh2      | MeshFiles   | cube.mtl
+Mesh3      | MeshFiles   | monster_jetpack_003.bin
+Mesh4      | MeshFiles   | monster_jetpack_003.mtl
+
+
+#TEXTURES/IMAGES
+  DataId   |  PathAlias     | FileName 
+-----------------------------------------------------------
+Texture1   | TextureFiles   | default.dds
+Texture2   | TextureFiles   | cube.dds
+Texture3   | TextureFiles   | dirt.dds
+Texture5   | TextureFiles   | texture_uv_map_controller.dds
+Texture6   | TextureFiles   | texture_uv_map_frame.dds
+Texture7   | TextureFiles   | texture_uv_map_mainjet.dds
+Texture8   | TextureFiles   | texture_uv_map_pilot.dds
+Texture9   | TextureFiles   | texture_uv_map_seat.dds
+
+
+#AABBs
+  DataId   |  PathAlias  | FileName 
+-----------------------------------------------------------
+AABB1      | AABBFiles   | cube.bin
+AABB2      | AABBFiles   | monster_jetpack_003.bin

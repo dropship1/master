@@ -1,13 +1,13 @@
 #include <windows.h>
 #include <iostream>
-#include "base/resourcemanager.hpp"
+#include "base/actorrenderingresourcemanager.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/globalstructs.hpp"
 #include "base/globalstructs.hpp"
 #include "context/contextmanager.hpp"
 #include "context/context.hpp"
-#include "base/clientcontroller.hpp"
-#include "base/servercontroller.hpp"
+#include "base/actorcontrolcontroller.hpp"
+#include "base/actorrendercontroller.hpp"
 #include <memory>
 #include <algorithm>
 
@@ -29,8 +29,8 @@
 
 
 std::shared_ptr<bright::context::ContextManager> pContextManager;
-std::shared_ptr<bright::base::ClientController> pClientController;
-std::shared_ptr<bright::base::ServerController> pServerController;
+std::shared_ptr<bright::base::ActorControlController> pClientController;
+std::shared_ptr<bright::base::ActorControlController> pServerController;
 
 
 enum WinKeys {
@@ -329,9 +329,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   //test/graphics/data
   //But if you're building this and creating the executable, which goes into the bin directory
   //in test/graphics/bin then you need to specify the path as "../data".
-  //auto pFileWorker = std::make_shared<bright::utils::FileWorker>("../data/filelist");
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/graphics/data/filelist");
-  auto pResourceManager = std::make_shared<bright::base::ResourceManager>(pFileWorker);
+  //auto pFileWorker = std::make_shared<bright::utils::FileWorker>("../data/files.fl");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/graphics/data/files.fl");
+  auto pResourceManager = std::make_shared<bright::base::ActorRenderingResourceManager>(pFileWorker);
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
   pResourceManager->initialize();
@@ -340,7 +340,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   auto pAltairGroupRenderInfo = pResourceManager->actor_group_render_infos()["Jake"];
   auto pPlaneGroupRenderInfo = bright::graphics::create_plane(5.0f);
 
-  pServerController = std::make_shared<bright::base::ServerController>();
+  pServerController = std::make_shared<bright::base::>();
   pServerController->update_pos( glm::vec3(0.0f,-5.0f,0.0f) );
 
   pClientController = std::make_shared<bright::base::ClientController>();

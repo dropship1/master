@@ -1,7 +1,7 @@
 #include <windows.h>
 #include <iostream>
 #include "base/globalstructs.hpp"
-#include "base/resourcemanager.hpp"
+#include "base/actorrenderingresourcemanager.hpp"
 #include "context/contextmanager.hpp"
 #include "context/context.hpp"
 #include <memory>
@@ -60,12 +60,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   //test/graphics/data
   //But if you're building this and creating the executable, which goes into the bin directory
   //in test/graphics/bin then you need to specify the path as "../data".
-  //auto pFileWorker = std::make_shared<bright::utils::FileWorker>("../data/filelist");
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/base/data/filelist");
-  auto pResourceManager = std::make_shared<bright::base::ResourceManager>(pFileWorker);
+  //auto pFileWorker = std::make_shared<bright::utils::FileWorker>("../data/files.fl");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/base/data/files.fl");
+  auto pActorRenderingResourceManager = std::make_shared<bright::base::ActorRenderingResourceManager>(pFileWorker);
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
-  pResourceManager->initialize();
+  pActorRenderingResourceManager->initialize();
 
   //Show and update the window
   pContextManager->show_window(false);

@@ -103,7 +103,7 @@ UpdateMessage ClientHandler::get_one_update(){
     return updateResponses_[0];
   }
 
-  return bright::network::UpdateMessage("EMPTYBADNOUSERNAME", glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,0.0f), false);
+  return bright::network::UpdateMessage("EMPTYBADNOUSERNAME", glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,0.0f), false);
 }
 
 bool ClientHandler::any_updates(){
@@ -200,7 +200,7 @@ void ClientHandler::empty_commands(){
 
 void ClientHandler::add_update_response(){
   auto& playerController_= playerControllers_[username()];
-  updateResponses_.push_back( UpdateMessage(username(), playerController_.pos(), playerController_.right(), playerController_.up(), playerController_.look(), true) );
+  updateResponses_.push_back( UpdateMessage(username(), playerController_.pos(), playerController_.rotation(), true) );
 }
 
 

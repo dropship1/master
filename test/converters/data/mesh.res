@@ -28,6 +28,10 @@
 
 
 <Mesh>
+file=altair
+</Mesh>
+
+<Mesh>
 file=monster_jetpack_003
 </Mesh>
 

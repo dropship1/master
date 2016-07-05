@@ -49,6 +49,7 @@ void MeshConverter::batch_read_obj_mesh_binary(){
   auto handle_stream = [&] (std::shared_ptr<std::ifstream> pStream) { 
     auto pMesh = single_read_obj_mesh_binary(pStream);
     meshes_[pMesh->composite_name()] = pMesh;
+    int stop = 0;
   };
   std::for_each(streams.begin(), streams.end(), handle_stream);
 
