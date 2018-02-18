@@ -3,6 +3,11 @@
 *.lo
 *.o
 
+# Project directories
+bin/
+lib/
+Win32/
+
 # Precompiled Headers
 *.gch
 *.pch
@@ -33,6 +38,10 @@
 *.sln
 *.sdf
 *.suo
+*.dir/
+*.vs/
+*.vcxproj.user
+
 
 #BOOST stuff
 boost-*
@@ -42,3 +51,8 @@ glew-*
 
 
 #testing ssh key
+
+#cmake trash files
+cmake_install.cmake
+CMakeFiles
+CMakeCache.txt

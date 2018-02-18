@@ -310,7 +310,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 
   //Initialize InputContextManager from config files
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/input/data/filelist");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("data/filelist");
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
   std::string controls_contexts = pFileWorker->get_file_contents("controls_contexts.cfg");
@@ -342,7 +342,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
     }
     else{
       pInputManager->notify();
-	  pInputContextManager->notify();
+      pInputContextManager->notify();
       pContextManager->begin_rendering();
       pContextManager->end_rendering();
     }

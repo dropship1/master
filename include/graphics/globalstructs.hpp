@@ -94,6 +94,8 @@ struct ActorGroupRenderInfo{
 
   bool hasShader_;
 
+  std::string name_;
+
   std::map<std::string, ActorRenderInfo> actorRenderInfos_;
   std::string cameraType_;
 

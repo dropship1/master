@@ -310,9 +310,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   //pContextManager->constrain_cursor();
   pContextManager->initialize();
 
-
-  //auto pFileWorker = std::make_shared<bright::utils::FileWorker>("../data/filelist");
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/audio/data/files.fl");
+  //Executable run
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("../data/files.fl");
+  //Visual studio run
+  //auto pFileWorker = std::make_shared<bright::utils::FileWorker>("data/files.fl");
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
 
@@ -322,9 +323,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
   pSoundManager = std::make_shared<bright::audio::SoundManager>();
   pSoundManager->initialize();
-	pSoundManager->create_wav_source("meow2", stream);
-	pSoundManager->set_source_direction("meow2", 1.0, 0.0, 0.0);
-	pSoundManager->set_source_position("meow2", -5.0, 0.0, 0.0);
+  pSoundManager->create_wav_source("meow2", stream);
+  pSoundManager->set_source_direction("meow2", 1.0, 0.0, 0.0);
+  pSoundManager->set_source_position("meow2", -5.0, 0.0, 0.0);
 
 
   //Enter the main message loop
@@ -364,7 +365,8 @@ void KeyboardListener::on_keyboard_event(std::shared_ptr<bright::input::Keyboard
     else if (pKeyboardInputEvent->key_enum() == bright::input::Key::F2){ 
     }
 
-    if (pKeyboardInputEvent->key_enum() == bright::input::Key::F4){ 
+    if (pKeyboardInputEvent->key_enum() == bright::input::Key::F4){
+      exit(1);
     }
 
   }

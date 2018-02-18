@@ -21,7 +21,7 @@ int AIManager::handle_ai() {
   // Have each npc point to nearest player, and move towards it.
   for(auto iterNpc = controlNpcs_.begin(); iterNpc != controlNpcs_.end(); ++iterNpc) {
     auto &controlNpc = (*iterNpc).second;
-    auto& npcController = npcControllers_[controlNpc.name()];
+    auto& npcController = npcControllers_[controlNpc.control_name()];
     auto npcPos = npcController.pos();
 
     //Find nearest player
@@ -33,7 +33,7 @@ int AIManager::handle_ai() {
     glm::vec3 nearestPlayerPos;
     for(auto iterPlayer = controlPlayers_.begin(); iterPlayer != controlPlayers_.end(); ++iterPlayer) {
       auto &controlPlayer = (*iterPlayer).second;
-      auto& playerController = playerControllers_[controlPlayer.name()];
+      auto& playerController = playerControllers_[controlPlayer.control_name()];
       auto playerPos = playerController.pos();
 
       auto positionDelta = playerPos - npcPos;

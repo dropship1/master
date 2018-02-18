@@ -1,6 +1,6 @@
 #CONFIG FILES
 #Visual studio run config
-path=test/utils/data/
+path=data/
 #Binary executable run config
 #path=../data/
 
@@ -18,9 +18,9 @@ file=resources.cfg
 
 #SHADERS
 #Visual studio run config
-path=data/shaders/
+path=../../data/shaders/
 #Binary executable run config
-#path=../../data/shaders/
+#path=../../../data/shaders/
 
 
 alias=pflc.v
@@ -38,9 +38,9 @@ file=per_fragment_lighting_texture.frag
 
 #MESHES
 #Visual studio run config
-path=data/meshes/
+path=../../data/meshes/
 #Binary executable run config
-#path=../../data/meshes/
+#path=../../../data/meshes/
 
 file=altair.bin
 file=altair.mtl
@@ -50,9 +50,9 @@ file=altair.mtl
 
 #TEXTURES/IMAGES
 #Visual studio run config
-path=data/textures/
+path=../../data/textures/
 #Binary executable run config
-#path=../../data/textures/
+#path=../../../data/textures/
 
 
 file=default.dds

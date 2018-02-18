@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
   std::cout << "STARTING AI TEST...." << std::endl;
 
 
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/ai/data/files.fl");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("data/files.fl");
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
   auto pActorControlResourceManager = std::make_shared<bright::base::ActorControlsResourceManager>(pFileWorker);
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
     npcMoveCount = aiManager.handle_ai();
     system("cls");
     print_board(npcContollers, playerControllers);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
   } while(npcMoveCount != 0) ;
 
   std::cout << "FINISHED AI TEST." << std::endl;

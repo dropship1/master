@@ -1,4 +1,3 @@
-﻿                                                    
 #------------------------------
 #Explanation
 #------------------------------
@@ -35,8 +34,22 @@
 #------------------------------
 
 <RenderActor>
-name=Box
-mesh=altair
-shader=PER_FRAG_LIGHT_TEXTURE
-cameratype=1st
+NAME=Lucy
+MESH=altair
+SHADER=PER_FRAG_TEXTURE
+CAMERATYPE=1st
+</RenderActor>
+
+<RenderActor>
+NAME=Kane
+MESH=altair
+SHADER=PER_FRAG_TEXTURE
+CAMERATYPE=1st
+</RenderActor>
+
+<RenderActor>
+NAME=Zombie_001
+MESH=altair
+SHADER=PER_FRAG_TEXTURE
+CAMERATYPE=1st
 </RenderActor>

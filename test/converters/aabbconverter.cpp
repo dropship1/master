@@ -7,7 +7,7 @@
 
 int main(){
 
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/converters/data/files.fl");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("data/files.fl");
   auto pAABBConverter = std::make_shared<bright::converters::AABBConverter>(pFileWorker);
 
   std::vector<std::string> aabbFileNames;
@@ -17,8 +17,8 @@ int main(){
   //test/tools/meshes/obj
   //But if you're building this and creating the executable, which goes into the bin directory
   //in test/tools/bin then you need to specify the path as "../meshes/obj".
-  //pAABBConverter->batch_convert_obj_and_dump_aabb_binary("../../data/Meshes", aabbFileNames);
-  pAABBConverter->batch_convert_obj_and_dump_aabb_binary("data/meshes", "data/aabbs",  aabbFileNames);
+  pAABBConverter->batch_convert_obj_and_dump_aabb_binary("../../data/Meshes", "../../data/aabbs", aabbFileNames);
+  //pAABBConverter->batch_convert_obj_and_dump_aabb_binary("data/meshes", "data/aabbs",  aabbFileNames);
 
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();

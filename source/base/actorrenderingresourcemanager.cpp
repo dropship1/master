@@ -70,12 +70,13 @@ void ActorRenderingResourceManager::load_resources_and_create_render_infos(){
 
   std::string line; 
   while (getline(in, line)){
+    int start = 0;
     if (line.substr(0,1) == "]" ){
       break;
     }
     if (inRenderActorNode){
-      if(line.substr(0,111) == "RENDERNAME="){
-        renderName = line.substr(11);
+      if(line.substr(0,5) == "NAME="){
+        renderName = line.substr(5);
       }
       else if(line.substr(0,5) == "MESH="){
         mesh = line.substr(5);
@@ -86,7 +87,7 @@ void ActorRenderingResourceManager::load_resources_and_create_render_infos(){
       else if(line.substr(0,11) == "CAMERATYPE="){
         cameraType = line.substr(11);
       }
-      else if(line.substr(0,8) == "</RenderActor>"){
+      else if(line.substr(0,14) == "</RenderActor>"){
         RenderActor renderActor;
         renderActor.camera_type(cameraType);
         renderActor.render_name(renderName);
@@ -98,15 +99,18 @@ void ActorRenderingResourceManager::load_resources_and_create_render_infos(){
         inRenderActorNode = false;
       }
     }
-    else if (line.substr(0,7) == "<RenderActor>"){ 
+    else if (line.substr(0,13) == "<RenderActor>"){ 
       inRenderActorNode = true;
     }
+
+    int stop = 0;
   }
 
-  //We only have a controller at the top level/root mesh.. so we cant move any of the children
-  //individually yet
+  int end = 0;
+  //We only have a controller at the top level/root mesh.. so we cant move any of the children individually yet
   auto create_actor_render_controller = [&] (RenderActor& renderActor) {
     ActorRenderController actortRenderController;
+    actortRenderController.name(renderActor.render_name());
     actorRenderControllers_[renderActor.render_name()] = actortRenderController;
   };
   std::for_each(renderActors_.begin(), renderActors_.end(), create_actor_render_controller);
@@ -117,13 +121,17 @@ void ActorRenderingResourceManager::load_resources_and_create_render_infos(){
     //This is the rootMesh, it contains metadata
     auto pRootMesh = meshConverter_.mesh( renderActor.mesh() );
     bright::graphics::ActorGroupRenderInfo rootActorGroupRenderInfo( graphicsLoadersManager_.shaders( renderActor.shader() ) );
+    rootActorGroupRenderInfo.hasShader_ = true;
     rootActorGroupRenderInfo.cameraType_ = renderActor.camera_type();
 
     auto create_render_info = [&] (std::shared_ptr<Mesh> pChildMesh) {
-      rootActorGroupRenderInfo.actorRenderInfos_[pChildMesh->part_name()] = bright::graphics::ActorRenderInfo( graphicsLoadersManager_.textures( pChildMesh->material() ) );
+      bright::graphics::ActorRenderInfo newActorRenderInfo(graphicsLoadersManager_.textures(pChildMesh->material()));
+      newActorRenderInfo.hasTexture_ = true;
+      rootActorGroupRenderInfo.actorRenderInfos_[pChildMesh->part_name()] = newActorRenderInfo;
       load_mesh_to_graphics_card( pChildMesh, rootActorGroupRenderInfo.actorRenderInfos_[pChildMesh->part_name()] );
     };
     std::for_each(pRootMesh->child_meshes().begin(), pRootMesh->child_meshes().end(), create_render_info);
+    rootActorGroupRenderInfo.name_ = renderActor.render_name();
     actorGroupRenderInfos_[renderActor.render_name()] = rootActorGroupRenderInfo;
     
   };

@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
 
   std::vector<std::string> npcResponses;
 
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/network/data/files.fl");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("data/files.fl");
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
 
@@ -66,7 +66,7 @@ void handle_npcs(std::map<std::string, bright::base::ActorControlController>& np
     auto& npcController = pair.second;
     if (left){  npcController.move_left(0.2f); }
     else{  npcController.move_right(0.2f); }
-    bright::network::UpdateMessage updateMsg(npcName, npcController.pos(), npcController.right(), npcController.up(), npcController.look(), false);
+    bright::network::UpdateMessage updateMsg(npcName, npcController.pos(), npcController.rotation(), false);
     npcResponses.push_back( updateMsg.full_message() );
   };
   std::for_each(npcControllers.begin(), npcControllers.end(), make_a_npc_response);

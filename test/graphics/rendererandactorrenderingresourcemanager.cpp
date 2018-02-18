@@ -29,8 +29,8 @@
 
 
 std::shared_ptr<bright::context::ContextManager> pContextManager;
-std::shared_ptr<bright::base::ActorControlController> pClientController;
-std::shared_ptr<bright::base::ActorControlController> pServerController;
+std::shared_ptr<bright::base::ActorRenderController> pRenderController;
+std::shared_ptr<bright::base::ActorControlController> pControlController;
 
 
 enum WinKeys {
@@ -330,34 +330,34 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   //But if you're building this and creating the executable, which goes into the bin directory
   //in test/graphics/bin then you need to specify the path as "../data".
   //auto pFileWorker = std::make_shared<bright::utils::FileWorker>("../data/files.fl");
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/graphics/data/files.fl");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("data/files.fl");
   auto pResourceManager = std::make_shared<bright::base::ActorRenderingResourceManager>(pFileWorker);
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
   pResourceManager->initialize();
   auto pRenderer = std::make_shared<bright::graphics::Renderer>();
 
-  auto pAltairGroupRenderInfo = pResourceManager->actor_group_render_infos()["Jake"];
-  auto pPlaneGroupRenderInfo = bright::graphics::create_plane(5.0f);
+  auto altairGroupRenderInfo = pResourceManager->actor_group_render_infos()["Jake"];
+  auto planeGroupRenderInfo = bright::graphics::create_plane(5.0f);
 
-  pServerController = std::make_shared<bright::base::>();
-  pServerController->update_pos( glm::vec3(0.0f,-5.0f,0.0f) );
+  pControlController = std::make_shared<bright::base::ActorControlController>();
+  pControlController->update( glm::vec3(0.0f,-5.0f,0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
-  pClientController = std::make_shared<bright::base::ClientController>();
-  pClientController->update( pServerController->pos(), pServerController->right(), pServerController->up(), pServerController->look() );
-  pPlaneGroupRenderInfo->modToWorld_ = pClientController->model_to_world_transformation_matrix();
-  pPlaneGroupRenderInfo->pShader_ = pResourceManager->graphics_loader_manager().shaders("PER_FRAG_COLOR");
-  pPlaneGroupRenderInfo->cameraType_ = "1st";
-  pPlaneGroupRenderInfo->actorRenderInfos_["plane"]->diffuseColor_ = glm::vec4(0.0f,0.5f,0.0f,1.0f);
+  pRenderController = std::make_shared<bright::base::ActorRenderController>();
+  pRenderController->update( pControlController->pos(), pControlController->right(), pControlController->up(), pControlController->look() );
+  planeGroupRenderInfo.modToWorld_ = pRenderController->model_to_world_transformation_matrix();
+  planeGroupRenderInfo.pShader_ = pResourceManager->graphics_loader_manager().shaders("PER_FRAG_COLOR");
+  planeGroupRenderInfo.cameraType_ = "1st";
+  planeGroupRenderInfo.actor_render_info("plane").diffuseColor_ = glm::vec4(0.0f,0.5f,0.0f,1.0f);
 
-  auto pJakeController = pResourceManager->controllers()["Jake"];
-  pJakeController->update( glm::vec3(0.0f,5.0f,10.0f) );
-  pAltairGroupRenderInfo->modToWorld_ = pJakeController->model_to_world_transformation_matrix();
+  auto jakeController = pResourceManager->actor_render_controllers()["Jake"];
+  jakeController.update( glm::vec3(0.0f,5.0f,10.0f) );
+  altairGroupRenderInfo.modToWorld_ = jakeController.model_to_world_transformation_matrix();
 
-  auto pWorldInfo = pResourceManager->world_info();
-  pServerController->update_pos( glm::vec3(0.0f,-5.0f,0.0f) );
-  pClientController->update( pServerController->pos(), pServerController->right(), pServerController->up(), pServerController->look() );
-  pWorldInfo->world_to_cam_matrix( "1st", pClientController->world_to_camera_transformation_matrix() );
+  auto worldInfo = pResourceManager->world_info();
+  pControlController->pos( glm::vec3(0.0f,-5.0f,0.0f) );
+  pRenderController->update( pControlController->pos(), pControlController->right(), pControlController->up(), pControlController->look() );
+  worldInfo.world_to_cam_matrix( "1st", pRenderController->world_to_camera_transformation_matrix() );
  
   //Show and update the window
   pContextManager->show_window(false);
@@ -376,25 +376,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
     else{
       pInputManager->notify();
       if(pKeyboardListener->w_){
-        pServerController->move_fwd(0.4f);
-        pClientController->update( pServerController->pos() );
+        pControlController->move_fwd(0.4f);
+        pRenderController->update( pControlController->pos() );
       }
       if(pKeyboardListener->s_){
-        pServerController->move_backward(0.4f);
-        pClientController->update( pServerController->pos() );
+        pControlController->move_backward(0.4f);
+        pRenderController->update( pControlController->pos() );
       }
       if(pKeyboardListener->a_){
-        pServerController->move_left(0.4f);
-        pClientController->update( pServerController->pos() );
+        pControlController->move_left(0.4f);
+        pRenderController->update( pControlController->pos() );
       }
       if(pKeyboardListener->d_){
-        pServerController->move_right(0.4f);
-        pClientController->update( pServerController->pos() );
+        pControlController->move_right(0.4f);
+        pRenderController->update( pControlController->pos() );
       }
-      pWorldInfo->world_to_cam_matrix( "1st", pClientController->world_to_camera_transformation_matrix() );
+      worldInfo.world_to_cam_matrix( "1st", pRenderController->world_to_camera_transformation_matrix());
       pContextManager->begin_rendering();
-      pRenderer->render(pPlaneGroupRenderInfo, pWorldInfo);
-      pRenderer->render(pAltairGroupRenderInfo, pWorldInfo);
+      pRenderer->render(planeGroupRenderInfo, worldInfo);
+      pRenderer->render(altairGroupRenderInfo, worldInfo);
       pContextManager->end_rendering();
     }
   }
@@ -475,20 +475,20 @@ void RawMouseListener::on_raw_mouse_event(std::shared_ptr<bright::input::RawMous
   //
   if ( pRawMouseInputEvent->raw_mouse_event_type() == bright::input::MouseEventType::MOVEMENT){ 
     if (pRawMouseInputEvent->delta_rate_x() < 0){ 
-      pServerController->rotate_left(0.01f);
-      pClientController->update( pServerController->pos(), pServerController->right(), pServerController->up(), pServerController->look() );
+      pControlController->rotate_left(0.01f);
+      pRenderController->update( pControlController->pos(), pControlController->right(), pControlController->up(), pControlController->look() );
     }
     else if (pRawMouseInputEvent->delta_rate_x() > 0){ 
-      pServerController->rotate_right(0.01f);
-      pClientController->update( pServerController->pos(), pServerController->right(), pServerController->up(), pServerController->look() );
+      pControlController->rotate_right(0.01f);
+      pRenderController->update( pControlController->pos(), pControlController->right(), pControlController->up(), pControlController->look() );
     }
     else if (pRawMouseInputEvent->delta_rate_y() < 0){ 
-      pServerController->rotate_up(0.01f);
-      pClientController->update( pServerController->pos(), pServerController->right(), pServerController->up(), pServerController->look() );
+      pControlController->rotate_up(0.01f);
+      pRenderController->update( pControlController->pos(), pControlController->right(), pControlController->up(), pControlController->look() );
     }
     else if (pRawMouseInputEvent->delta_rate_y() > 0){ 
-      pServerController->rotate_down(0.01f);
-      pClientController->update( pServerController->pos(), pServerController->right(), pServerController->up(), pServerController->look() );
+      pControlController->rotate_down(0.01f);
+      pRenderController->update( pControlController->pos(), pControlController->right(), pControlController->up(), pControlController->look() );
     }
   //  std::cout << "2 : MOVEMENT" << std::endl << std::flush; 
   //  std::cout << "deltaX: " << pRawMouseInputEvent->delta_rate_x() << std::endl << std::flush;

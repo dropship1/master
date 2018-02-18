@@ -30,6 +30,9 @@ public:
   glm::mat4 model_to_world_transformation_matrix();
   glm::mat4 world_to_camera_transformation_matrix();
 
+  std::string name();
+  void name(std::string name);
+
 private:
 
   void calculate_model_to_world();
@@ -43,6 +46,8 @@ private:
   glm::vec3 up_;
   glm::vec3 look_;
   glm::vec3 right_;
+
+  std::string name_;
 
 };
 

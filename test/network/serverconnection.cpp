@@ -66,6 +66,9 @@ enum WinKeys {
 
 std::shared_ptr<bright::input::InputManager> pInputManager;
 
+float lastX = FLT_MAX;
+float lastY = FLT_MAX;
+float lastZ = FLT_MAX;
 
 LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam){
   // Route Windows messages to game engine member functions
@@ -235,26 +238,63 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam){
       }
       else if (raw->header.dwType == RIM_TYPEMOUSE) {
         short int data = 0;
-        if (raw->data.mouse.usFlags == MOUSE_MOVE_RELATIVE){
-          int xPosRelative = raw->data.mouse.lLastX;
-          int yPosRelative = raw->data.mouse.lLastY;
-          pInputManager->update_raw_mouse_listeners_deltas(xPosRelative, yPosRelative);
-
-          CURSORINFO cursorInfo = { 0 };
-          cursorInfo.cbSize = sizeof(cursorInfo);
-          GetCursorInfo(&cursorInfo);
-          float newXPos = cursorInfo.ptScreenPos.x;
-          float newYPos = cursorInfo.ptScreenPos.y;
+        int stop = 0;
+        
+        //int xPosRelative = raw->data.mouse.lLastX;
+        //int yPosRelative = raw->data.mouse.lLastY;
+        //pInputManager->update_raw_mouse_listeners_deltas(xPosRelative, yPosRelative);
+        //if (raw->data.mouse.usFlags & (1 << MOUSE_ATTRIBUTES_CHANGED)) {
+        //  std::cout << "MOUSE_ATTRIBUTES_CHANGED" <<  std::endl << std::flush;
+        //}
+        //if (raw->data.mouse.usFlags & (1 << MOUSE_MOVE_ABSOLUTE)) {
+        //  std::cout << "MOUSE_MOVE_ABSOLUTE" << std::endl << std::flush;
+        //}
+        //if (raw->data.mouse.usFlags == MOUSE_VIRTUAL_DESKTOP) {
+        //  std::cout << "MOUSE_VIRTUAL_DESKTOP" << std::endl << std::flush;
+        //}
+        if ((raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) == MOUSE_MOVE_ABSOLUTE){
+          
+          std::cout << "raw->data.mouse.usFlags" << raw->data.mouse.usFlags << std::endl << std::flush;
+          std::cout << "MOUSE_MOVE_ABSOLUTE" << std::endl << std::flush;
+          //int xPosRelative = raw->data.mouse.lLastX;
+          //int yPosRelative = raw->data.mouse.lLastY;
+          //pInputManager->update_raw_mouse_listeners_deltas(xPosRelative, yPosRelative);
+          //
+          //CURSORINFO cursorInfo = { 0 };
+          //cursorInfo.cbSize = sizeof(cursorInfo);
+          //GetCursorInfo(&cursorInfo);
+          //float newXPos = cursorInfo.ptScreenPos.x;
+          //float newYPos = cursorInfo.ptScreenPos.y;
           //pInputManager->update_mouse_listeners_position(newXPos, newYPos);
           
-          LPPOINT point = new POINT();
-          GetCursorPos(point);
+          //LPPOINT point = new POINT();
+          //GetCursorPos(point);
 
-          ScreenToClient(pContextManager->windows_current_context()->window_id(), point);
+          //ScreenToClient(pContextManager->windows_current_context()->window_id(), point);
           //std::cout << "xPoint" << point->x << std::endl << std::flush;
           //std::cout << "yPoint" << point->y << std::endl << std::flush;
-  
-        }      
+          //https://stackoverflow.com/questions/31949476/raw-input-mouse-lastx-lasty-with-odd-values-while-logged-in-through-rdp
+
+          const bool virtual_desktop = (raw->data.mouse.usFlags & MOUSE_VIRTUAL_DESKTOP) == MOUSE_VIRTUAL_DESKTOP;
+          const int width = GetSystemMetrics(virtual_desktop ? SM_CXVIRTUALSCREEN : SM_CXSCREEN);
+          const int height = GetSystemMetrics(virtual_desktop ? SM_CYVIRTUALSCREEN : SM_CYSCREEN);
+          float absolute_posX = (raw->data.mouse.lLastX / float(USHRT_MAX)) * width;
+          float absolute_posY = (raw->data.mouse.lLastY / float(USHRT_MAX)) * height;
+          float absolute_posZ = 0;
+          std::cout << "width" << width << std::endl << std::flush;
+          std::cout << "height" << height << std::endl << std::flush;
+          std::cout << "absolute_posX" << absolute_posX << std::endl << std::flush;
+          std::cout << "absolute_posY" << absolute_posY << std::endl << std::flush;
+          if ((lastX != FLT_MAX) && (lastY != FLT_MAX) && (lastZ != FLT_MAX)) {
+            pInputManager->update_raw_mouse_listeners_deltas(absolute_posX - lastX, absolute_posY - lastY);
+          }
+          lastX = absolute_posX;
+          lastY = absolute_posY;
+          lastZ = absolute_posZ;
+        }
+        else{
+          pInputManager->update_raw_mouse_listeners_deltas(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+        }
         //MOUSE_LEFT_BUTTON_DOWN
         if (raw->data.mouse.usButtonFlags == RI_MOUSE_BUTTON_1_DOWN){
           pInputManager->update_raw_mouse_listeners_button(true, bright::input::MouseButton::LEFT, data);
@@ -305,20 +345,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   pInputManager->add_keyboard_event_listener(pInputContextManager);
   // TODO: Finish mouse events
   pInputManager->add_raw_mouse_event_listener(pInputContextManager);
-  pInputManager->add_mouse_event_listener(pInputContextManager);
+  //pInputManager->add_mouse_event_listener(pInputContextManager);
 
   //If you're running this from the debuger/visual studio, then you need to specify the path to the 
   //data directory starting from the "bright" directory, for example:
   //test/network/data
   //But if you're building this and creating the executable, which goes into the bin directory
   //in test/network/bin then you need to specify the path as "../data".
-  pFileWorker = std::make_shared<bright::utils::FileWorker>("../data/filelist");
+  pFileWorker = std::make_shared<bright::utils::FileWorker>("data/filelist");
   //pFileWorker = std::make_shared<bright::utils::FileWorker>("test/network/data/filelist");
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
 
   load_client_configs();
-  auto pServerHandler = std::make_shared<bright::network::ServerHandler>(clientName, "mypassword", pModelsController, monsterContollers);
+  auto pServerHandler = std::make_shared<bright::network::ServerHandler>(clientName, "mypassword", pModelsController, npcContollers);
   auto pServerConnection = boost::make_shared<bright::network::ServerConnection>(service, pServerHandler);
   boost::asio::ip::tcp::endpoint ep( boost::asio::ip::address::from_string(ip), port );
 
@@ -338,34 +378,34 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
  
   auto pShader = pLoadersManager->shaders("PER_FRAG_LIGHT_COLOR");
 
-  auto pPlaneGroupRenderInfo = bright::graphics::create_plane(5.0f);
-  pPlaneGroupRenderInfo->pShader_ = pShader;
-  pPlaneGroupRenderInfo->hasShader_ = true;
-  pPlaneGroupRenderInfo->cameraType_ = "1st";
+  auto planeGroupRenderInfo = bright::graphics::create_plane(5.0f);
+  planeGroupRenderInfo.pShader_ = pShader;
+  planeGroupRenderInfo.hasShader_ = true;
+  planeGroupRenderInfo.cameraType_ = "1st";
 
-  auto pCubeGroupRenderInfo = bright::graphics::create_cube();
-  pCubeGroupRenderInfo->pShader_ = pShader;
-  pCubeGroupRenderInfo->hasShader_ = true;
-  pCubeGroupRenderInfo->cameraType_ = "1st";
+  auto cubeGroupRenderInfo = bright::graphics::create_cube();
+  cubeGroupRenderInfo.pShader_ = pShader;
+  cubeGroupRenderInfo.hasShader_ = true;
+  cubeGroupRenderInfo.cameraType_ = "1st";
 
-  auto pCubeGroupRenderInfo2 = bright::graphics::create_cube();
-  pCubeGroupRenderInfo2->pShader_ = pShader;
-  pCubeGroupRenderInfo2->hasShader_ = true;
-  pCubeGroupRenderInfo2->cameraType_ = "1st";
+  auto cubeGroupRenderInfo2 = bright::graphics::create_cube();
+  cubeGroupRenderInfo2.pShader_ = pShader;
+  cubeGroupRenderInfo2.hasShader_ = true;
+  cubeGroupRenderInfo2.cameraType_ = "1st";
 
-  auto pCubeGroupRenderInfo3 = bright::graphics::create_cube();
-  pCubeGroupRenderInfo3->pShader_ = pShader;
-  pCubeGroupRenderInfo3->hasShader_ = true;
-  pCubeGroupRenderInfo3->cameraType_ = "1st";
+  auto cubeGroupRenderInfo3 = bright::graphics::create_cube();
+  cubeGroupRenderInfo3.pShader_ = pShader;
+  cubeGroupRenderInfo3.hasShader_ = true;
+  cubeGroupRenderInfo3.cameraType_ = "1st";
 
-  auto pCubeGroupRenderInfo4 = bright::graphics::create_cube();
-  pCubeGroupRenderInfo4->pShader_ = pShader;
-  pCubeGroupRenderInfo4->hasShader_ = true;
-  pCubeGroupRenderInfo4->cameraType_ = "1st";
+  auto cubeGroupRenderInfo4 = bright::graphics::create_cube();
+  cubeGroupRenderInfo4.pShader_ = pShader;
+  cubeGroupRenderInfo4.hasShader_ = true;
+  cubeGroupRenderInfo4.cameraType_ = "1st";
 
-  pCubeGroupRenderInfo->modToWorld_ = pModelsController->model_to_world_transformation_matrix();
-  pCubeGroupRenderInfo->actorRenderInfos_["cube"]->diffuseColor_ = glm::vec4(0.0f,0.0f,1.0f,1.0f);
-  pCubeGroupRenderInfo->actorRenderInfos_["cube"]->hasTexture_ = false;
+  cubeGroupRenderInfo.modToWorld_ = pModelsController->model_to_world_transformation_matrix();
+  cubeGroupRenderInfo.actorRenderInfos_["cube"]->diffuseColor_ = glm::vec4(0.0f,0.0f,1.0f,1.0f);
+  cubeGroupRenderInfo.actorRenderInfos_["cube"]->hasTexture_ = false;
 
   pCubeGroupRenderInfo2->modToWorld_ = monsterContollers["Leo"]->model_to_world_transformation_matrix();
   pCubeGroupRenderInfo2->actorRenderInfos_["cube"]->diffuseColor_ = glm::vec4(0.0f,0.0f,1.0f,1.0f);

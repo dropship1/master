@@ -1,6 +1,6 @@
 #CONFIG FILES
 #Visual studio run config
-path=test/base/data/
+path=data/
 #Binary executable run config
 #path=../data/
 
@@ -14,7 +14,7 @@ file=controlling.wrld
 
 #SHADERS
 #Visual studio run config
-path=data/shaders/
+path=../../data/shaders/
 #Binary executable run config
 #path=../../data/shaders/
 
@@ -28,11 +28,21 @@ file=per_fragment_lighting_texture.vert
 alias=pflt.f
 file=per_fragment_lighting_texture.frag
 
+alias=pft.v
+file=per_fragment_texture.vert
+alias=pft.f
+file=per_fragment_texture.frag
+
+alias=pfc.v
+file=per_fragment_color.vert
+alias=pfc.f
+file=per_fragment_color.frag
+
 
 
 #MESHES
 #Visual studio run config
-path=data/meshes/
+path=../../data/meshes/
 #Binary executable run config
 #path=../../data/meshes/
 
@@ -46,7 +56,7 @@ file=altair.mtl
 
 #TEXTURES/IMAGES
 #Visual studio run config
-path=data/textures/
+path=../../data/textures/
 #Binary executable run config
 #path=../../data/textures/
 

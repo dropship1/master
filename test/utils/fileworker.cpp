@@ -7,7 +7,7 @@
 
 int main(){
 
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/utils/data/filelist");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("data/filelist");
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
 

@@ -2,15 +2,26 @@ Make sure your directory structure looks like this.
 bright/boost-1.58.0/boost
 
 run boostrap.bat in root directory to build "bjam" tool.
+You need to run this from the "Developer command prompt for Visual Studio", so it can find all the proper include
+files to build with the Visual studio compiler/linker(cl.exe).
 http://stackoverflow.com/questions/8330302/trying-to-build-boost-i-cannot-get-bjam
 
 Then do:
 http://www.boost.org/doc/libs/1_58_0/doc/html/boost_asio/using.html
+https://svn.boost.org/trac10/ticket/10817
+YOu may have to modify your PATH to include some other VIsual stuiod include directories (Maybe C:\Program Files (x86)\Windows Kits\10\Include)
+http://www.boost.org/build/doc/html/bbv2/reference/tools.html#bbv2.reference.tools.compilers
+https://stackoverflow.com/questions/30636868/upgraded-c-project-to-vs2015-but-the-linker-is-still-looking-for-vc100-boost
+Have to modify project-config.jam and change to "using msvc : 14.0 : : <setup>"
 You may build the subset of Boost libraries required to use Boost.Asio and its examples by running the following command from the root of the Boost download package:
-bjam toolset=msvc --with-system --with-thread --with-date_time --with-regex --with-serialization stage variant=release,debug
+b2.exe  --with-system --with-thread --with-date_time --with-regex --with-serialization variant=release,debug link=static stage
+#Old command
+#bjam toolset=msvc --with-system --with-thread --with-date_time --with-regex --with-serialization stage variant=release,debug
 
 
 You really just need to extract the libs from stage/lib dir and place them in bright/lib.
+Or you can just update the CmakeList.txt files for your project to point to stage/lib/<library_name> in the
+target_link function call
 The only files that are needed as reference are in boost  
 
 

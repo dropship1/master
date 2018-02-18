@@ -75,6 +75,13 @@ void ActorRenderController::calculate_model_to_world(){
   worldToCamera_ = glm::inverse(modToWorldMat_);
 }
 
+std::string ActorRenderController::name() {
+  return name_;
+}
+
+void ActorRenderController::name(std::string name) {
+  name_ = name;
+}
 
 glm::mat4 ActorRenderController::model_to_world_transformation_matrix(){
   return modToWorldMat_;

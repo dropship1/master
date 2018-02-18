@@ -128,8 +128,8 @@ HWND create_windows_window( WNDPROC     proc,
   WNDCLASSEX window; 
   HWND windowId;
 
-  std::wstring titleTemp = std::wstring(title.begin(), title.end());
-  LPCWSTR sw = titleTemp.c_str();
+  std::string titleTemp = std::string(title.begin(), title.end());
+  LPCSTR sw = titleTemp.c_str();
   LPCTSTR wtchar = titleTemp.c_str();
 
   window.cbSize        = sizeof(window);     
@@ -152,7 +152,7 @@ HWND create_windows_window( WNDPROC     proc,
                                      ); 
 
   if (!RegisterClassEx(&window)) {
-    MessageBox(NULL,L"Failed To Register The Window Class.",L"ERROR",MB_OK|MB_ICONEXCLAMATION);
+    MessageBox(NULL,"Failed To Register The Window Class.","ERROR",MB_OK|MB_ICONEXCLAMATION);
     return windowId;
   }
   
@@ -191,12 +191,12 @@ HWND create_windows_window( WNDPROC     proc,
     //Try To Set Selected Mode And Get Results.  NOTE: CDS_FULLSCREEN Gets Rid Of Start Bar.
     if (ChangeDisplaySettings(&screenSettings,CDS_FULLSCREEN)!=DISP_CHANGE_SUCCESSFUL){
     	// If The Mode Fails, Offer Two Options.  Quit Or Use Windowed Mode.
-    	if (MessageBox(NULL,L"The Requested Fullscreen Mode Is Not Supported By\nYour Video Card. Use Windowed Mode Instead?",L"BRIGHT GL",MB_YESNO|MB_ICONEXCLAMATION)==IDYES){
+    	if (MessageBox(NULL,"The Requested Fullscreen Mode Is Not Supported By\nYour Video Card. Use Windowed Mode Instead?","BRIGHT GL",MB_YESNO|MB_ICONEXCLAMATION)==IDYES){
     		fullscreen = false;		// Windowed Mode Selected.  fullscreen = FALSE
     	}
     	else{
     		// Pop Up A Message Box Letting User Know The Program Is Closing.
-    		MessageBox(NULL,L"Program Will Now Close.",L"ERROR",MB_OK|MB_ICONSTOP);
+    		MessageBox(NULL,"Program Will Now Close.","ERROR",MB_OK|MB_ICONSTOP);
     		return windowId;								
     	}
     }

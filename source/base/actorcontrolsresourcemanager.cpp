@@ -113,12 +113,12 @@ void ActorControlsResourceManager::load_control_actors() {
       break;
     }
     if (inControlActorNode){
-      if(line.substr(0,12) == "CONTROLNAME="){
-        controlName = line.substr(12);
+      if(line.substr(0,5) == "NAME="){
+        controlName = line.substr(5);
       }
-      if(line.substr(0,11) == "RENDERNAME="){
-        renderName = line.substr(11);
-      }
+      //if(line.substr(0,11) == "RENDERNAME="){
+      //  renderName = line.substr(11);
+      //}
       if(line.substr(0,5) == "POSX="){
         posx = std::stof(line.substr(5));
       }
@@ -150,7 +150,7 @@ void ActorControlsResourceManager::load_control_actors() {
         controlActor.rotation(glm::vec3(rotx, roty, rotz));
         controlActor.aabb(aabbName);
         controlActor.control_name(controlName);
-        controlActor.render_name(renderName);
+        controlActor.render_name(controlName);
         controlActor.is_player(isPlayer);
         if (!isPlayer) {
           controlNpcs_[controlName] = controlActor;
@@ -165,6 +165,8 @@ void ActorControlsResourceManager::load_control_actors() {
       isPlayer = false;
     }
   }
+
+  int stop = 0;
 }
 
 

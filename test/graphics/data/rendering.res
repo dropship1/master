@@ -42,8 +42,8 @@
 #</Actor>
 
 <RenderActor>
-name=Box
-mesh=monster_jetpack_003
-shader=PER_FRAG_TEXTURE
-cameratype=1st
+NAME=Jake
+MESH=monster_jetpack_003
+SHADER=PER_FRAG_TEXTURE
+CAMERATYPE=1st
 </RenderActor>

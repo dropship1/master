@@ -1,6 +1,6 @@
 #CONFIG FILES
 #Visual studio run config
-path=test/network/data/
+path=data/
 #Binary executable run config
 #path=../data/
 
@@ -16,7 +16,7 @@ file=controlling.wrld
 
 #SHADERS
 #Visual studio run config
-path=data/shaders/
+path=../../data/shaders/
 #Binary executable run config
 #path=../../../data/shaders/
 

@@ -1,6 +1,6 @@
 #CONFIG FILES
 #Visual studio run config
-path=test/ai/data/
+path=data/
 #Binary executable run config
 #path=../data/
 

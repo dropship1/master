@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
   client1.rotation( glm::vec3(7.0f,5.0f,3.0f) );
   //client1->("client1");
 
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/network/data/files.fl");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("data/files.fl");
   auto pAABBConverter = std::make_shared<bright::converters::AABBConverter>(pFileWorker);
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();

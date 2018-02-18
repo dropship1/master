@@ -54,7 +54,7 @@ enum WinKeys {
 };
 
 std::shared_ptr<bright::input::InputManager> pInputManager;
-
+float lastXpos = 0.0f;
 class KeyboardListener: public bright::input::KeyboardEventListener{
 public:
   KeyboardListener();
@@ -76,7 +76,9 @@ class MouseListener: public bright::input::MouseEventListener{
 
 
 
-
+float lastX = FLT_MAX;
+float lastY = FLT_MAX;
+float lastZ = FLT_MAX;
 LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam){
   // Route Windows messages to game engine member functions
   switch (msg){
@@ -245,27 +247,70 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam){
       }
       else if (raw->header.dwType == RIM_TYPEMOUSE) {
         short int data = 0;
-        if (raw->data.mouse.usFlags == MOUSE_MOVE_RELATIVE){
-          int xPosRelative = raw->data.mouse.lLastX;
-          int yPosRelative = raw->data.mouse.lLastY;
-          pInputManager->update_raw_mouse_listeners_deltas(xPosRelative, yPosRelative);
-
-          CURSORINFO cursorInfo = { 0 };
-          cursorInfo.cbSize = sizeof(cursorInfo);
-          GetCursorInfo(&cursorInfo);
-          float newXPos = cursorInfo.ptScreenPos.x;
-          float newYPos = cursorInfo.ptScreenPos.y;
-          //pInputManager->update_mouse_listeners_position(newXPos, newYPos);
-          
-          LPPOINT point = new POINT();
-          GetCursorPos(point);
-
-          ScreenToClient(pContextManager->windows_current_context()->window_id(), point);
-          std::cout << "xPoint" << point->x << std::endl << std::flush;
-          std::cout << "yPoint" << point->y << std::endl << std::flush;
-  
-        }      
+        //if (raw->data.mouse.usFlags == MOUSE_MOVE_RELATIVE){
+        //  int xPosRelative = raw->data.mouse.lLastX;
+        //  int yPosRelative = raw->data.mouse.lLastY;
+        //  pInputManager->update_raw_mouse_listeners_deltas(xPosRelative, yPosRelative);
+        //
+        //  CURSORINFO cursorInfo = { 0 };
+        //  cursorInfo.cbSize = sizeof(cursorInfo);
+        //  GetCursorInfo(&cursorInfo);
+        //  float newXPos = cursorInfo.ptScreenPos.x;
+        //  float newYPos = cursorInfo.ptScreenPos.y;
+        //  pInputManager->update_mouse_listeners_position(newXPos, newYPos);
+        //  
+        //  LPPOINT point = new POINT();
+        //  GetCursorPos(point);
+        //
+        //  ScreenToClient(pContextManager->windows_current_context()->window_id(), point);
+        //  std::cout << "xPoint" << point->x << std::endl << std::flush;
+        //  std::cout << "yPoint" << point->y << std::endl << std::flush;
+        //
+        //}      
         //MOUSE_LEFT_BUTTON_DOWN
+        if ((raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) == MOUSE_MOVE_ABSOLUTE) {
+
+          std::cout << "raw->data.mouse.usFlags" << raw->data.mouse.usFlags << std::endl << std::flush;
+          std::cout << "MOUSE_MOVE_ABSOLUTE" << std::endl << std::flush;
+          //int xPosRelative = raw->data.mouse.lLastX;
+          //int yPosRelative = raw->data.mouse.lLastY;
+          //pInputManager->update_raw_mouse_listeners_deltas(xPosRelative, yPosRelative);
+          //
+          //CURSORINFO cursorInfo = { 0 };
+          //cursorInfo.cbSize = sizeof(cursorInfo);
+          //GetCursorInfo(&cursorInfo);
+          //float newXPos = cursorInfo.ptScreenPos.x;
+          //float newYPos = cursorInfo.ptScreenPos.y;
+          //pInputManager->update_mouse_listeners_position(newXPos, newYPos);
+
+          //LPPOINT point = new POINT();
+          //GetCursorPos(point);
+
+          //ScreenToClient(pContextManager->windows_current_context()->window_id(), point);
+          //std::cout << "xPoint" << point->x << std::endl << std::flush;
+          //std::cout << "yPoint" << point->y << std::endl << std::flush;
+          //https://stackoverflow.com/questions/31949476/raw-input-mouse-lastx-lasty-with-odd-values-while-logged-in-through-rdp
+
+          const bool virtual_desktop = (raw->data.mouse.usFlags & MOUSE_VIRTUAL_DESKTOP) == MOUSE_VIRTUAL_DESKTOP;
+          const int width = GetSystemMetrics(virtual_desktop ? SM_CXVIRTUALSCREEN : SM_CXSCREEN);
+          const int height = GetSystemMetrics(virtual_desktop ? SM_CYVIRTUALSCREEN : SM_CYSCREEN);
+          float absolute_posX = (raw->data.mouse.lLastX / float(USHRT_MAX)) * width;
+          float absolute_posY = (raw->data.mouse.lLastY / float(USHRT_MAX)) * height;
+          float absolute_posZ = 0;
+          std::cout << "width" << width << std::endl << std::flush;
+          std::cout << "height" << height << std::endl << std::flush;
+          std::cout << "absolute_posX" << absolute_posX << std::endl << std::flush;
+          std::cout << "absolute_posY" << absolute_posY << std::endl << std::flush;
+          if ((lastX != FLT_MAX) && (lastY != FLT_MAX) && (lastZ != FLT_MAX)) {
+            pInputManager->update_raw_mouse_listeners_deltas(absolute_posX - lastX, absolute_posY - lastY);
+          }
+          lastX = absolute_posX;
+          lastY = absolute_posY;
+          lastZ = absolute_posZ;
+        }
+        else {
+          pInputManager->update_raw_mouse_listeners_deltas(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+        }
         if (raw->data.mouse.usButtonFlags == RI_MOUSE_BUTTON_1_DOWN){
           pInputManager->update_raw_mouse_listeners_button(true, bright::input::MouseButton::LEFT, data);
         }        
@@ -318,8 +363,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   auto pRawMouseListener = std::make_shared<RawMouseListener>();
   pInputManager->add_raw_mouse_event_listener(pRawMouseListener);
 
-  auto pMouseListener = std::make_shared<MouseListener>();
-  pInputManager->add_mouse_event_listener(pMouseListener);
+  //auto pMouseListener = std::make_shared<MouseListener>();
+  //pInputManager->add_mouse_event_listener(pMouseListener);
 
   pContextManager = std::make_shared<bright::context::ContextManager>();
 
@@ -331,12 +376,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   //But if you're building this and creating the executable, which goes into the bin directory
   //in test/graphics/bin then you need to specify the path as "../data".
   //auto pFileWorker = std::make_shared<bright::utils::FileWorker>("../data/filelist");
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("test/graphics/data/files.fl");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("data/files.fl");
   auto pLoadersManager = std::make_shared<bright::graphics::LoadersManager>(pFileWorker);
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
   auto pRenderer = std::make_shared<bright::graphics::Renderer>();
   pLoadersManager->load();
+  
+  playerController.update(glm::vec3(0.0f, 5.0f, 20.0f), glm::vec3(60.0f, 0.0f, 0.0f));
+
 
   auto pTextureShader = pLoadersManager->shaders("PER_FRAG_LIGHT_TEXTURE");
   auto pColorShader = pLoadersManager->shaders("PER_FRAG_LIGHT_COLOR");
@@ -518,5 +566,20 @@ void MouseListener::on_mouse_event(std::shared_ptr<bright::input::MouseEvent> pM
   //std::cout << "xPos: " << pMouseInputEvent->x_pos() << std::endl << std::flush;
   //std::cout << "yPos: " << pMouseInputEvent->y_pos() << std::endl << std::flush;
   //std::cout << std::endl << std::flush;
+
+  //
+    if (pMouseInputEvent->mouse_event_type() == bright::input::MouseEventType::MOVEMENT) {
+        float currentXpos = pMouseInputEvent->x_pos();
+        if (currentXpos > lastXpos) {
+            playerController.rotate_left(0.1f);
+        }
+        else if (lastXpos > currentXpos) {
+            playerController.rotate_right(0.1f);
+        }
+        lastXpos = pMouseInputEvent->x_pos();
+        //  std::cout << "2 : MOVEMENT" << std::endl << std::flush; 
+        //  std::cout << "deltaX: " << pRawMouseInputEvent->delta_rate_x() << std::endl << std::flush;
+        //  std::cout << "deltaY: " << pRawMouseInputEvent->delta_rate_y() << std::endl << std::flush;
+    }
 
 }
