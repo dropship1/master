@@ -57,8 +57,7 @@ list(REMOVE_ITEM source_network_files
 
 link_directories("${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}" "lib/OpenAl-Win32/EFX-Util_MT" "lib/OpenAl-Win32/EFX-Util_MTDLL" "lib/OpenAl-Win32" "lib/OpenAl-Win64/EFX-Util_MT" "lib/OpenAl-Win64/EFX-Util_MTDLL" "lib/OpenAl-Win64")
 include_directories(${CMAKE_SOURCE_DIR} "include" "boost-1.58.0" "openal-1.1" "glew-1.11.0/include")
-
-
+add_definitions(-DGLEW_STATIC=1)
 add_library(
 besdkClient 
 STATIC 
@@ -80,7 +79,7 @@ ${source_audio_files}
 ${source_utils_files}
 ${source_physics_files}
 )
-
+set_target_properties(besdkClient PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "bin")
 
 
 SOURCE_GROUP("include_base" FILES ${include_base_files})
@@ -173,7 +172,6 @@ file(GLOB_RECURSE source_utils_files "${CMAKE_SOURCE_DIR}/source/utils/*.cpp")
 link_directories("${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}")
 include_directories(${CMAKE_SOURCE_DIR} "include" "boost-1.58.0")
 
-
 add_library(
 besdkServer
 STATIC 
@@ -192,7 +190,7 @@ ${source_input_files}
 ${source_converters_files}
 ${source_utils_files}
 )
-
+set_target_properties(besdkServer PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "bin")
 
 SOURCE_GROUP("include_ai" FILES ${include_ai_files})
 SOURCE_GROUP("include_base" FILES ${include_base_files})

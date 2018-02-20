@@ -310,10 +310,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   //pContextManager->constrain_cursor();
   pContextManager->initialize();
 
-  //Executable run
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("../data/files.fl");
-  //Visual studio run
-  //auto pFileWorker = std::make_shared<bright::utils::FileWorker>("data/files.fl");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("data/files.fl");
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
 

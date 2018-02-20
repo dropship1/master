@@ -1,8 +1,5 @@
 #CONFIG FILES
-#Visual studio run config
 path=data/
-#Binary executable run config
-#path=../data/
 
 file=mesh.res
 file=aabb.res
@@ -10,10 +7,7 @@ file=aabb.res
 
 
 #MESHES
-#Visual studio run config
-path=../../data/meshes/
-#Binary executable run config
-#path=../../../data/meshes/
+path=data/meshes/
 
 file=altair.obj
 
@@ -42,10 +36,7 @@ file=monster_jetpack_003.mtl
 
 
 #AABBs
-#Visual studio run config
-path=../../data/aabbs/
-#Binary executable run config
-#path=../../../data/aabbs/
+path=data/aabbs/
 
 alias=cube_aabb
 file=cube.bin

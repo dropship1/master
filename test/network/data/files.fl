@@ -1,8 +1,5 @@
 #CONFIG FILES
-#Visual studio run config
 path=data/
-#Binary executable run config
-#path=../data/
 
 file=shaders.res
 file=client.net
@@ -15,10 +12,7 @@ file=controlling.wrld
 
 
 #SHADERS
-#Visual studio run config
-path=../../data/shaders/
-#Binary executable run config
-#path=../../../data/shaders/
+path=data/shaders/
 
 alias=pflc.v
 file=per_fragment_lighting_color.vert

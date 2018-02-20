@@ -370,12 +370,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
   pContextManager->create_windows_opengl_context(WndProc, "Powered By The Bright Engine", 1280, 768);
 
-  //If you're running this from the debuger/visual studio, then you need to specify the path to the 
-  //data directory starting from the "bright" directory, for example:
-  //test/graphics/data
-  //But if you're building this and creating the executable, which goes into the bin directory
-  //in test/graphics/bin then you need to specify the path as "../data".
-  //auto pFileWorker = std::make_shared<bright::utils::FileWorker>("../data/filelist");
   auto pFileWorker = std::make_shared<bright::utils::FileWorker>("data/files.fl");
   auto pLoadersManager = std::make_shared<bright::graphics::LoadersManager>(pFileWorker);
   pFileWorker->read_in_list_of_files();
@@ -443,16 +437,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
     else{
       pInputManager->notify();
       if(pKeyboardListener->w_){
-        playerController.move_fwd(0.2f);
+        playerController.move_fwd(0.5f);
       }
       if(pKeyboardListener->s_){
-        playerController.move_backward(0.2f);
+        playerController.move_backward(0.5f);
       }
       if(pKeyboardListener->a_){
-        playerController.move_left(0.2f);
+        playerController.move_left(0.5f);
       }
       if(pKeyboardListener->d_){
-        playerController.move_right(0.2f);
+        playerController.move_right(0.5);
       }
       render2Controller.update( playerController.pos(), playerController.right(), playerController.up(), playerController.look() );
       worldInfo.world_to_cam_matrix( "1st", render2Controller.world_to_camera_transformation_matrix() );

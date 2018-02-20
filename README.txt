@@ -14,3 +14,9 @@
 --doxy command
 doxygen.exe Doxyfile
 Doxyfile is a config file
+
+--Cmake
+Make sure to build 'out-of-source' with cmake by doing:
+cd master/build
+cmake.exe ..
+This will put everything into the build directory and you run from there.

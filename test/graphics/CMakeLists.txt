@@ -20,10 +20,11 @@ add_executable(Test_Graphics_Renderer WIN32 ${source_graphics_files})
 target_link_libraries(
 Test_Graphics_Renderer 
 "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/besdkClientD.lib"
-"${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/glew32d.lib"
+"${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/glew32sd.lib"
 ${OPENGL_LIBRARIES}
 )
 set_target_properties(Test_Graphics_Renderer PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "bin")
+set_target_properties(Test_Graphics_Renderer PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "bin")
 SOURCE_GROUP("source_graphics" FILES ${source_graphics_files})
 
 
@@ -44,10 +45,11 @@ add_executable(Test_Graphics_RendererAndTextures WIN32 ${source_graphics_files})
 target_link_libraries(
 Test_Graphics_RendererAndTextures 
 "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/besdkClientD.lib"
-"${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/glew32d.lib"
+"${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/glew32sd.lib"
 ${OPENGL_LIBRARIES}
 )
 set_target_properties(Test_Graphics_RendererAndTextures PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "bin")
+set_target_properties(Test_Graphics_RendererAndTextures PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "bin")
 SOURCE_GROUP("source_graphics" FILES ${source_graphics_files})
 
 
@@ -68,10 +70,11 @@ add_executable(Test_Graphics_ShaderLoader WIN32 ${source_graphics_files})
 target_link_libraries(
 Test_Graphics_ShaderLoader	 
 "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/besdkClientD.lib"
-"${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/glew32d.lib"
+"${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/glew32sd.lib"
 ${OPENGL_LIBRARIES}
 )
 set_target_properties(Test_Graphics_ShaderLoader PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "bin")
+set_target_properties(Test_Graphics_ShaderLoader PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "bin")
 SOURCE_GROUP("source_graphics" FILES ${source_graphics_files})
 
 
@@ -94,10 +97,11 @@ add_executable(Test_Graphics_TextureLoader WIN32 ${source_graphics_files})
 target_link_libraries(
 Test_Graphics_TextureLoader	 
 "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/besdkClientD.lib"
-"${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/glew32d.lib"
+"${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/glew32sd.lib"
 ${OPENGL_LIBRARIES}
 )
 set_target_properties(Test_Graphics_TextureLoader PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "bin")
+set_target_properties(Test_Graphics_TextureLoader PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "bin")
 SOURCE_GROUP("source_graphics" FILES ${source_graphics_files})
 
 
@@ -118,14 +122,12 @@ add_executable(Test_Graphics_LoadersManager WIN32 ${source_graphics_files})
 target_link_libraries(
 Test_Graphics_LoadersManager	 
 "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/besdkClientD.lib"
-"${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/glew32d.lib"
+"${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/glew32sd.lib"
 ${OPENGL_LIBRARIES}
 )
 set_target_properties(Test_Graphics_LoadersManager PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "bin")
+set_target_properties(Test_Graphics_LoadersManager PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "bin")
 SOURCE_GROUP("source_graphics" FILES ${source_graphics_files})
-
-
-
 
 
 
@@ -141,4 +143,13 @@ include_directories(${CMAKE_SOURCE_DIR} "${CMAKE_SOURCE_DIR}/include")
 add_executable(Test_Graphics_ImageLoader ${source_graphics_imageloader_files})
 target_link_libraries(Test_Graphics_ImageLoader "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/besdkClientD.lib")
 set_target_properties(Test_Graphics_ImageLoader PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "bin")
+set_target_properties(Test_Graphics_ImageLoader PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "bin")
 SOURCE_GROUP("source_graphics_imageloader" FILES ${source_graphics_imageloader_files})
+
+
+
+
+file (COPY data DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin)
+file (COPY "${CMAKE_SOURCE_DIR}/data/shaders" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin/data)
+file (COPY "${CMAKE_SOURCE_DIR}/data/meshes" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin/data)
+file (COPY "${CMAKE_SOURCE_DIR}/data/textures" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin/data)

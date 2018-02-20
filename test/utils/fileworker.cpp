@@ -7,13 +7,13 @@
 
 int main(){
 
-  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("data/filelist");
+  auto pFileWorker = std::make_shared<bright::utils::FileWorker>("data/files.fl");
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
 
   //Test shortHand name (alias)
-  std::string fileContents = pFileWorker->get_file_contents("shaders.cfg");
-  std::cout << "data/shaders.cfg from string using alias to get" << std::endl << std::flush;
+  std::string fileContents = pFileWorker->get_file_contents("shaders.res");
+  std::cout << "data/shaders.res from string using alias to get" << std::endl << std::flush;
   std::cout << fileContents << std::endl << std::flush;
   std::cout << std::endl << std::flush;
 

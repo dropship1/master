@@ -1,6 +1,6 @@
 #SOUND FILES
 #Binary executable run config
-path=../../data/audio/
+path=data/audio/
 
 
 file=cat9.wav

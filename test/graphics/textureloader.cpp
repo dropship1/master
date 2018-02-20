@@ -76,11 +76,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   bright::graphics::TextureConfig textureConfig;
   textureConfig.filename_ = "dirt.dds";
 
-  //If you're running this from the debuger/visual studio, then you need to specify the path to the 
-  //data directory starting from the "bright" directory, for example:
-  //test/graphics/data
-  //But if you're building this and creating the executable, which goes into the bin directory
-  //in test/graphics/bin then you need to specify the path as "../data".
   auto pFileWorker = std::make_shared<bright::utils::FileWorker>("data/files.fl");
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();

@@ -1,2 +1,18 @@
 TODO FILE:
 
+
+-Setup opengl error handling
+
+-Make shaders into single file instead of split files
+
+-Make sure we're using index buffer to draw
+
+-consolidate down to 1 path in all resource files
+
+-Make sure we're using VAOs
+
+-Lookup and start using Visual assist
+
+-Make sure we are deleting all opengl data before we exit the main c++ function
+
+-Get productivity power tools for Visual studio

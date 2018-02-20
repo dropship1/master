@@ -1,7 +1,7 @@
 #!/bin/bash
 
 find_and_remove_files () {
-  find . -type f -name $1 -exec rm "{}" \+
+  find . -type f -name $1 -exec rm "{}" \;
 }
 
 find_and_print_files () {
@@ -14,8 +14,8 @@ find_and_print_files () {
 }
 
 find_and_do_all_for_files () {
-  find_and_print_files $1
-  find_and_remove_files $1
+  find_and_print_files "$1"
+  find_and_remove_files "$1"
 }
 
 

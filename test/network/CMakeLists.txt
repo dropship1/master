@@ -27,6 +27,7 @@ Test_Network_AsyncServer
 )
 
 set_target_properties(Test_Network_AsyncServer PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "bin")
+set_target_properties(Test_Network_AsyncServer PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "bin")
 SOURCE_GROUP("source_network_asyncserver" FILES ${source_network_asyncserver_files})
 
 
@@ -66,6 +67,7 @@ add_executable(Test_Network_ClientHandler ${source_network_clienthandler_files})
 target_link_libraries(Test_Network_ClientHandler "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/besdkServerD.lib")
 
 set_target_properties(Test_Network_ClientHandler PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "bin")
+set_target_properties(Test_Network_ClientHandler PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "bin")
 SOURCE_GROUP("source_network_clienthandler" FILES ${source_network_clienthandler_files})
 
 
@@ -83,5 +85,9 @@ add_executable(Test_Network_ServerHandler ${source_network_serverhandler_files})
 target_link_libraries(Test_Network_ServerHandler "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/besdkClientD.lib")
 
 set_target_properties(Test_Network_ServerHandler PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "bin")
+set_target_properties(Test_Network_ServerHandler PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "bin")
 SOURCE_GROUP("source_network_serverhandler" FILES ${source_network_serverhandler_files})
 
+
+file (COPY data DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin)
+file (COPY "${CMAKE_SOURCE_DIR}/data/shaders" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin/data)

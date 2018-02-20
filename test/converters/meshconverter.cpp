@@ -12,20 +12,12 @@ int main(){
 
   std::vector<std::string> meshFileNames;
   meshFileNames.push_back("altair");
-  //If you're running this from the debuger/visual studio, then you need to specify the path to the 
-  //meshes/obj directory starting from the "bright" directory, for example:
-  //test/tools/meshes/obj
-  //But if you're building this and creating the executable, which goes into the bin directory
-  //in test/tools/bin then you need to specify the path as "../meshes/obj".
-  //pMeshConverter->batch_convert_obj_and_dump_mesh_binary("../../data/meshes", meshFileNames);
-  //pMeshConverter->batch_convert_obj_and_dump_mesh_binary("data/meshes", meshFileNames);
 
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
   
   pMeshConverter->batch_read_obj_mesh_binary();
   auto pMesh = pMeshConverter->mesh("altair");
-  //meshes = pMeshConverter->batch_read_obj_mesh_binary("test/tools/meshes/obj", meshFileNames);
   
   //Loop over all meshes (Add more testing later, this is pretty simple verification)
   std::cout << "Root Mesh: " << std::endl << std::flush;
@@ -35,7 +27,18 @@ int main(){
   std::cout << "count_normals: " << pMesh->count_normals() << std::endl << std::flush;
   std::cout << "count_textures: " << pMesh->count_textures() << std::endl << std::flush;
   std::cout << std::endl << std::flush;
-
+  
+  auto print_mesh = [&](std::shared_ptr<bright::base::Mesh> pChildMesh) {
+    std::cout << "Child Mesh: " << std::endl << std::flush;
+    std::cout << "composite name: " << pChildMesh->composite_name() << std::endl << std::flush;
+    std::cout << "part_name: " << pChildMesh->part_name() << std::endl << std::flush;
+    std::cout << "count_children: " << pChildMesh->count_children() << std::endl << std::flush;
+    std::cout << "count_faces: " << pChildMesh->count_faces() << std::endl << std::flush;
+    std::cout << "count_normals: " << pChildMesh->count_normals() << std::endl << std::flush;
+    std::cout << "count_textures: " << pChildMesh->count_textures() << std::endl << std::flush;
+    std::cout << std::endl << std::flush;
+  };
+  std::for_each(pMesh->child_meshes().begin(), pMesh->child_meshes().end(), print_mesh);
   
   std::cout << "ctr+c to exit or x on the window" << std::endl;
   while (true){ }
