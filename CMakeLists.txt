@@ -1,7 +1,7 @@
 
-if(NOT CMAKE_DEBUG_POSTFIX)
-  set(CMAKE_DEBUG_POSTFIX D)
-endif()
+#if(NOT CMAKE_DEBUG_POSTFIX)
+#  set(CMAKE_DEBUG_POSTFIX D)
+#endif()
 IF(MSVC)
   add_definitions(/D_VARIADIC_MAX=10)
 ENDIF()
@@ -12,16 +12,16 @@ project (brightClient)
 
 # Set the output folder where your program will be created
 set(CMAKE_BINARY_DIR "${CMAKE_SOURCE_DIR}/bin")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/lib")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
 
 message(STATUS "Creating Bright Client Solution")
 message(STATUS "CMAKE_BINARY_DIR: " ${CMAKE_BINARY_DIR})
 message(STATUS "CMAKE_SOURCE_DIR: " ${CMAKE_SOURCE_DIR})
-message(STATUS "CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG: " ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG})
-message(STATUS "CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG: " ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG})
-message(STATUS "CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG: " ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG})
+message(STATUS "CMAKE_RUNTIME_OUTPUT_DIRECTORY: " ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+message(STATUS "CMAKE_LIBRARY_OUTPUT_DIRECTORY: " ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+message(STATUS "CMAKE_ARCHIVE_OUTPUT_DIRECTORY: " ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 
 file(GLOB_RECURSE include_base_files "${CMAKE_SOURCE_DIR}/include/base/*.hpp")
 file(GLOB_RECURSE include_context_files "${CMAKE_SOURCE_DIR}/include/context/*.hpp")
@@ -52,14 +52,11 @@ list(REMOVE_ITEM source_network_files
 "${CMAKE_SOURCE_DIR}/source/network/clientconnection.cpp" 
 "${CMAKE_SOURCE_DIR}/source/network/clienthandler.cpp" 
 "${CMAKE_SOURCE_DIR}/source/network/asyncserver.cpp")
-#message("${include_network_files}")
-#message("${source_network_files}")
 
-link_directories("${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}" "lib/OpenAl-Win32/EFX-Util_MT" "lib/OpenAl-Win32/EFX-Util_MTDLL" "lib/OpenAl-Win32" "lib/OpenAl-Win64/EFX-Util_MT" "lib/OpenAl-Win64/EFX-Util_MTDLL" "lib/OpenAl-Win64")
 include_directories(${CMAKE_SOURCE_DIR} "include" "boost-1.58.0" "openal-1.1" "glew-1.11.0/include")
 add_definitions(-DGLEW_STATIC=1)
 add_library(
-besdkClient 
+besdkClientX64
 STATIC 
 ${include_base_files} 
 ${include_context_files} 
@@ -79,7 +76,7 @@ ${source_audio_files}
 ${source_utils_files}
 ${source_physics_files}
 )
-set_target_properties(besdkClient PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "bin")
+set_target_properties(besdkClientX64 PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "bin")
 
 
 SOURCE_GROUP("include_base" FILES ${include_base_files})
@@ -112,16 +109,16 @@ project (brightServer)
 
 # Set the output folder where your program will be created
 set(CMAKE_BINARY_DIR "${CMAKE_SOURCE_DIR}/bin")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/lib")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
 
 message(STATUS "Creating Bright Server Solution")
 message(STATUS "CMAKE_BINARY_DIR: " ${CMAKE_BINARY_DIR})
 message(STATUS "CMAKE_SOURCE_DIR: " ${CMAKE_SOURCE_DIR})
-message(STATUS "CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG: " ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG})
-message(STATUS "CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG: " ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG})
-message(STATUS "CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG: " ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG})
+message(STATUS "CMAKE_RUNTIME_OUTPUT_DIRECTORY: " ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+message(STATUS "CMAKE_LIBRARY_OUTPUT_DIRECTORY: " ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+message(STATUS "CMAKE_ARCHIVE_OUTPUT_DIRECTORY: " ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 
 file(GLOB_RECURSE include_ai_files "${CMAKE_SOURCE_DIR}/include/ai/*.hpp")
 file(GLOB_RECURSE include_base_files 
@@ -169,11 +166,10 @@ file(GLOB_RECURSE source_input_files "${CMAKE_SOURCE_DIR}/source/input/commandme
 file(GLOB_RECURSE source_converters_files "${CMAKE_SOURCE_DIR}/source/converters/aabbconverter.cpp")
 file(GLOB_RECURSE source_utils_files "${CMAKE_SOURCE_DIR}/source/utils/*.cpp")
 
-link_directories("${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}")
 include_directories(${CMAKE_SOURCE_DIR} "include" "boost-1.58.0")
 
 add_library(
-besdkServer
+besdkServerX64
 STATIC 
 ${include_ai_files}
 ${include_base_files}
@@ -190,7 +186,7 @@ ${source_input_files}
 ${source_converters_files}
 ${source_utils_files}
 )
-set_target_properties(besdkServer PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "bin")
+set_target_properties(besdkServerX64 PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "bin")
 
 SOURCE_GROUP("include_ai" FILES ${include_ai_files})
 SOURCE_GROUP("include_base" FILES ${include_base_files})
