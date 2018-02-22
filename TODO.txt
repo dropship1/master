@@ -1,18 +1,42 @@
 TODO FILE:
 
-
--Setup opengl error handling
-
--Make shaders into single file instead of split files
-
--Make sure we're using index buffer to draw
+:::IMPROVEMENTS/CLEANUP::::
+-Make shaders into single file instead of split files(More maintainable and easir to read)
 
 -consolidate down to 1 path in all resource files
-
--Make sure we're using VAOs
-
--Lookup and start using Visual assist
+DONE
 
 -Make sure we are deleting all opengl data before we exit the main c++ function
 
+-Need to create some functions in cmake so we can reuse some of the logic of setting up test projects
+  -create_test_project() maybe?
+IN PROGRESS
+
+::DEBUGGING:::
+-Setup opengl error handling
+
+
+:::TOOLS:::
 -Get productivity power tools for Visual studio
+
+-Lookup and start using Visual assist
+DONE
+
+
+-Get all cmakelist files updated so projects are doing debug and release linking and building(and x64 only)
+IN PROGRESS
+
+
+::::PERFORMANCE:::::
+-Need to check the codebase and try to use std::arrays anywhere possible instead of std::vector(This has really bad performance issues.
+Consider everytime it grows it copies all its data to a new array)
+
+-Need to try and store items in any array we're using as objects and not pointers, this will make sure the items are 
+close together in memory and make accessing them alot faster
+
+-Make sure we're using VAOs
+
+-Make sure we're using index buffer to draw
+
+
+
