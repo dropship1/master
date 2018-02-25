@@ -1,7 +1,7 @@
 TODO FILE:
 
 :::IMPROVEMENTS/CLEANUP::::
--Make shaders into single file instead of split files(More maintainable and easir to read)
+-Make shaders into single file instead of split files(More maintainable and easier to read)
 
 -consolidate down to 1 path in all resource files
 DONE

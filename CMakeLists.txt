@@ -1,4 +1,6 @@
 
+cmake_minimum_required (VERSION 3.10.2)
+
 #if(NOT CMAKE_DEBUG_POSTFIX)
 #  set(CMAKE_DEBUG_POSTFIX D)
 #endif()
@@ -6,8 +8,10 @@ IF(MSVC)
   add_definitions(/D_VARIADIC_MAX=10)
 ENDIF()
 
+set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(functions) # defines some convenient functions
 
-cmake_minimum_required (VERSION 3.10.2)
+
 project (brightClient)
 
 # Set the output folder where your program will be created
@@ -16,7 +20,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
 
-message(STATUS "Creating Bright Client Solution")
+message(STATUS "")
+message(STATUS "")
+message(STATUS "::::::::  Creating Bright Client Solution  ::::::::")
 message(STATUS "CMAKE_BINARY_DIR: " ${CMAKE_BINARY_DIR})
 message(STATUS "CMAKE_SOURCE_DIR: " ${CMAKE_SOURCE_DIR})
 message(STATUS "CMAKE_RUNTIME_OUTPUT_DIRECTORY: " ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
@@ -31,6 +37,7 @@ file(GLOB_RECURSE include_network_files "${CMAKE_SOURCE_DIR}/include/network/*.h
 file(GLOB_RECURSE include_converters_files "${CMAKE_SOURCE_DIR}/include/converters/*.hpp")
 file(GLOB_RECURSE include_audio_files "${CMAKE_SOURCE_DIR}/include/audio/*.hpp")
 file(GLOB_RECURSE include_utils_files "${CMAKE_SOURCE_DIR}/include/utils/*.hpp")
+file(GLOB_RECURSE include_windows_files "${CMAKE_SOURCE_DIR}/include/windows/*.hpp")
 
 file(GLOB_RECURSE source_base_files "${CMAKE_SOURCE_DIR}/source/base/*.cpp")
 file(GLOB_RECURSE source_context_files "${CMAKE_SOURCE_DIR}/source/context/*.cpp")
@@ -41,6 +48,7 @@ file(GLOB_RECURSE source_converters_files "${CMAKE_SOURCE_DIR}/source/converters
 file(GLOB_RECURSE source_audio_files "${CMAKE_SOURCE_DIR}/source/audio/*.cpp")
 file(GLOB_RECURSE source_utils_files "${CMAKE_SOURCE_DIR}/source/utils/*.cpp")
 file(GLOB_RECURSE source_physics_files "${CMAKE_SOURCE_DIR}/source/physics/*.cpp")
+file(GLOB_RECURSE source_windows_files "${CMAKE_SOURCE_DIR}/source/windows/*.cpp")
 
 list(REMOVE_ITEM include_network_files 
 "${CMAKE_SOURCE_DIR}/include/network/asyncserver.hpp" 
@@ -66,6 +74,7 @@ ${include_network_files}
 ${include_converters_files}
 ${include_audio_files}
 ${include_utils_files}
+${include_windows_files}
 ${source_base_files}
 ${source_context_files}
 ${source_graphics_files}
@@ -75,6 +84,7 @@ ${source_converters_files}
 ${source_audio_files}
 ${source_utils_files}
 ${source_physics_files}
+${source_windows_files}
 )
 set_target_properties(besdkClientX64 PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "bin")
 
@@ -87,6 +97,7 @@ SOURCE_GROUP("include_network" FILES ${include_network_files})
 SOURCE_GROUP("include_converters" FILES ${include_converters_files})
 SOURCE_GROUP("include_audio" FILES ${include_audio_files})
 SOURCE_GROUP("include_utils" FILES ${include_utils_files})
+SOURCE_GROUP("include_windows" FILES ${include_windows_files})
 
 SOURCE_GROUP("source_base" FILES ${source_base_files})
 SOURCE_GROUP("source_context" FILES ${source_context_files})
@@ -97,6 +108,7 @@ SOURCE_GROUP("source_converters" FILES ${source_converters_files})
 SOURCE_GROUP("source_audio" FILES ${source_audio_files})
 SOURCE_GROUP("source_utils" FILES ${source_utils_files})
 SOURCE_GROUP("source_physics" FILES ${source_physics_files})
+SOURCE_GROUP("source_windows" FILES ${source_windows_files})
 
 
 
@@ -113,7 +125,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
 
-message(STATUS "Creating Bright Server Solution")
+message(STATUS "")
+message(STATUS "")
+message(STATUS "::::::::  Creating Bright Server Solution  ::::::::")
 message(STATUS "CMAKE_BINARY_DIR: " ${CMAKE_BINARY_DIR})
 message(STATUS "CMAKE_SOURCE_DIR: " ${CMAKE_SOURCE_DIR})
 message(STATUS "CMAKE_RUNTIME_OUTPUT_DIRECTORY: " ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

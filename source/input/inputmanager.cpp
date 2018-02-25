@@ -129,9 +129,9 @@ void InputManager::notify(){
   if ( !keyboardEvents_.empty() ){
     notify_keyboard_listeners();
   }
-  if ( !mouseEvents_.empty() ){
-    notify_mouse_listeners();
-  }
+  //if ( !mouseEvents_.empty() ){
+  //  notify_mouse_listeners();
+  //}
   if ( !rawMouseEvents_.empty() ){
     notify_raw_mouse_listeners();
   }
