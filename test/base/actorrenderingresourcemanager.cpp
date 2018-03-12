@@ -6,6 +6,7 @@
 #include "context/contextmanager.hpp"
 #include "context/context.hpp"
 #include "graphics/renderer.hpp"
+#include "windows/entrypointeventhandler.hpp"
 #include <memory>
 #include <algorithm>
 
@@ -13,47 +14,12 @@
 //#pragma comment(linker, "/subsystem:\"console\" /entry:\"WinMainCRTStartup\"")
 
 
-std::shared_ptr<bright::context::ContextManager> pContextManager;
-
-
-
-LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam){
-  // Route Windows messages to game engine member functions
-  switch (msg){
-    case WM_CREATE:{
-      return 0;
-    }
-
-    case WM_SETFOCUS:{
-      return 0;
-    }
-
-    case WM_KILLFOCUS:{
-      return 0;
-    }
-
-    case WM_SIZE: {
-      pContextManager->reshape_rendering_context_viewport(LOWORD(lParam), HIWORD(lParam));
-      return 0;
-    }
-
-    case WM_DESTROY:{
-      PostQuitMessage(0);
-      return 0;
-    }
-
-    case WM_QUIT:{
-      return 0;
-    }
-
-  }
-  return DefWindowProc(hWindow, msg, wParam, lParam);
-}
-
+std::shared_ptr<bright::windows::EntryPointEventHandler> pEntryPointEventHandler;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow){ 
 
-  pContextManager = std::make_shared<bright::context::ContextManager>();
+  pEntryPointEventHandler = bright::windows::EntryPointEventHandler::get_entry_point_event_handler();
+  auto pContextManager = pEntryPointEventHandler->get_context_manager();
 
   pContextManager->create_windows_opengl_context(WndProc, "Powered By The Bright Engine", 1280, 768);
 

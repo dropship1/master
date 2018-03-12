@@ -10,25 +10,17 @@ file=rendering.res
 #SHADERS
 path=data/shaders/
 
-alias=pflc.v
-file=per_fragment_lighting_color.vert
-alias=pflc.f
-file=per_fragment_lighting_color.frag
+alias=pflc
+file=per_fragment_lighting_color.shader
 
-alias=pflt.v
-file=per_fragment_lighting_texture.vert
-alias=pflt.f
-file=per_fragment_lighting_texture.frag
+alias=pflt
+file=per_fragment_lighting_texture.shader
 
-alias=pft.v
-file=per_fragment_texture.vert
-alias=pft.f
-file=per_fragment_texture.frag
+alias=pft
+file=per_fragment_texture.shader
 
-alias=pfc.v
-file=per_fragment_color.vert
-alias=pfc.f
-file=per_fragment_color.frag
+alias=pfc
+file=per_fragment_color.shader
 
 
 

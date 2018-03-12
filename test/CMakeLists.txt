@@ -13,12 +13,12 @@ message(STATUS "CMAKE_ARCHIVE_OUTPUT_DIRECTORY: " ${CMAKE_ARCHIVE_OUTPUT_DIRECTO
 
 
 add_subdirectory ("audio")
-#add_subdirectory ("utils")
-#add_subdirectory ("converters")
+add_subdirectory ("utils")
+add_subdirectory ("converters")
 add_subdirectory ("graphics")
 add_subdirectory ("base")
-#add_subdirectory ("context")
+add_subdirectory ("context")
 add_subdirectory ("input")
-#add_subdirectory ("physics")
+add_subdirectory ("physics")
 add_subdirectory ("ai")
-#add_subdirectory ("network")
+add_subdirectory ("network")

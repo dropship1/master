@@ -8,12 +8,17 @@ IF(MSVC)
   add_definitions(/D_VARIADIC_MAX=10)
 ENDIF()
 
+option(Debug_Opengl "Debug Opengl" ON)
+
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include(functions) # defines some convenient functions
 
 
 project (brightClient)
-
+if(${Debug_Opengl} MATCHES "ON")
+  message(STATUS "Debug_Opengl: ${Debug_Opengl}, We are debuggin opengl with the preprocessor defintion DEBUG_OPENGL")
+  add_definitions(-DDEBUG_OPENGL)
+endif()
 # Set the output folder where your program will be created
 set(CMAKE_BINARY_DIR "${CMAKE_SOURCE_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
@@ -57,11 +62,10 @@ list(REMOVE_ITEM include_network_files
 )
 list(REMOVE_ITEM source_network_files 
 "${CMAKE_SOURCE_DIR}/source/network/clientconnection.cpp" 
-"${CMAKE_SOURCE_DIR}/source/network/clientconnection.cpp" 
 "${CMAKE_SOURCE_DIR}/source/network/clienthandler.cpp" 
 "${CMAKE_SOURCE_DIR}/source/network/asyncserver.cpp")
 
-include_directories(${CMAKE_SOURCE_DIR} "include" "boost-1.58.0" "openal-1.1" "glew-1.11.0/include")
+include_directories(${CMAKE_SOURCE_DIR} "${CMAKE_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}/glew-1.11.0/include" "${CMAKE_SOURCE_DIR}/boost_1_66_0")
 add_definitions(-DGLEW_STATIC=1)
 add_library(
 besdkClientX64
@@ -180,7 +184,7 @@ file(GLOB_RECURSE source_input_files "${CMAKE_SOURCE_DIR}/source/input/commandme
 file(GLOB_RECURSE source_converters_files "${CMAKE_SOURCE_DIR}/source/converters/aabbconverter.cpp")
 file(GLOB_RECURSE source_utils_files "${CMAKE_SOURCE_DIR}/source/utils/*.cpp")
 
-include_directories(${CMAKE_SOURCE_DIR} "include" "boost-1.58.0")
+include_directories(${CMAKE_SOURCE_DIR} "${CMAKE_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}/boost_1_66_0")
 
 add_library(
 besdkServerX64

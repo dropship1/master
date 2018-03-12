@@ -1,10 +1,13 @@
-#version 330
+//Vertex shader
+#version 330 core
 
 layout(location = 0) in vec4 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec3 texture;
 
 out vec3 vertexNormal;
+out vec3 modelSpacePosition;
+out vec3 texCoord;
 
 uniform mat4 cameraToClipMatrix;
 uniform mat4 modelToWorldMatrix;
@@ -17,6 +20,25 @@ void main(){
    
   vec3 normWorldSpace = normalize(normalToWorldMatrix * normal);
 
+  texCoord = texture;
   vertexNormal = normWorldSpace;
+  modelSpacePosition = vec3(position.xyz);
 
+}
+
+//Fragment shader
+#version 330 core
+
+in vec3 vertexNormal;
+in vec3 modelSpacePosition;
+in vec3 texCoord;
+
+out vec4 outputColor;
+
+uniform sampler2D colorTexture;
+
+void main(){
+  
+  outputColor =  texture(colorTexture, texCoord.xy);
+  
 }

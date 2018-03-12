@@ -45,7 +45,10 @@ class ServerConnection : public boost::enable_shared_from_this<ServerConnection>
   public bright::input::CommandEventListener {
 
 public:
-  ServerConnection(boost::asio::io_service& service, std::shared_ptr<ServerHandler> pServerHandler);
+  ServerConnection(
+  boost::asio::io_service& service, 
+  std::shared_ptr<ServerHandler> pServerHandler, 
+  std::shared_ptr<bright::input::CommandHandler> pCommandHandler);
 
   void start(boost::asio::ip::tcp::endpoint ep);
   void login();
@@ -92,7 +95,7 @@ private:
   char writeCommandBuffer_[maxMsg];
   bool connected_;
 
-  bright::input::CommandHandler commandHandler_;
+  std::shared_ptr<bright::input::CommandHandler> pCommandHandle_;
   boost::asio::io_service& service_;
 
   std::shared_ptr<ServerHandler> pServerHandler_;

@@ -75,7 +75,9 @@ void ShaderLoader::initialize_shader_program(Shader& shader, ShaderConfig& shade
     if (line.substr(0,8) == "uniform "){ 
       std::string trimedLine = line.substr(8);
       std::size_t nextSpacePos = trimedLine.find(" ");
-      std::string uniformLocationName = trimedLine.substr(nextSpacePos+1); 
+      std::size_t semicolonPos = trimedLine.find(";");
+      std::size_t stringSize = semicolonPos- nextSpacePos;
+      std::string uniformLocationName = trimedLine.substr(nextSpacePos+1, stringSize);
       //trim simicolon off the end
       uniformLocationName = uniformLocationName.substr(0,uniformLocationName.size()-1);
       GLint location = glGetUniformLocation(shader.program_id(), uniformLocationName.c_str());
@@ -88,7 +90,9 @@ void ShaderLoader::initialize_shader_program(Shader& shader, ShaderConfig& shade
     if (line.substr(0,8) == "uniform "){ 
       std::string trimedLine = line.substr(8);
       std::size_t nextSpacePos = trimedLine.find(" ");
-      std::string uniformLocationName = trimedLine.substr(nextSpacePos+1); 
+      std::size_t semicolonPos = trimedLine.find(";");
+      std::size_t stringSize = semicolonPos - nextSpacePos;
+      std::string uniformLocationName = trimedLine.substr(nextSpacePos+1, stringSize);
       //trim simicolon off the end
       uniformLocationName = uniformLocationName.substr(0,uniformLocationName.size()-1);
       GLint location = glGetUniformLocation(shader.program_id(), uniformLocationName.c_str());

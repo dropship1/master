@@ -4,59 +4,38 @@
 #include "context/contextmanager.hpp"
 #include "context/openglcontext.hpp"
 
+#include "input/inputmanager.hpp"
+#include "input/rawmouseeventlistener.hpp"
+#include "input/rawmouseevent.hpp"
+
+#include "windows/entrypointeventhandler.hpp"
+
 //Enable this to have a console to use cout and cin on, for debugging
 //#pragma comment(linker, "/subsystem:\"console\" /entry:\"WinMainCRTStartup\"")
 
+std::shared_ptr<bright::windows::EntryPointEventHandler> pEntryPointEventHandler;
 std::shared_ptr<bright::context::ContextManager> pContextManager;
 std::shared_ptr<bright::context::Context> pContext1;
 std::shared_ptr<bright::context::Context> pContext2;
 void toggle_context();
 
-LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam){
-  // Route Windows messages to game engine member functions
-  switch (msg){
-    case WM_CREATE:{
-      return 0;
-    }
+std::shared_ptr<bright::input::InputManager> pInputManager;
 
-    case WM_SETFOCUS:{
-      return 0;
-    }
 
-    case WM_KILLFOCUS:{
-      return 0;
-    }
-
-    case WM_DESTROY:{
-      PostQuitMessage(0);
-      return 0;
-    }
-
-    case WM_INPUT:{
-      UINT dwSize = 40;
-      static BYTE lpb[40];
-    
-      GetRawInputData((HRAWINPUT)lParam, RID_INPUT,lpb, &dwSize, sizeof(RAWINPUTHEADER));
-    
-      RAWINPUT* raw = (RAWINPUT*)lpb;
-
-      if (raw->header.dwType == RIM_TYPEMOUSE) {
-        if (raw->data.mouse.usButtonFlags == RI_MOUSE_BUTTON_1_DOWN){
-          toggle_context();
-        }
-      }
-      return 0;
-    }
-
-  }
-  return DefWindowProc(hWindow, msg, wParam, lParam);
-}
+class RawMouseListener : public bright::input::RawMouseEventListener {
+  void on_raw_mouse_event(std::shared_ptr<bright::input::RawMouseEvent> pRawMouseInputEvent);
+};
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow){ 
 
   MSG msg;
 
-  pContextManager = std::make_shared<bright::context::ContextManager>();
+  pEntryPointEventHandler = bright::windows::EntryPointEventHandler::get_entry_point_event_handler();
+  pContextManager = pEntryPointEventHandler->get_context_manager();
+
+  pInputManager = pEntryPointEventHandler->get_input_manager();
+  auto pRawMouseListener = std::make_shared<RawMouseListener>();
+  pInputManager->add_raw_mouse_event_listener(pRawMouseListener);
 
   pContextManager->create_windows_opengl_context(WndProc, "Powered By The Bright Engine1", 1280, 768);
   pContextManager->initialize( );
@@ -79,6 +58,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
       DispatchMessage(&msg);
     }
     else{
+      pInputManager->notify();
       pContextManager->begin_rendering();
       pContextManager->end_rendering();
     }
@@ -99,6 +79,21 @@ void toggle_context(){
     pContextManager->set_current_context( pContext2->window_title() );
     pContextManager->show_window(true);
     toggle = true;
+  }
+
+}
+
+
+void RawMouseListener::on_raw_mouse_event(std::shared_ptr<bright::input::RawMouseEvent> pRawMouseInputEvent) {
+  if ( pRawMouseInputEvent->raw_mouse_event_type() == bright::input::MouseEventType::BUTTON_CLICK){ 
+    if ( pRawMouseInputEvent->raw_mouse_button() == bright::input::MouseButton::LEFT){ 
+      if (pRawMouseInputEvent->is_raw_mouse_button_down()) { 
+        toggle_context();
+      }
+      else { 
+        //up
+      }
+    }
   }
 
 }

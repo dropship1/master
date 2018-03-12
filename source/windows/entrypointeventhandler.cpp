@@ -13,6 +13,7 @@ LRESULT EntryPointEventHandler::handle_event(HWND hWindow, UINT msg, WPARAM wPar
   // Route Windows messages to game engine member functions
   switch (msg) {
   case WM_CREATE: {
+    pContextManager_->show_cursor(false);
     return 0;
   }
 
@@ -232,9 +233,15 @@ LRESULT EntryPointEventHandler::handle_event(HWND hWindow, UINT msg, WPARAM wPar
         lastX_ = absolute_posX;
         lastY_ = absolute_posY;
         lastZ_ = absolute_posZ;
+        pContextManager_->show_cursor(true);
+        SetCursorPos(pContextManager_->windows_current_context()->window_width() / 2, pContextManager_->windows_current_context()->window_height() / 2);
+        pContextManager_->show_cursor(false);
       }
       else {
         pInputManager_->update_raw_mouse_listeners_deltas(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+        pContextManager_->show_cursor(true);
+        SetCursorPos(pContextManager_->windows_current_context()->window_width()/2, pContextManager_->windows_current_context()->window_height() / 2);
+        pContextManager_->show_cursor(false);
       }
       //MOUSE_LEFT_BUTTON_DOWN
       if (raw->data.mouse.usButtonFlags == RI_MOUSE_BUTTON_1_DOWN) {

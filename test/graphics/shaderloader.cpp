@@ -29,11 +29,66 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
 
+  std::string vertexFileData;
+  std::string fragmentFileData;
+
+  vertexFileData = "                                                                             \n"
+    "#version 330 core                                                                           \n"
+    "                                                                                            \n"
+    "layout(location = 0) in vec4 position;                                                      \n"
+    "layout(location = 1) in vec3 normal;                                                        \n"
+    "layout(location = 2) in vec3 texture;                                                       \n"
+    "                                                                                            \n"
+    "out vec3 vertexNormal;                                                                      \n"
+    "                                                                                            \n"
+    "uniform mat4 cameraToClipMatrix;                                                            \n"
+    "uniform mat4 modelToWorldMatrix;                                                            \n"
+    "uniform mat4 worldToCamMatrix;                                                              \n"
+    "uniform mat3 normalToWorldMatrix;                                                           \n"
+    "                                                                                            \n"
+    "void main() {                                                                               \n"
+    "                                                                                            \n"
+    "  gl_Position = cameraToClipMatrix * (worldToCamMatrix * (modelToWorldMatrix * position));  \n"
+    "                                                                                            \n"
+    "  vec3 normWorldSpace = normalize(normalToWorldMatrix * normal);                            \n"
+    "                                                                                            \n"
+    "  vertexNormal = normWorldSpace;                                                            \n"
+    "                                                                                            \n"
+    "}                                                                                           \n";
+
+    fragmentFileData = "                                                                                              \n"
+    "#version 330 core                                                                                                \n"
+    "                                                                                                                 \n"
+    "in vec3 vertexNormal;                                                                                            \n"
+    "in vec3 modelSpacePosition;                                                                                      \n"
+    "in vec3 texCoord;                                                                                                \n"
+    "                                                                                                                 \n"
+    "out vec4 outputColor;                                                                                            \n"
+    "                                                                                                                 \n"
+    "uniform vec4 diffuseColor;                                                                                       \n"
+    "uniform vec3 dirToLight;                                                                                         \n"
+    "uniform vec4 lightIntensity;                                                                                     \n"
+    "uniform vec4 ambientIntensity;                                                                                   \n"
+    "                                                                                                                 \n"
+    "                                                                                                                 \n"
+    "void main() {                                                                                                    \n"
+    "                                                                                                                 \n"
+    "  //So we can pass in our light at any distance and have it normalized                                           \n"
+    "  //The dot product to get the cosAngIncidence requires to unit vectors                                          \n"
+    "  vec3 normalizedDirToLight = normalize(dirToLight);                                                             \n"
+    "                                                                                                                 \n"
+    "  float cosAngIncidence = dot(vertexNormal, normalizedDirToLight);                                               \n"
+    "  cosAngIncidence = clamp(cosAngIncidence, 0, 1);                                                                \n"
+    "                                                                                                                 \n"
+    "  outputColor = (lightIntensity * diffuseColor * cosAngIncidence) + (diffuseColor * ambientIntensity);           \n"
+    "                                                                                                                 \n"
+    "}                                                                                                                \n";
+
   bright::graphics::ShaderConfig shaderConfig;
   shaderConfig.camToClipLocationName_ = "cameraToClipMatrix";
   shaderConfig.type_ = "PER_FRAG_LIGHT_COLOR";
-  shaderConfig.fragmentFileContents_ = pFileWorker->get_file_contents("pflt.f");
-  shaderConfig.vertexFileContents_ = pFileWorker->get_file_contents("pflt.v");
+  shaderConfig.vertexFileContents_ = vertexFileData;
+  shaderConfig.fragmentFileContents_ = fragmentFileData;
   shaderConfig.usePerpective_ = true;
   auto shader = pShaderLoader->load_single_shader_program(shaderConfig);
 

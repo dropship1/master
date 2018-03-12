@@ -5,12 +5,15 @@
 #include "graphics/loadersmanager.hpp"
 #include "graphics/globalstructs.hpp"
 #include "base/globalstructs.hpp"
+#include "base/actorcontrolsresourcemanager.hpp"
+#include "base/actorrenderingresourcemanager.hpp"
 #include "context/contextmanager.hpp"
 #include "context/context.hpp"
 #include "base/actorcontrolcontroller.hpp"
 #include <memory>
 #include <algorithm>
 
+#include "input/commandlistener.hpp"
 #include "input/inputmanager.hpp"
 #include "input/keyboardeventlistener.hpp"
 #include "input/keyboardevent.hpp"
@@ -21,6 +24,7 @@
 #include "input/utils.hpp"
 #include "input/globalstructs.hpp"
 #include "graphics/utilities.hpp"
+#include "windows/entrypointeventhandler.hpp"
 
 
 #include "input/commandevent.hpp"
@@ -30,417 +34,96 @@
 //Enable this to have a console to use cout and cin on, for debugging
 //#pragma comment(linker, "/subsystem:\"console\" /entry:\"WinMainCRTStartup\"")
 
-void load_client_configs();
-
+std::shared_ptr<bright::windows::EntryPointEventHandler> pEntryPointEventHandler;
 std::shared_ptr<bright::context::ContextManager> pContextManager;
-std::shared_ptr<bright::base::ActorControlController> pModelsController;
-std::map<std::string, std::shared_ptr<bright::base::ActorControlController>> npcContollers;
 std::shared_ptr<bright::utils::FileWorker> pFileWorker;
 std::shared_ptr<bright::input::InputContextManager> pInputContextManager;
+std::shared_ptr<bright::input::InputManager> pInputManager;
+std::shared_ptr<bright::input::CommandHandler> pCommandHandler;
 
-std::string ip;
-int port;
-std::string clientName;
+boost::shared_ptr<bright::input::CommandListener> pCommandListenerLucy;
+boost::shared_ptr<bright::input::CommandListener> pCommandListenerKane;
+boost::shared_ptr<bright::input::CommandListener> pCommandListenerZombie1;
+boost::shared_ptr<bright::input::CommandListener> pCommandListenerZombie2;
+boost::shared_ptr<bright::input::CommandListener> pCommandListenerZombie3;
+
+
 
 boost::asio::io_service service;
 
 
-enum WinKeys {
-  RIGHT_CONTROL = VK_RCONTROL,
-  LEFT_CONTROL = VK_LCONTROL,
-  RIGHT_ALT = VK_RMENU,
-  LEFT_ALT = VK_LMENU,
-  NUMPAD_ENTER = VK_SEPARATOR,
-  NUMPAD_DECIMAL = VK_DECIMAL,
-  NUMPAD_0 = VK_NUMPAD0,
-  NUMPAD_1 = VK_NUMPAD1,
-  NUMPAD_2 = VK_NUMPAD2,
-  NUMPAD_3 = VK_NUMPAD3,
-  NUMPAD_4 = VK_NUMPAD4,
-  NUMPAD_5 = VK_NUMPAD5,
-  NUMPAD_6 = VK_NUMPAD6,
-  NUMPAD_7 = VK_NUMPAD7,
-  NUMPAD_8 = VK_NUMPAD8,
-  NUMPAD_9 = VK_NUMPAD9
-};
+void update_render_controllers(
+  std::map<std::string, bright::base::ActorRenderController>& renderControllers, 
+  std::map<std::string, bright::base::ActorControlController>& npcControllers,
+  std::map<std::string, bright::base::ActorControlController>& playerControllers);
 
-std::shared_ptr<bright::input::InputManager> pInputManager;
+void update_group_render_infos(
+  std::map<std::string, bright::graphics::ActorGroupRenderInfo>& groupRenderInfos,
+  std::map<std::string, bright::base::ActorRenderController>& renderControllers);
 
-float lastX = FLT_MAX;
-float lastY = FLT_MAX;
-float lastZ = FLT_MAX;
-
-LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam){
-  // Route Windows messages to game engine member functions
-  switch (msg){
-    case WM_CREATE:{
-      return 0;
-    }
-
-    case WM_SETFOCUS:{
-      return 0;
-    }
-
-    case WM_KILLFOCUS:{
-      return 0;
-    }
-
-    case WM_SIZE: {
-      pContextManager->reshape_rendering_context_viewport(LOWORD(lParam), HIWORD(lParam));
-      return 0;
-    }
-
-    case WM_DESTROY:{
-      PostQuitMessage(0);
-      return 0;
-    }
-
-    case WM_QUIT:{
-      return 0;
-    }
-
-    case WM_INPUT:{
-      UINT dwSize = 40;
-      static BYTE lpb[40];
-    
-      GetRawInputData((HRAWINPUT)lParam, RID_INPUT,lpb, &dwSize, sizeof(RAWINPUTHEADER));
-    
-      RAWINPUT* raw = (RAWINPUT*)lpb;
-    
-      if (raw->header.dwType == RIM_TYPEKEYBOARD) {
-        //https://molecularmusings.wordpress.com/2011/09/05/properly-handling-keyboard-input/
-        unsigned int scanCode = raw->data.keyboard.MakeCode;
-        unsigned int virtualKey = raw->data.keyboard.VKey;
-        unsigned int flags = raw->data.keyboard.Flags;
-
-        if (virtualKey == 255) {
-          // discard "fake keys" which are part of an escaped sequence
-          return 0;
-        }
-        else if (virtualKey == VK_SHIFT){
-          // correct left-hand / right-hand SHIFT
-          virtualKey = MapVirtualKey(scanCode, MAPVK_VSC_TO_VK_EX);
-        }
-        else if (virtualKey == VK_NUMLOCK){
-          // correct PAUSE/BREAK and NUM LOCK silliness, and set the extended bit
-          scanCode = (MapVirtualKey(virtualKey, MAPVK_VK_TO_VSC) | 0x100);
-        }
-        // e0 and e1 are escape sequences used for certain special keys, such as PRINT and PAUSE/BREAK.
-        // see http://www.win.tue.nl/~aeb/linux/kbd/scancodes-1.html
-        const bool isE0 = ((flags & RI_KEY_E0) != 0);
-        const bool isE1 = ((flags & RI_KEY_E1) != 0);
-         
-        if (isE1){
-          // for escaped sequences, turn the virtual key into the correct scan code using MapVirtualKey.
-          // however, MapVirtualKey is unable to map VK_PAUSE (this is a known bug), hence we map that by hand.
-          if (virtualKey == VK_PAUSE){
-            scanCode = 0x45;
-          } 
-          else{
-            scanCode = MapVirtualKey(virtualKey, MAPVK_VK_TO_VSC);
-          }
-        }
-
-        switch (virtualKey){
-          // right-hand CONTROL and ALT have their e0 bit set
-          case VK_CONTROL:
-            if (isE0)
-              virtualKey = WinKeys::RIGHT_CONTROL;
-            else
-              virtualKey = WinKeys::LEFT_CONTROL;
-            break;
-         
-          case VK_MENU:
-            if (isE0)
-              virtualKey = WinKeys::RIGHT_ALT;
-            else
-              virtualKey = WinKeys::LEFT_ALT;
-            break;
-         
-          // NUMPAD ENTER has its e0 bit set
-          case VK_RETURN:
-            if (isE0)
-              virtualKey = WinKeys::NUMPAD_ENTER;
-            break;
-         
-          // the standard INSERT, DELETE, HOME, END, PRIOR and NEXT keys will always have their e0 bit set, but the
-          // corresponding keys on the NUMPAD will not.
-          case VK_INSERT:
-            if (!isE0)
-            virtualKey = WinKeys::NUMPAD_0;
-            break;
-         
-          case VK_DELETE:
-            if (!isE0)
-              virtualKey = WinKeys::NUMPAD_DECIMAL;
-            break;
-         
-          case VK_HOME:
-            if (!isE0)
-              virtualKey = WinKeys::NUMPAD_7;
-            break;
-         
-          case VK_END:
-            if (!isE0)
-              virtualKey = WinKeys::NUMPAD_1;
-            break;
-         
-          case VK_PRIOR:
-            if (!isE0)
-              virtualKey = WinKeys::NUMPAD_9;
-            break;
-         
-          case VK_NEXT:
-            if (!isE0)
-              virtualKey = WinKeys::NUMPAD_3;
-            break;
-         
-          // the standard arrow keys will always have their e0 bit set, but the
-          // corresponding keys on the NUMPAD will not.
-          case VK_LEFT:
-            if (!isE0)
-              virtualKey = WinKeys::NUMPAD_4;
-            break;
-         
-          case VK_RIGHT:
-            if (!isE0)
-              virtualKey = WinKeys::NUMPAD_6;
-            break;
-         
-          case VK_UP:
-            if (!isE0)
-              virtualKey = WinKeys::NUMPAD_8;
-            break;
-         
-          case VK_DOWN:
-            if (!isE0)
-              virtualKey = WinKeys::NUMPAD_2;
-            break;
-         
-          // NUMPAD 5 doesn't have its e0 bit set
-          case VK_CLEAR:
-            if (!isE0)
-              virtualKey = WinKeys::NUMPAD_5;
-            break;
-        }
-
-        // a key can either produce a "make" or "break" scancode. this is used to differentiate between down-presses and releases
-        // see http://www.win.tue.nl/~aeb/linux/kbd/scancodes-1.html
-        const bool wasUp = ((flags & RI_KEY_BREAK) != 0);
-         
-        // getting a human-readable string
-        UINT keyc = (scanCode << 16) | (isE0 << 24);
-        char buffer[512] = {};
-        GetKeyNameTextA((LONG)keyc, buffer, 512);
-        std::string key(buffer);
-        bool isDown = !wasUp;
-        pInputManager->update_keyboard_listeners(isDown, key);
-      }
-      else if (raw->header.dwType == RIM_TYPEMOUSE) {
-        short int data = 0;
-        int stop = 0;
-        
-        //int xPosRelative = raw->data.mouse.lLastX;
-        //int yPosRelative = raw->data.mouse.lLastY;
-        //pInputManager->update_raw_mouse_listeners_deltas(xPosRelative, yPosRelative);
-        //if (raw->data.mouse.usFlags & (1 << MOUSE_ATTRIBUTES_CHANGED)) {
-        //  std::cout << "MOUSE_ATTRIBUTES_CHANGED" <<  std::endl << std::flush;
-        //}
-        //if (raw->data.mouse.usFlags & (1 << MOUSE_MOVE_ABSOLUTE)) {
-        //  std::cout << "MOUSE_MOVE_ABSOLUTE" << std::endl << std::flush;
-        //}
-        //if (raw->data.mouse.usFlags == MOUSE_VIRTUAL_DESKTOP) {
-        //  std::cout << "MOUSE_VIRTUAL_DESKTOP" << std::endl << std::flush;
-        //}
-        if ((raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) == MOUSE_MOVE_ABSOLUTE){
-          
-          std::cout << "raw->data.mouse.usFlags" << raw->data.mouse.usFlags << std::endl << std::flush;
-          std::cout << "MOUSE_MOVE_ABSOLUTE" << std::endl << std::flush;
-          //int xPosRelative = raw->data.mouse.lLastX;
-          //int yPosRelative = raw->data.mouse.lLastY;
-          //pInputManager->update_raw_mouse_listeners_deltas(xPosRelative, yPosRelative);
-          //
-          //CURSORINFO cursorInfo = { 0 };
-          //cursorInfo.cbSize = sizeof(cursorInfo);
-          //GetCursorInfo(&cursorInfo);
-          //float newXPos = cursorInfo.ptScreenPos.x;
-          //float newYPos = cursorInfo.ptScreenPos.y;
-          //pInputManager->update_mouse_listeners_position(newXPos, newYPos);
-          
-          //LPPOINT point = new POINT();
-          //GetCursorPos(point);
-
-          //ScreenToClient(pContextManager->windows_current_context()->window_id(), point);
-          //std::cout << "xPoint" << point->x << std::endl << std::flush;
-          //std::cout << "yPoint" << point->y << std::endl << std::flush;
-          //https://stackoverflow.com/questions/31949476/raw-input-mouse-lastx-lasty-with-odd-values-while-logged-in-through-rdp
-
-          const bool virtual_desktop = (raw->data.mouse.usFlags & MOUSE_VIRTUAL_DESKTOP) == MOUSE_VIRTUAL_DESKTOP;
-          const int width = GetSystemMetrics(virtual_desktop ? SM_CXVIRTUALSCREEN : SM_CXSCREEN);
-          const int height = GetSystemMetrics(virtual_desktop ? SM_CYVIRTUALSCREEN : SM_CYSCREEN);
-          float absolute_posX = (raw->data.mouse.lLastX / float(USHRT_MAX)) * width;
-          float absolute_posY = (raw->data.mouse.lLastY / float(USHRT_MAX)) * height;
-          float absolute_posZ = 0;
-          std::cout << "width" << width << std::endl << std::flush;
-          std::cout << "height" << height << std::endl << std::flush;
-          std::cout << "absolute_posX" << absolute_posX << std::endl << std::flush;
-          std::cout << "absolute_posY" << absolute_posY << std::endl << std::flush;
-          if ((lastX != FLT_MAX) && (lastY != FLT_MAX) && (lastZ != FLT_MAX)) {
-            pInputManager->update_raw_mouse_listeners_deltas(absolute_posX - lastX, absolute_posY - lastY);
-          }
-          lastX = absolute_posX;
-          lastY = absolute_posY;
-          lastZ = absolute_posZ;
-        }
-        else{
-          pInputManager->update_raw_mouse_listeners_deltas(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
-        }
-        //MOUSE_LEFT_BUTTON_DOWN
-        if (raw->data.mouse.usButtonFlags == RI_MOUSE_BUTTON_1_DOWN){
-          pInputManager->update_raw_mouse_listeners_button(true, bright::input::MouseButton::LEFT, data);
-        }        
-        //MOUSE_LEFT_BUTTON_UP
-        if (raw->data.mouse.usButtonFlags == RI_MOUSE_BUTTON_1_UP){ 
-          pInputManager->update_raw_mouse_listeners_button(false, bright::input::MouseButton::LEFT, data);
-        }
-        
-        //MOUSE_RIGHT_BUTTON_DOWN
-        if (raw->data.mouse.usButtonFlags == RI_MOUSE_BUTTON_2_DOWN){ 
-          pInputManager->update_raw_mouse_listeners_button(true, bright::input::MouseButton::RIGHT, data);
-        }
-        
-        //MOUSE_RIGHT_BUTTON_UP
-        if (raw->data.mouse.usButtonFlags == RI_MOUSE_BUTTON_2_UP){ 
-          pInputManager->update_raw_mouse_listeners_button(false, bright::input::MouseButton::RIGHT, data);
-        }
-        
-        //MOUSE_MIDDLE_BUTTON_DOWN
-        if (raw->data.mouse.usButtonFlags == RI_MOUSE_BUTTON_3_DOWN){ 
-          pInputManager->update_raw_mouse_listeners_button(true, bright::input::MouseButton::MIDDLE, data);
-        }
-        
-        //MOUSE_MIDDLE_BUTTON_UP
-        if (raw->data.mouse.usButtonFlags == RI_MOUSE_BUTTON_3_UP){
-          pInputManager->update_raw_mouse_listeners_button(false, bright::input::MouseButton::MIDDLE, data);
-        }
-        
-        //Scroll wheel, Raw input comes from a mouse wheel. The wheel delta is stored in usButtonData.
-        if (raw->data.mouse.usButtonFlags == RI_MOUSE_WHEEL){ 
-          data = (SHORT)raw->data.mouse.usButtonData;
-          pInputManager->update_raw_mouse_listeners_button(true, bright::input::MouseButton::WHEEL, data);
-        }
-      }
-      return 0;
-    }
-
-  }
-  return DefWindowProc(hWindow, msg, wParam, lParam);
-}
-
+void render_all_group_render_infos(
+  std::map<std::string, bright::graphics::ActorGroupRenderInfo>& groupRenderInfos,
+  bright::graphics::Renderer& renderer,
+  bright::graphics::WorldInfo& worldInfo);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow){ 
 
-  pInputManager = std::make_shared<bright::input::InputManager>();
+  pEntryPointEventHandler = bright::windows::EntryPointEventHandler::get_entry_point_event_handler();
   pInputContextManager = std::make_shared<bright::input::InputContextManager>();
+  pInputManager = pEntryPointEventHandler->get_input_manager();
   pInputManager->add_keyboard_event_listener(pInputContextManager);
-  // TODO: Finish mouse events
   pInputManager->add_raw_mouse_event_listener(pInputContextManager);
-  //pInputManager->add_mouse_event_listener(pInputContextManager);
 
-  //If you're running this from the debuger/visual studio, then you need to specify the path to the 
-  //data directory starting from the "bright" directory, for example:
-  //test/network/data
-  //But if you're building this and creating the executable, which goes into the bin directory
-  //in test/network/bin then you need to specify the path as "../data".
-  pFileWorker = std::make_shared<bright::utils::FileWorker>("data/filelist");
-  //pFileWorker = std::make_shared<bright::utils::FileWorker>("test/network/data/filelist");
+  pContextManager = pEntryPointEventHandler->get_context_manager();
+  pContextManager->create_windows_opengl_context(WndProc, "Powered By The Bright Engine", 1280, 768);
+
+  pFileWorker = std::make_shared<bright::utils::FileWorker>("data/files.fl");
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
 
-  load_client_configs();
-  auto pServerHandler = std::make_shared<bright::network::ServerHandler>(clientName, "mypassword", pModelsController, npcContollers);
-  auto pServerConnection = boost::make_shared<bright::network::ServerConnection>(service, pServerHandler);
+  auto pActorControlResourceManager = std::make_shared<bright::base::ActorControlsResourceManager>(pFileWorker);
+  pActorControlResourceManager->initialize();
+  auto pActorRenderingResourceManager = std::make_shared<bright::base::ActorRenderingResourceManager>(pFileWorker);
+  pActorRenderingResourceManager->initialize();
+  auto& npcControllers = pActorControlResourceManager->npc_controllers();
+  auto& playerControllers = pActorControlResourceManager->player_controllers();
+
+  auto& actorRenderControllers = pActorRenderingResourceManager->actor_render_controllers();
+  auto& actorGroupRenderInfos = pActorRenderingResourceManager->actor_group_render_infos();
+
+  std::string clientName = pActorControlResourceManager->client_control_name();
+  std::string ip = pActorControlResourceManager->ip();
+  int port = pActorControlResourceManager->port();
+  auto pActorCreator = std::make_shared<bright::base::ActorCreator>();
+  pCommandHandler = std::make_shared<bright::input::CommandHandler>(playerControllers["Lucy"], actorRenderControllers["Lucy"], pActorCreator);
+  auto pServerHandler = std::make_shared<bright::network::ServerHandler>(clientName, "mypassword", playerControllers, npcControllers);
+  auto pServerConnection = boost::make_shared<bright::network::ServerConnection>(service, pServerHandler, pCommandHandler);
   boost::asio::ip::tcp::endpoint ep( boost::asio::ip::address::from_string(ip), port );
 
+  //pCommandListenerLucy = boost::make_shared<bright::input::CommandListener>(playerControllers["Lucy"], actorRenderControllers["Lucy"]);
+  //pCommandListenerKane = boost::make_shared<bright::input::CommandListener>(playerControllers["Kane"], actorRenderControllers["Kane"]);
+  //pCommandListenerZombie1 = boost::make_shared<bright::input::CommandListener>(playerControllers["Zombie_001"], actorRenderControllers["Zombie_001"]);
+  //pCommandListenerZombie2 = boost::make_shared<bright::input::CommandListener>(playerControllers["Zombie_002"], actorRenderControllers["Zombie_002"]);
+  //pCommandListenerZombie3 = boost::make_shared<bright::input::CommandListener>(playerControllers["Zombie_003"], actorRenderControllers["Zombie_003"]);
+  //pInputContextManager->add_command_event_listener(pCommandListenerLucy);
+  //pInputContextManager->add_command_event_listener(pCommandListenerKane);
+  //pInputContextManager->add_command_event_listener(pCommandListenerZombie1);
+  //pInputContextManager->add_command_event_listener(pCommandListenerZombie2);
+  //pInputContextManager->add_command_event_listener(pCommandListenerZombie3);
+
   pInputContextManager->add_command_event_listener(pServerConnection);
-  std::string controlsContexts = pFileWorker->get_file_contents("controls_contexts.cfg");
+  std::string controlsContexts = pFileWorker->get_file_contents("contexts.ctrls");
   pInputContextManager->initialize(controlsContexts);
-  std::string controlConfig = pFileWorker->get_file_contents("controls_config.cfg");
+  std::string controlConfig = pFileWorker->get_file_contents("config.ctrls");
   pInputContextManager->set_control_config(controlConfig);
 
-  pContextManager = std::make_shared<bright::context::ContextManager>();
+  auto renderer = bright::graphics::Renderer();
 
-  pContextManager->create_windows_opengl_context(WndProc, "Powered By The Bright Engine", 1280, 768);
-
-  auto pLoadersManager = std::make_shared<bright::graphics::LoadersManager>(pFileWorker);
-  auto pRenderer = std::make_shared<bright::graphics::Renderer>();
-  pLoadersManager->load();
- 
-  auto pShader = pLoadersManager->shaders("PER_FRAG_LIGHT_COLOR");
-
-  auto planeGroupRenderInfo = bright::graphics::create_plane(5.0f);
-  planeGroupRenderInfo.pShader_ = pShader;
-  planeGroupRenderInfo.hasShader_ = true;
-  planeGroupRenderInfo.cameraType_ = "1st";
-
-  auto cubeGroupRenderInfo = bright::graphics::create_cube();
-  cubeGroupRenderInfo.pShader_ = pShader;
-  cubeGroupRenderInfo.hasShader_ = true;
-  cubeGroupRenderInfo.cameraType_ = "1st";
-
-  auto cubeGroupRenderInfo2 = bright::graphics::create_cube();
-  cubeGroupRenderInfo2.pShader_ = pShader;
-  cubeGroupRenderInfo2.hasShader_ = true;
-  cubeGroupRenderInfo2.cameraType_ = "1st";
-
-  auto cubeGroupRenderInfo3 = bright::graphics::create_cube();
-  cubeGroupRenderInfo3.pShader_ = pShader;
-  cubeGroupRenderInfo3.hasShader_ = true;
-  cubeGroupRenderInfo3.cameraType_ = "1st";
-
-  auto cubeGroupRenderInfo4 = bright::graphics::create_cube();
-  cubeGroupRenderInfo4.pShader_ = pShader;
-  cubeGroupRenderInfo4.hasShader_ = true;
-  cubeGroupRenderInfo4.cameraType_ = "1st";
-
-  cubeGroupRenderInfo.modToWorld_ = pModelsController->model_to_world_transformation_matrix();
-  cubeGroupRenderInfo.actorRenderInfos_["cube"]->diffuseColor_ = glm::vec4(0.0f,0.0f,1.0f,1.0f);
-  cubeGroupRenderInfo.actorRenderInfos_["cube"]->hasTexture_ = false;
-
-  pCubeGroupRenderInfo2->modToWorld_ = monsterContollers["Leo"]->model_to_world_transformation_matrix();
-  pCubeGroupRenderInfo2->actorRenderInfos_["cube"]->diffuseColor_ = glm::vec4(0.0f,0.0f,1.0f,1.0f);
-  pCubeGroupRenderInfo2->actorRenderInfos_["cube"]->hasTexture_ = false;
-
-  pCubeGroupRenderInfo3->modToWorld_ = monsterContollers["Monster1"]->model_to_world_transformation_matrix();
-  pCubeGroupRenderInfo3->actorRenderInfos_["cube"]->diffuseColor_ = glm::vec4(0.0f,0.0f,1.0f,1.0f);
-  pCubeGroupRenderInfo3->actorRenderInfos_["cube"]->hasTexture_ = false;
-
-  pCubeGroupRenderInfo4->modToWorld_ = monsterContollers["Monster2"]->model_to_world_transformation_matrix();
-  pCubeGroupRenderInfo4->actorRenderInfos_["cube"]->diffuseColor_ = glm::vec4(0.0f,0.0f,1.0f,1.0f);
-  pCubeGroupRenderInfo4->actorRenderInfos_["cube"]->hasTexture_ = false;
-
-  pModelsController->update( glm::vec3(0.0f,-5.0f,0.0f) );
-  pPlaneGroupRenderInfo->modToWorld_ = pModelsController->model_to_world_transformation_matrix();
-  pPlaneGroupRenderInfo->actorRenderInfos_["plane"]->diffuseColor_ = glm::vec4(0.0f,1.0f,0.0f,1.0f);
-  pPlaneGroupRenderInfo->actorRenderInfos_["plane"]->hasTexture_ = false;
-
-  auto pWorldInfo = std::make_shared<bright::graphics::WorldInfo>();
-  pWorldInfo->world_to_cam_matrix( "1st", pModelsController->world_to_camera_transformation_matrix() );
-
-  bright::graphics::Light ambientLight;
-  ambientLight.lightDirection_ = glm::vec3(0.0f, 50.0f, 0.0f);
-  ambientLight.lightIntensity_ = glm::vec4(0.25f, 0.25f, 0.25f, 1.0f);
-  pWorldInfo->ambient_light(ambientLight);
-
-  bright::graphics::Light directionalLight;
-  directionalLight.lightDirection_ = glm::vec3(0.0f, 30.0f, 100.0f);
-  directionalLight.lightIntensity_ = glm::vec4(0.2f, 0.2f, 0.2f, 0.5f);
-  pWorldInfo->directional_light(directionalLight);
+  auto worldInfo = pActorRenderingResourceManager->world_info();
 
   //Show and update the window
   pContextManager->show_window(false);
   pContextManager->initialize();
-  pModelsController->update( glm::vec3(0.0f,0.0f,0.0f) );
 
   pServerConnection->start(ep);
   boost::thread thread(boost::bind(&boost::asio::io_service::run, &service));
@@ -451,6 +134,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   while( !pServerConnection->logged_in() ){
     pServerConnection->process_messages();
   }
+
 
   MSG msg;
   //Enter the main message loop
@@ -465,20 +149,28 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
     else{
       pInputManager->notify();
 	    pInputContextManager->notify();
-      pServerConnection->send_commands();
+      //pServerConnection->send_commands();
       pServerConnection->process_messages();
       pContextManager->begin_rendering();
 
-      pCubeGroupRenderInfo->modToWorld_ = pModelsController->model_to_world_transformation_matrix();
-      pCubeGroupRenderInfo2->modToWorld_ = monsterContollers["Leo"]->model_to_world_transformation_matrix();
-      pCubeGroupRenderInfo3->modToWorld_ = monsterContollers["Monster1"]->model_to_world_transformation_matrix();
-      pCubeGroupRenderInfo4->modToWorld_ = monsterContollers["Monster2"]->model_to_world_transformation_matrix();
-      pWorldInfo->world_to_cam_matrix( "1st", pModelsController->world_to_camera_transformation_matrix() );
-      pRenderer->render(pPlaneGroupRenderInfo, pWorldInfo);
-      pRenderer->render(pCubeGroupRenderInfo, pWorldInfo);
-      pRenderer->render(pCubeGroupRenderInfo2, pWorldInfo);
-      pRenderer->render(pCubeGroupRenderInfo3, pWorldInfo);
-      pRenderer->render(pCubeGroupRenderInfo4, pWorldInfo);
+      //auto& npcControllers = pActorControlResourceManager->npc_controllers();
+      //auto& playerControllers = pActorControlResourceManager->player_controllers();
+      //
+      //auto actorRenderControllers = pActorRenderingResourceManager->actor_render_controllers();
+      //auto actorGroupRenderInfos = pActorRenderingResourceManager->actor_group_render_infos();
+
+      //update all render controllers with new control controllers info
+      update_render_controllers(actorRenderControllers, npcControllers, playerControllers);
+
+      //update all group render infos mod to worlds with render controllers data
+      update_group_render_infos(actorGroupRenderInfos, actorRenderControllers);
+
+      //update the world info with the players render controller you want to view the world from
+      worldInfo.world_to_cam_matrix( "1st", actorRenderControllers["Lucy"].world_to_camera_transformation_matrix() );
+
+      //render all group render infos
+      render_all_group_render_infos(actorGroupRenderInfos, renderer, worldInfo);
+      //pRenderer->render(zombie1GroupRenderInfo, worldInfo);
 
       pContextManager->end_rendering();
     }
@@ -488,39 +180,65 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 }
 
 
-void load_client_configs(){
 
-  std::string fileContents = pFileWorker->get_file_contents("client.cfg");
-  std::stringstream in(fileContents);
+void update_render_controllers(
+  std::map<std::string, bright::base::ActorRenderController>& renderControllers,
+  std::map<std::string, bright::base::ActorControlController>& npcControllers,
+  std::map<std::string, bright::base::ActorControlController>& playerControllers){
 
-  std::string::size_type sz;
-  std::string portTemp;
-
-  bool inServerNode = false;
-  std::string line; 
-  while (getline(in, line)){
-    if (line.substr(0,1) == "]" ){
-      break;
-    }
-    if (inServerNode){
-      if(line.substr(0,3) == "ip="){
-        ip = line.substr(3);
-      }
-      else if(line.substr(0,5) == "port="){
-        portTemp = line.substr(5);
-        port = std::stoi (portTemp,&sz);
-      }
-      else if(line.substr(0,11) == "clientname="){
-        clientName = line.substr(11);
-      }
-      else if(line.substr(0,9) == "</Server>"){
-        inServerNode = false;
+  auto update_render_controller = [&](std::map<std::string, bright::base::ActorRenderController>::value_type& pair) {
+    std::string name = pair.first;
+    auto& renderController = pair.second;
+    bool did_not_find_it = false;
+    auto it = npcControllers.find(name);
+    if (it == npcControllers.end()) {
+      it = playerControllers.find(name);
+      if (it == playerControllers.end()) {
+        did_not_find_it = true;
       }
     }
-    else if (line.substr(0,8) == "<Server>"){ 
-      inServerNode = true;
+    if (did_not_find_it == false){
+      auto& controlController = it->second;
+      renderController.update(controlController.pos(), controlController.right(), controlController.up(), controlController.look());
     }
-  }
-
+  };
+  std::for_each(renderControllers.begin(), renderControllers.end(), update_render_controller);
 
 }
+
+
+void update_group_render_infos(
+  std::map<std::string, bright::graphics::ActorGroupRenderInfo>& groupRenderInfos,
+  std::map<std::string, bright::base::ActorRenderController>& renderControllers) {
+
+  auto update_group_render_info = [&](std::map<std::string, bright::graphics::ActorGroupRenderInfo>::value_type& pair) {
+    std::string name = pair.first;
+    auto& groupRenderInfo = pair.second;
+    bool did_not_find_it = false;
+    auto it = renderControllers.find(name);
+    if (it == renderControllers.end()) {
+      did_not_find_it = true;
+    }
+    if (did_not_find_it == false) {
+      auto& renderController = it->second;
+      groupRenderInfo.modToWorld_ = renderController.model_to_world_transformation_matrix();
+    }
+  };
+  std::for_each(groupRenderInfos.begin(), groupRenderInfos.end(), update_group_render_info);
+
+}
+
+void render_all_group_render_infos(
+  std::map<std::string, bright::graphics::ActorGroupRenderInfo>& groupRenderInfos,
+  bright::graphics::Renderer& renderer,
+  bright::graphics::WorldInfo& worldInfo) {
+
+  auto update_group_render_info = [&](std::map<std::string, bright::graphics::ActorGroupRenderInfo>::value_type& pair) {
+    std::string name = pair.first;
+    auto& groupRenderInfo = pair.second;
+    renderer.render(groupRenderInfo, worldInfo);
+  };
+  std::for_each(groupRenderInfos.begin(), groupRenderInfos.end(), update_group_render_info);
+
+}
+

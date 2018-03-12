@@ -31,7 +31,7 @@
 #include "windows/entrypointeventhandler.hpp"
 
 //Enable this to have a console to use cout and cin on, for debugging
-//#pragma comment(linker, "/subsystem:\"console\" /entry:\"WinMainCRTStartup\"")
+#pragma comment(linker, "/subsystem:\"console\" /entry:\"WinMainCRTStartup\"")
 
 
 std::shared_ptr<bright::context::ContextManager> pContextManager;
@@ -45,20 +45,20 @@ class KeyboardListener: public bright::input::KeyboardEventListener{
 public:
   KeyboardListener();
   void on_keyboard_event(std::shared_ptr<bright::input::KeyboardEvent> pKeyboardInputEvent);
-  bool w_;
-  bool a_;
-  bool s_;
-  bool d_;
+  int w_;
+  int a_;
+  int s_;
+  int d_;
 };
 
 
 class RawMouseListener: public bright::input::RawMouseEventListener{
 public:
-  RawMouseListener(): movedLeft(false), movedRight(false), movedUp(false), movedDown(false){}
-  bool movedLeft;
-  bool movedRight;
-  bool movedUp;
-  bool movedDown;
+  RawMouseListener(): movedLeft(0), movedRight(0), movedUp(0), movedDown(0){}
+  int movedLeft;
+  int movedRight;
+  int movedUp;
+  int movedDown;
   void on_raw_mouse_event(std::shared_ptr<bright::input::RawMouseEvent> pRawMouseInputEvent);
 };
 
@@ -131,6 +131,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   //Show and update the window
   pContextManager->show_window(false);
   pContextManager->initialize();
+  pContextManager->show_cursor(false);
+  pContextManager->constrain_cursor();
 
   MSG msg;
   //Enter the main message loop
@@ -144,29 +146,49 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
     }
     else{
       pInputManager->notify();
-      if(pKeyboardListener->w_){
-        controller1.move_fwd(1.0f);
+      if(pKeyboardListener->w_ > 0){
+        for (int a = 0; a < pKeyboardListener->w_; ++a) {
+          controller1.move_fwd(1.0f);
+        }
       }
-      if(pKeyboardListener->s_){
-        controller1.move_backward(1.0f);
+      if(pKeyboardListener->s_ > 0){
+        for (int a = 0; a < pKeyboardListener->s_; ++a) {
+          controller1.move_backward(1.0f);
+        }
       }
-      if(pKeyboardListener->a_){
-        controller1.move_left(1.0f);
+      if(pKeyboardListener->a_ > 0){
+        for (int a = 0; a < pKeyboardListener->a_; ++a) {
+          controller1.move_left(1.0f);
+        }
       }
-      if(pKeyboardListener->d_){
-        controller1.move_right(1.0f);
+      if(pKeyboardListener->d_ > 0){
+        for (int a = 0; a < pKeyboardListener->d_; ++a) {
+          controller1.move_right(1.0f);
+        }
       }
-      if(pRawMouseListener->movedDown){
-        controller1.rotate_down(0.1f);
+      if(pRawMouseListener->movedDown > 0){
+        for (int a = 0; a < pRawMouseListener->movedDown; ++a) {
+          controller1.rotate_down(0.1f);
+        }
+        pRawMouseListener->movedDown = 0;
       }
-      else if(pRawMouseListener->movedUp){
-        controller1.rotate_up(0.1f);
+      else if(pRawMouseListener->movedUp > 0){
+        for (int a = 0; a < pRawMouseListener->movedUp; ++a) {
+          controller1.rotate_up(0.1f);
+        }
+        pRawMouseListener->movedUp = 0;
       }
-      else if(pRawMouseListener->movedLeft){
-        controller1.rotate_left(0.1f);
+      else if(pRawMouseListener->movedLeft > 0){
+        for (int a = 0; a < pRawMouseListener->movedLeft; ++a) {
+          controller1.rotate_left(0.1f);
+        }
+        pRawMouseListener->movedLeft = 0;
       }
-      else if(pRawMouseListener->movedRight){
-        controller1.rotate_right(0.1f);
+      else if(pRawMouseListener->movedRight > 0){
+        for (int a = 0; a < pRawMouseListener->movedRight; ++a) {
+          controller1.rotate_right(0.1f);
+        }
+        pRawMouseListener->movedRight = 0;
       }
       controller.update( controller1.pos(), controller1.right(), controller1.up(), controller1.look() );
       worldInfo.world_to_cam_matrix( "1st", controller.world_to_camera_transformation_matrix() );
@@ -174,10 +196,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
       pRenderer->render(planeGroupRenderInfo, worldInfo);
       pRenderer->render(cubeGroupRenderInfo, worldInfo);
       pContextManager->end_rendering();
-      pRawMouseListener->movedLeft = false;
-      pRawMouseListener->movedRight = false;
-      pRawMouseListener->movedUp = false;
-      pRawMouseListener->movedDown = false;
     }
   }
   return (int)msg.wParam;
@@ -186,10 +204,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 
 KeyboardListener::KeyboardListener(){
-  w_ = false;
-  s_ = false;
-  a_ = false;
-  d_ = false;
+  w_ = 0;
+  s_ = 0;
+  a_ = 0;
+  d_ = 0;
 }
 
 
@@ -197,16 +215,16 @@ void KeyboardListener::on_keyboard_event(std::shared_ptr<bright::input::Keyboard
 
   if ( pKeyboardInputEvent->is_down() ){ 
     if (pKeyboardInputEvent->key_enum() == bright::input::Key::W){ 
-      w_ = true;
+      ++w_;
     }
     else if (pKeyboardInputEvent->key_enum() == bright::input::Key::S){ 
-      s_ = true;
+      ++s_;
     }
     if (pKeyboardInputEvent->key_enum() == bright::input::Key::A){ 
-      a_ = true;
+      ++a_;
     }
     else if (pKeyboardInputEvent->key_enum() == bright::input::Key::D){ 
-      d_ = true;
+      ++d_;
     }
     else if (pKeyboardInputEvent->key_enum() == bright::input::Key::F1){ 
       pContextManager->reshape_context(true,1920,1080);
@@ -220,17 +238,17 @@ void KeyboardListener::on_keyboard_event(std::shared_ptr<bright::input::Keyboard
 
   }
   else {
-    if (pKeyboardInputEvent->key_enum() == bright::input::Key::W){ 
-      w_ = false;
+    if (pKeyboardInputEvent->key_enum() == bright::input::Key::W) {
+      --w_;
     }
-    else if (pKeyboardInputEvent->key_enum() == bright::input::Key::S){ 
-      s_ = false;      
+    else if (pKeyboardInputEvent->key_enum() == bright::input::Key::S) {
+      --s_;
     }
-    if (pKeyboardInputEvent->key_enum() == bright::input::Key::A){ 
-      a_ = false;
+    if (pKeyboardInputEvent->key_enum() == bright::input::Key::A) {
+      --a_;
     }
-    else if (pKeyboardInputEvent->key_enum() == bright::input::Key::D){ 
-      d_ = false;      
+    else if (pKeyboardInputEvent->key_enum() == bright::input::Key::D) {
+      --d_;
     }
   }
 }
@@ -257,16 +275,16 @@ void RawMouseListener::on_raw_mouse_event(std::shared_ptr<bright::input::RawMous
   //
   if ( pRawMouseInputEvent->raw_mouse_event_type() == bright::input::MouseEventType::MOVEMENT){ 
     if (pRawMouseInputEvent->delta_rate_x() < 0){ 
-      movedLeft = true;
+      ++movedLeft;
     }
     else if (pRawMouseInputEvent->delta_rate_x() > 0){ 
-      movedRight = true;
+      ++movedRight;
     }
     else if (pRawMouseInputEvent->delta_rate_y() < 0){ 
-      movedUp = true;
+      ++movedUp;
     }
     else if (pRawMouseInputEvent->delta_rate_y() > 0){ 
-      movedDown = true;
+      ++movedDown;
     }
   //  std::cout << "2 : MOVEMENT" << std::endl << std::flush; 
   //  std::cout << "deltaX: " << pRawMouseInputEvent->delta_rate_x() << std::endl << std::flush;

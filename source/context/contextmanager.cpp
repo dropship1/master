@@ -257,18 +257,40 @@ std::array<int, 2> ContextManager::opengl_version_info(){
 
 
 void ContextManager::constrain_cursor(){
-  RECT clip;
-  //Get the dimensions of the application's window. 
-  GetWindowRect(pCurrentContext_->window_id(), &clip);  
-	clip.left += 5;
-	clip.top += 30;
-	clip.right -= 5;
-	clip.bottom -= 5;
-  //Confine the cursor to the application's window. 
-  ClipCursor(&clip); 
+  //RECT clip;
+  ////Get the dimensions of the application's window. 
+  //GetWindowRect(pCurrentContext_->window_id(), &clip);  
+	//clip.left += 5;
+	//clip.top += 30;
+	//clip.right -= 5;
+	//clip.bottom -= 5;
+  ////Confine the cursor to the application's window. 
+  //ClipCursor(&clip); 
+
+
+  RECT rect;
+  GetClientRect(pCurrentContext_->window_id(), &rect);
+
+  POINT ul;
+  ul.x = rect.left;
+  ul.y = rect.top;
+
+  POINT lr;
+  lr.x = rect.right;
+  lr.y = rect.bottom;
+
+  MapWindowPoints(pCurrentContext_->window_id(), nullptr, &ul, 1);
+  MapWindowPoints(pCurrentContext_->window_id(), nullptr, &lr, 1);
+
+  rect.left = ul.x;
+  rect.top = ul.y;
+
+  rect.right = lr.x;
+  rect.bottom = lr.y;
+
+  ClipCursor(&rect);
+
 }
-
-
 
 void ContextManager::reshape_context(bool isFullScreen, int width, int height){
   DWORD style = update_window_size_current_context(isFullScreen, width, height);
@@ -344,6 +366,16 @@ DWORD ContextManager::update_window_size_current_context(bool isFullscreen, int 
   }
 
   return style;
+}
+
+int ContextManager::show_cursor(bool show) {
+  if (show) {
+    while (ShowCursor(TRUE) < 0);
+  }
+  else {
+    while (ShowCursor(FALSE) >= 0);
+  }
+  return 1;
 }
 
 

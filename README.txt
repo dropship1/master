@@ -16,3 +16,6 @@ Make sure to build 'out-of-source' with cmake by doing:
 cd master/build
  cmake.exe -G"Visual Studio 15 2017 Win64" ..
 This will put everything into the build directory and you run from there.
+If you want to disable the console/debug output for release mode for opengl that is in openglcontext.hpp and .ccp
+you need to pass in the flag to cmake to turn it off (Its on by default) and this will undefine the preprocessor definition
+ cmake.exe -DDebug_Opengl=OFF -G"Visual Studio 15 2017 Win64" ..

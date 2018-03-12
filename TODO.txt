@@ -2,19 +2,23 @@ TODO FILE:
 
 :::IMPROVEMENTS/CLEANUP::::
 -Make shaders into single file instead of split files(More maintainable and easier to read)
-
+DONE - Keep improving it though
 -consolidate down to 1 path in all resource files
 DONE
+
+-Extract winproc so we dont keep reapeating the same code in test projects and games that need to processes
+winproc
+DONE - Keep improving it though
 
 -Make sure we are deleting all opengl data before we exit the main c++ function
 
 -Need to create some functions in cmake so we can reuse some of the logic of setting up test projects
   -create_test_project() maybe?
-IN PROGRESS
+DONE- Keep improving it though
 
 ::DEBUGGING:::
 -Setup opengl error handling
-
+DONE - Keep improving it though
 
 :::TOOLS:::
 -Get productivity power tools for Visual studio
@@ -24,7 +28,7 @@ DONE
 
 
 -Get all cmakelist files updated so projects are doing debug and release linking and building(and x64 only)
-IN PROGRESS
+DONE - Keep improving it though
 
 
 ::::PERFORMANCE:::::

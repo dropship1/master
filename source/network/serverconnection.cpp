@@ -2,8 +2,8 @@
 
 using namespace bright::network;
 
-ServerConnection::ServerConnection(boost::asio::io_service& service, std::shared_ptr<ServerHandler> pServerHandler) : 
- sock_(service), connected_(false), pServerHandler_(pServerHandler), commandHandler_(), service_(service){
+ServerConnection::ServerConnection(boost::asio::io_service& service, std::shared_ptr<ServerHandler> pServerHandler, std::shared_ptr<bright::input::CommandHandler> pCommandHandler) :
+ sock_(service), connected_(false), pServerHandler_(pServerHandler), pCommandHandle_(pCommandHandler), service_(service){
 
 }
 
@@ -58,7 +58,7 @@ void ServerConnection::on_command_event(std::shared_ptr<bright::input::CommandEv
 }
 
 void ServerConnection::add_command(std::shared_ptr<bright::input::CommandEvent> pCommandEvent){
-  commandHandler_.handle_command(pCommandEvent);
+  pCommandHandle_->handle_command(pCommandEvent);
 }
 
 void ServerConnection::send_commands() {
@@ -67,14 +67,14 @@ void ServerConnection::send_commands() {
 }
 
 void ServerConnection::update_commands() {
-  commandHandler_.update();
+  pCommandHandle_->update();
 }
 
 void ServerConnection::write_commands() {
   //std::cout << "ServerConnection Do Write:" << std::endl << std::flush;
-  if( !commandHandler_.more_commands() ){ return; }
-  std::string message = commandHandler_.get_next_command().message();
-  commandHandler_.remove_one_command();
+  if( !pCommandHandle_->more_commands() ){ return; }
+  std::string message = pCommandHandle_->get_next_command().message();
+  pCommandHandle_->remove_one_command();
   
   strcpy(writeCommandBuffer_, message.c_str());
   size_t size = message.size();
@@ -90,7 +90,7 @@ void ServerConnection::on_write_command(const boost::system::error_code & err, s
     stop();
   }
 
-  if ( commandHandler_.more_commands() ) {
+  if (pCommandHandle_->more_commands() ) {
     write_commands();
   }
 

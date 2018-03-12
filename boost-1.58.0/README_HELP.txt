@@ -17,7 +17,7 @@ You may build the subset of Boost libraries required to use Boost.Asio and its e
 b2.exe  --with-system --with-thread --with-date_time --with-regex --with-serialization variant=release,debug link=static stage
 #Old command
 #bjam toolset=msvc --with-system --with-thread --with-date_time --with-regex --with-serialization stage variant=release,debug
-
+b2 --stagedir=./stage/Debug/x64 address-model=64 --with-system --with-thread --with-date_time --with-regex --with-serialization --toolset=msvc-14.1 threading=multi runtime-link=shared link=static --variant=debug
 
 You really just need to extract the libs from stage/lib dir and place them in bright/lib.
 Or you can just update the CmakeList.txt files for your project to point to stage/lib/<library_name> in the

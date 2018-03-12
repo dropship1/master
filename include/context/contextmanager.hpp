@@ -105,6 +105,8 @@ public:
 
   void initialize();
 
+  int show_cursor(bool hide);
+
 private:
   std::shared_ptr<Context> pCurrentContext_;
   std::shared_ptr<Context> pPreviousContext_;

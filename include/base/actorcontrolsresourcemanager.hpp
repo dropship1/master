@@ -30,6 +30,8 @@ public:
 
   std::string client_control_name();
   std::string client_render_name();
+  std::string ip();
+  int port();
 
 private:
   std::shared_ptr<bright::utils::FileWorker> pFileWorker_;
@@ -44,6 +46,8 @@ private:
 
   std::string clientControlName_;
   std::string clientRenderName_;
+  std::string ip_;
+  int port_;
 
   void load_control_actors();
   void create_controllers();

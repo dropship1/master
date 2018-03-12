@@ -50,6 +50,8 @@ private:
   void load_shader_configs(std::string fullPathAndName, std::vector<ShaderConfig>& shaderConfigs);
   void load_texture_configs(std::string fullPathAndName, std::vector<TextureConfig>& textureConfigs);
 
+  void get_split_vertex_and_fragment_file_data(std::array<std::string, 2>& vertexAndFragmentFileData, std::string filename);
+
   TextureLoader textureLoader_;
   ShaderLoader shaderLoader_;
 

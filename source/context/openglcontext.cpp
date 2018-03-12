@@ -3,6 +3,20 @@
 using namespace bright::context;
 
 
+void OpenglContext::opengl_debug_message_callback(GLenum source,
+  GLenum type,
+  GLuint id,
+  GLenum severity,
+  GLsizei length,
+  const GLchar* message,
+  const void* userParam)
+{
+  fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+    (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+    type, severity, message);
+  assert(0);
+}
+
 OpenglContext::OpenglContext(){}
 
 
@@ -21,9 +35,19 @@ void OpenglContext::initialize(){
   glDepthFunc(GL_LEQUAL);
   glDepthRange(0.0f, 1.0f);
 
+  std::cout << "DEBUG_OPENGL defined? "  << std::endl;
+
+#ifdef DEBUG_OPENGL
+  std::cout << "YES " << std::endl;
+  // During init, enable debug output
+  glEnable(GL_DEBUG_OUTPUT);
+  glDebugMessageCallback((GLDEBUGPROC)OpenglContext::opengl_debug_message_callback, 0);
+#endif
+#ifndef DEBUG_OPENGL
+  std::cout << "NO " << std::endl;
+#endif
+
 }
-
-
 
 void OpenglContext::reshape_window(int width, int height) {
 

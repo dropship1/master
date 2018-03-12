@@ -16,6 +16,8 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "graphics/globalstructs.hpp"
 
+#include "utils/fileworker.hpp"
+
 
 namespace bright{
 
@@ -53,6 +55,8 @@ private:
 
   std::string vertexShaderText_;
   std::string fragmentShaderText_;
+
+  std::shared_ptr<bright::utils::FileWorker> pFileWorker_;
 
 };
 

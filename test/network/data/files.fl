@@ -2,19 +2,54 @@
 path=data/
 
 file=shaders.res
+file=textures.res
+file=mesh.res
+file=rendering.res
 file=client.net
-file=contexts.ctrls
-file=config.ctrls
+file=controls_config.cfg
+file=controls_contexts.cfg
 file=controlling.wrld
-
-
 
 
 
 #SHADERS
 path=data/shaders/
 
-alias=pflc.v
-file=per_fragment_lighting_color.vert
-alias=pflc.f
-file=per_fragment_lighting_color.frag
+alias=pflc
+file=per_fragment_lighting_color.shader
+
+alias=pflt
+file=per_fragment_lighting_texture.shader
+
+alias=pft
+file=per_fragment_texture.shader
+
+alias=pfc
+file=per_fragment_color.shader
+
+
+
+#MESHES
+path=data/meshes/
+
+alias=altair
+file=altair.bin
+
+file=altair.mtl
+
+
+#TEXTURES/IMAGES
+path=data/textures/
+
+
+file=default.dds
+file=ACboots.dds
+file=ACgloves.dds
+file=AChood.dds
+file=ACRobePants.dds
+file=ACRobeShirt.dds
+file=ACshortsword.dds
+file=ACswordsaber.dds
+file=mata.dds
+file=rai.dds
+file=dirt.dds

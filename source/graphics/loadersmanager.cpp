@@ -59,15 +59,50 @@ void LoadersManager::load_texture_configs(std::string fullPathAndName, std::vect
 
 }
 
+void bright::graphics::LoadersManager::get_split_vertex_and_fragment_file_data(std::array<std::string, 2>& vertexAndFragmentFileData, std::string filename)
+{
+
+  std::string fileContents = pFileWorker_->get_file_contents(filename);
+  std::stringstream in(fileContents);
+
+  std::string vertexFileData;
+  std::string fragmentFileData;
+  std::string line;
+  bool inFragmentData = false;
+  bool inVertexData = false;
+  while (getline(in, line)) {
+    if (line.substr(0, 17) == "//Fragment shader") {
+      inFragmentData = true;
+      inVertexData = false;
+    }
+    if (line.substr(0, 15) == "//Vertex shader") {
+      inFragmentData = false;
+      inVertexData = true;
+    }
+    if (inFragmentData) {
+      fragmentFileData += "\n" + line;
+    }
+    else if (inVertexData) {
+      vertexFileData += "\n" + line;
+    }
+  }
+
+  vertexAndFragmentFileData[0] = vertexFileData;
+  vertexAndFragmentFileData[1] = fragmentFileData;
+
+}
+
 void LoadersManager::load_shader_configs(std::string fullPathAndName, std::vector<ShaderConfig>& shaderConfigs){
 
-  std::string vertexFilename;
-  std::string fragmentFilename;
+  std::string vertexFileData;
+  std::string fragmentFileData;
+  std::string filename;
   bool usePerpective = false;
   bool hasTexture = false;
   std::string camToClipLocationName;
   std::string textureUniformName;
   std::string type;
+  std::array<std::string, 2> vertexAndFragmentFileData;
 
   std::string fileContents = pFileWorker_->get_file_contents(fullPathAndName);
   std::stringstream in(fileContents);
@@ -79,11 +114,9 @@ void LoadersManager::load_shader_configs(std::string fullPathAndName, std::vecto
       break;
     }
     if (inShaderNode){
-      if(line.substr(0,13) == "vertexshader="){
-        vertexFilename = line.substr(13);
-      }
-      else if(line.substr(0,15) == "fragmentshader="){
-        fragmentFilename = line.substr(15);
+      if(line.substr(0,5) == "file="){
+        filename = line.substr(5);
+        get_split_vertex_and_fragment_file_data(vertexAndFragmentFileData, filename);
       }
       else if(line.substr(0,12) == "textureunit="){
         textureUniformName = line.substr(12);
@@ -98,10 +131,10 @@ void LoadersManager::load_shader_configs(std::string fullPathAndName, std::vecto
       }
       else if(line.substr(0,9) == "</Shader>"){
         ShaderConfig shaderConfig;
-        shaderConfig.fragmentFilename_ = fragmentFilename;
-        shaderConfig.vertexFilename_ = vertexFilename;
-        shaderConfig.fragmentFileContents_ = pFileWorker_->get_file_contents(fragmentFilename);
-        shaderConfig.vertexFileContents_ = pFileWorker_->get_file_contents(vertexFilename);
+        shaderConfig.fragmentFilename_ = filename;
+        shaderConfig.vertexFilename_ = filename;
+        shaderConfig.vertexFileContents_ = vertexAndFragmentFileData[0];
+        shaderConfig.fragmentFileContents_ = vertexAndFragmentFileData[1];
         shaderConfig.type_ = type;
         shaderConfig.usePerpective_ = false;
         if (usePerpective){

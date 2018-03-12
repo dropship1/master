@@ -50,6 +50,22 @@ function(create_test_project projectName subdirName sourceFileslist includes typ
     target_link_libraries(${target} ${OPENGL_LIBRARIES})
   endif()
 
+  #If the test project needs to use boost
+  if ("boost" IN_LIST libraries)
+    message(STATUS "Adding boost libraries: ")
+    message(STATUS "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
+    target_link_libraries(${target} debug "${CMAKE_SOURCE_DIR}/boost_1_66_0/lib64-msvc-14.1/libboost_system-vc141-mt-gd-x64-1_66.lib")
+    target_link_libraries(${target} debug "${CMAKE_SOURCE_DIR}/boost_1_66_0/lib64-msvc-14.1/libboost_date_time-vc141-mt-gd-x64-1_66.lib")
+    target_link_libraries(${target} debug "${CMAKE_SOURCE_DIR}/boost_1_66_0/lib64-msvc-14.1/libboost_regex-vc141-mt-gd-x64-1_66.lib")
+    target_link_libraries(${target} debug "${CMAKE_SOURCE_DIR}/boost_1_66_0/lib64-msvc-14.1/libboost_thread-vc141-mt-gd-x64-1_66.lib")
+    target_link_libraries(${target} debug "${CMAKE_SOURCE_DIR}/boost_1_66_0/lib64-msvc-14.1/libboost_chrono-vc141-mt-gd-x64-1_66.lib")
+    target_link_libraries(${target} optimized "${CMAKE_SOURCE_DIR}/boost_1_66_0/lib64-msvc-14.1/libboost_system-vc141-mt-x64-1_66.lib")
+    target_link_libraries(${target} optimized "${CMAKE_SOURCE_DIR}/boost_1_66_0/lib64-msvc-14.1/libboost_date_time-vc141-mt-x64-1_66.lib")
+    target_link_libraries(${target} optimized "${CMAKE_SOURCE_DIR}/boost_1_66_0/lib64-msvc-14.1/libboost_regex-vc141-mt-x64-1_66.lib")
+    target_link_libraries(${target} optimized "${CMAKE_SOURCE_DIR}/boost_1_66_0/lib64-msvc-14.1/libboost_thread-vc141-mt-x64-1_66.lib")
+    target_link_libraries(${target} optimized "${CMAKE_SOURCE_DIR}/boost_1_66_0/lib64-msvc-14.1/libboost_chrono-vc141-mt-x64-1_66.lib")
+  endif()
+
 
   #If the test project needs to use openal
   if ("openal" IN_LIST libraries)

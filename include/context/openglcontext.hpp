@@ -1,7 +1,6 @@
 #ifndef BRIGHT_CONTEXT_OPENGLCONTEXT_H
 #define BRIGHT_CONTEXT_OPENGLCONTEXT_H
 
-
 #include <windows.h>
 #include <iostream>
 
@@ -9,10 +8,11 @@
 #include <gl/glew.h>
 #include <memory>
 
+#include <cassert>
+
 namespace bright{
 
   namespace context{
-
 
 /**
  * @ingroup context
@@ -92,6 +92,14 @@ public:
 
 private:  
 
+
+  static void opengl_debug_message_callback(GLenum source,
+    GLenum type,
+    GLuint id,
+    GLenum severity,
+    GLsizei length,
+    const GLchar* message,
+    const void* userParam);
     
 };
 

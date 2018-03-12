@@ -34,20 +34,29 @@
 #Start
 #------------------------------
 
-
 <Shader>
-vertexshader=pflt.v
-fragmentshader=pflt.f
+file=pflt
 perspective=cameraToClipMatrix
 type=PER_FRAG_LIGHT_TEXTURE
 textureunit=colorTexture
 </Shader>
 
 <Shader>
-vertexshader=pflc.v
-fragmentshader=pflc.f
+file=pflc
 perspective=cameraToClipMatrix
 type=PER_FRAG_LIGHT_COLOR
+</Shader>
+
+<Shader>
+file=pft
+perspective=cameraToClipMatrix
+type=PER_FRAG_TEXTURE
+</Shader>
+
+<Shader>
+file=pfc
+perspective=cameraToClipMatrix
+type=PER_FRAG_COLOR
 </Shader>
 
 ]

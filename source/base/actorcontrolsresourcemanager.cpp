@@ -180,7 +180,7 @@ void ActorControlsResourceManager::load_client_net_info(){
   std::string portTemp;
   std::string clientControlName;
   std::string clientRenderName;
-  std::string port;
+  int port;
   std::string ip;
 
   bool inClientInfoNode = false;
@@ -203,17 +203,19 @@ void ActorControlsResourceManager::load_client_net_info(){
       else if(line.substr(0,17) == "CLIENTRENDERNAME="){
         clientRenderName = line.substr(17);
       }
-      else if(line.substr(0,9) == "</ClientInfo>"){
+      else if(line.substr(0,13) == "</ClientInfo>"){
         inClientInfoNode = false;
       }
     }
-    else if (line.substr(0,8) == "<ClientInfo>"){ 
+    else if (line.substr(0,12) == "<ClientInfo>"){ 
       inClientInfoNode = true;
     }
   }
 
   clientControlName_ = clientControlName;
   clientRenderName_ = clientRenderName;
+  ip_ = ip;
+  port_ = port;
 
 
 }
@@ -225,4 +227,12 @@ std::string ActorControlsResourceManager::client_control_name(){
 
 std::string ActorControlsResourceManager::client_render_name(){
   return clientRenderName_;
+}
+
+std::string ActorControlsResourceManager::ip() {
+  return ip_;
+}
+
+int ActorControlsResourceManager::port() {
+  return port_;
 }

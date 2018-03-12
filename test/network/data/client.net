@@ -34,13 +34,14 @@
 
 
 
-<Server>
+<ClientInfo>
 #ip=70.113.23.159
-ip=127.0.0.1
+IP=127.0.0.1
 #ip=66.68.62.102
-port=8001
-clientname=Jake
-</Server>
+PORT=8001
+CLIENTRENDERNAME=Lucy
+CLIENTCONTROLNAME=Lucy
+</ClientInfo>
 
 
 ]

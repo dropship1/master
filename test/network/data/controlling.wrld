@@ -47,9 +47,9 @@
 <ControlActor>
 NAME=Lucy
 POSX=1.0
-POSY=0.0
-POSZ=19.0
-ROTX=0.0
+POSY=2.0
+POSZ=-50.0
+ROTX=9.0
 ROTY=0.0
 ROTZ=0.0
 PLAYER=true

@@ -35,7 +35,7 @@ bright::base::ActorControlController playerController;
 
 
 std::shared_ptr<bright::input::InputManager> pInputManager;
-float lastXpos = 0.0f;
+
 class KeyboardListener: public bright::input::KeyboardEventListener{
 public:
   KeyboardListener();
