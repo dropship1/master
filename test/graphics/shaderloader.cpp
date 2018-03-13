@@ -33,7 +33,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   std::string fragmentFileData;
 
   vertexFileData = "                                                                             \n"
-    "#version 330 core                                                                           \n"
+    "#version 460 core                                                                           \n"
     "                                                                                            \n"
     "layout(location = 0) in vec4 position;                                                      \n"
     "layout(location = 1) in vec3 normal;                                                        \n"
@@ -57,7 +57,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
     "}                                                                                           \n";
 
     fragmentFileData = "                                                                                              \n"
-    "#version 330 core                                                                                                \n"
+    "#version 460 core                                                                                                \n"
     "                                                                                                                 \n"
     "in vec3 vertexNormal;                                                                                            \n"
     "in vec3 modelSpacePosition;                                                                                      \n"

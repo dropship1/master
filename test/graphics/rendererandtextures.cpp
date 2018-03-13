@@ -76,7 +76,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   
   playerController.update(glm::vec3(0.0f, 5.0f, 20.0f), glm::vec3(60.0f, 0.0f, 0.0f));
 
-
   auto pTextureShader = pLoadersManager->shaders("PER_FRAG_LIGHT_TEXTURE");
   auto pColorShader = pLoadersManager->shaders("PER_FRAG_LIGHT_COLOR");
   auto pTexture = pLoadersManager->textures("dirt.dds");

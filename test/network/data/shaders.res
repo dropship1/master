@@ -38,25 +38,32 @@
 file=pflt
 perspective=cameraToClipMatrix
 type=PER_FRAG_LIGHT_TEXTURE
-textureunit=colorTexture
+textureuniformname=colorTexture
+textureunit=0
+samplerid=5
 </Shader>
 
 <Shader>
 file=pflc
 perspective=cameraToClipMatrix
 type=PER_FRAG_LIGHT_COLOR
+samplerid=5
 </Shader>
 
 <Shader>
 file=pft
 perspective=cameraToClipMatrix
 type=PER_FRAG_TEXTURE
+textureuniformname=colorTexture
+textureunit=0
+samplerid=5
 </Shader>
 
 <Shader>
 file=pfc
 perspective=cameraToClipMatrix
 type=PER_FRAG_COLOR
+samplerid=5
 </Shader>
 
 ]

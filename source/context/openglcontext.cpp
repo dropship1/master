@@ -41,6 +41,7 @@ void OpenglContext::initialize(){
   std::cout << "YES " << std::endl;
   // During init, enable debug output
   glEnable(GL_DEBUG_OUTPUT);
+  glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
   glDebugMessageCallback((GLDEBUGPROC)OpenglContext::opengl_debug_message_callback, 0);
 #endif
 #ifndef DEBUG_OPENGL

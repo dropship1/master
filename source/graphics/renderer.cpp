@@ -13,11 +13,10 @@ void Renderer::render(ActorGroupRenderInfo& actorGroupRenderInfo, WorldInfo& wor
   auto pShader = actorGroupRenderInfo.pShader_;
 
   glUseProgram( pShader->program_id() );
-  glActiveTexture( GL_TEXTURE0 + pShader->texture_unit() );
   //Currently everything is controlled from the root/top level root actor
-  //No controll per actor (group) yet
+  //No controller per actor (group) yet
   glm::mat4 modToWorldMat = actorGroupRenderInfo.modToWorld_;
-    int count = 0;
+
   auto render_actor = [&] (std::map<std::string, ActorRenderInfo>::value_type& childActorInfoPair) {
   
     auto childActorInfo = childActorInfoPair.second;
@@ -29,7 +28,9 @@ void Renderer::render(ActorGroupRenderInfo& actorGroupRenderInfo, WorldInfo& wor
     //Upload Scene info to the Shader
     glUniformMatrix4fv( pShader->uniform_location("worldToCamMatrix"), 1, GL_FALSE, glm::value_ptr( worldToCamMat ) );
     glUniform4fv( pShader->uniform_location("ambientIntensity"), 1, glm::value_ptr(worldInfo.ambient_light().lightIntensity_) );
-    glUniform3fv( pShader->uniform_location("dirToLight"), 1, glm::value_ptr(worldInfo.directional_light().lightDirection_) );
+    if (pShader->uniform_location("dirToLight") > -1 ){
+      glUniform3fv( pShader->uniform_location("dirToLight"), 1, glm::value_ptr(worldInfo.directional_light().lightDirection_) );
+    }
     glUniform4fv( pShader->uniform_location("lightIntensity"), 1, glm::value_ptr(worldInfo.directional_light().lightIntensity_) );
     
     glm::mat3 normToWorldMat3( modToWorldMat );
@@ -44,12 +45,10 @@ void Renderer::render(ActorGroupRenderInfo& actorGroupRenderInfo, WorldInfo& wor
     
 
     if ( childActorInfo.hasTexture_ ){
-      ++count;
-      //if(count == 6){
-        glBindTexture( GL_TEXTURE_2D, pTexture->texture_id() );
-        glBindSampler(pShader->texture_unit(), pTexture->get_sampler_id(4));
-        glUniform1i( pShader->uniform_location("colorTexture"), pShader->texture_unit() );
-      //}
+      glActiveTexture(GL_TEXTURE0 + pShader->texture_unit());
+      glBindTexture( GL_TEXTURE_2D, pTexture->texture_id() );
+      glBindSampler(pShader->texture_unit(), pTexture->get_sampler_id(pShader->sampler_id()));
+      glUniform1i( pShader->uniform_location("colorTexture"), pShader->texture_unit() );
     }
     
     glDrawArrays( GL_TRIANGLES, 0, childActorInfo.vertexCoordsSize_ );

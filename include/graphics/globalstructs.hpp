@@ -37,6 +37,8 @@ struct ShaderConfig{
   std::string textureUniformName_;
   std::string camToClipLocationName_;
   std::string type_;
+  int textureUnit_;
+  int samplerId_;
 };
 
 

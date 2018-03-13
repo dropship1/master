@@ -37,6 +37,9 @@ void Shader::vertex_id(unsigned int vid){
 
 
 int Shader::uniform_location(std::string name){
+  if(uniformLocations_.find(name) == uniformLocations_.end()) {
+    return -1;
+  }
   return uniformLocations_[name];
 }
 
@@ -49,6 +52,14 @@ bool Shader::success_status(){
   return status_;
 }
 
+int Shader::sampler_id() {
+  return samplerId_;
+}
+
+
+void Shader::sampler_id(int samplerId) {
+  samplerId_ = samplerId;
+}
 
 void Shader::success_status(bool status){
   status_ = status;

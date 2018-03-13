@@ -101,6 +101,8 @@ void LoadersManager::load_shader_configs(std::string fullPathAndName, std::vecto
   bool hasTexture = false;
   std::string camToClipLocationName;
   std::string textureUniformName;
+  int textureUnit;
+  int samplerId = 0;
   std::string type;
   std::array<std::string, 2> vertexAndFragmentFileData;
 
@@ -118,9 +120,15 @@ void LoadersManager::load_shader_configs(std::string fullPathAndName, std::vecto
         filename = line.substr(5);
         get_split_vertex_and_fragment_file_data(vertexAndFragmentFileData, filename);
       }
-      else if(line.substr(0,12) == "textureunit="){
-        textureUniformName = line.substr(12);
+      else if (line.substr(0, 10) == "samplerid=") {
+        samplerId = std::stoi(line.substr(10));
+      }
+      else if(line.substr(0,19) == "textureuniformname="){
+        textureUniformName = line.substr(19);
         hasTexture = true;
+      }
+      else if (line.substr(0, 12) == "textureunit=") {
+        textureUnit = std::stoi(line.substr(12));
       }
       else if(line.substr(0,12) == "perspective="){
         camToClipLocationName = line.substr(12);
@@ -145,7 +153,9 @@ void LoadersManager::load_shader_configs(std::string fullPathAndName, std::vecto
         if (hasTexture){
           shaderConfig.hasTextures_ = true;
           shaderConfig.textureUniformName_ = textureUniformName;
+          shaderConfig.textureUnit_ = textureUnit;
         }
+        shaderConfig.samplerId_ = samplerId;
         shaderConfigs.push_back(shaderConfig);
         usePerpective = false;
         hasTexture = false;

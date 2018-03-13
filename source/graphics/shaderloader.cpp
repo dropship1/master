@@ -120,9 +120,10 @@ void ShaderLoader::initialize_shader_program(Shader& shader, ShaderConfig& shade
     glUseProgram(0);
   }
 
+  shader.sampler_id(shaderConfig.samplerId_);
   if (shaderConfig.hasTextures_){
-    shader.texture_unit(1);
-    glUseProgram(shader.program_id() );
+    shader.texture_unit(shaderConfig.textureUnit_);
+    glUseProgram(shader.program_id());
     glUniform1i(shader.uniform_location(shaderConfig.textureUniformName_), shader.texture_unit());
     glUseProgram(0);
   }

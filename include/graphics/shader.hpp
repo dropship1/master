@@ -52,6 +52,9 @@ public:
   int texture_unit();
   void texture_unit(int textureUnit);
 
+  int sampler_id();
+  void sampler_id(int samplerId);
+
 
 /** 
  * @brief This allows for getting a location of any named uniform that this shader may have
@@ -96,6 +99,7 @@ private:
   unsigned int vid_;
 
   int textureUnit_;
+  int samplerId_;
 
   std::map<std::string,int> uniformLocations_;
 
