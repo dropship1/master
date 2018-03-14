@@ -87,7 +87,7 @@ std::vector<glm::vec3> AABBConverter::single_load_obj_verties(std::string path, 
 
   std::vector<glm::vec3> vertices;
 
-  //std::cout << "Loading " << file+".obj: " << std::endl << std::flush;
+  //std::cout << "Loading " << file << std::endl << std::flush;
 
   start = clock() / (CLOCKS_PER_SEC / 1000);
 

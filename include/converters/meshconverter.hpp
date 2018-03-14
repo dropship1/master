@@ -37,8 +37,8 @@ public:
 
   MeshConverter(std::shared_ptr<bright::utils::FileWorker> pFileWorker);
 
-  void batch_convert_obj_and_dump_mesh_binary(std::string path, std::vector<std::string> files);  
-  void single_convert_obj_and_dump_mesh_binary(std::string path, std::string file);
+  void batch_convert_obj_and_dump_mesh_binary(std::string outputPath);
+  void single_convert_obj_and_dump_mesh_binary(std::string outputPath, std::string file);
   void single_read_in_mesh_binary(std::string path, std::string file);
   void batch_read_obj_mesh_binary();
   std::shared_ptr<bright::base::Mesh> single_read_obj_mesh_binary(std::shared_ptr<std::ifstream> pStream); 
@@ -51,9 +51,9 @@ private:
   void calculate_normal_faces(std::shared_ptr<bright::base::Mesh> pMesh, std::shared_ptr<Group> g,  std::shared_ptr<GroupLibrary> gl, int start, int end);
   void calculate_texture_faces(std::shared_ptr<bright::base::Mesh> pMesh, std::shared_ptr<Group> g, std::shared_ptr<GroupLibrary> gl, int start, int end);
   void calculate_face_indices(std::shared_ptr<bright::base::Mesh> pMesh);
-  std::shared_ptr<Obj> single_load_obj(std::string path, std::string file);
-  std::shared_ptr<bright::base::Mesh> single_convert_obj_to_mesh(std::string path, std::shared_ptr<Obj> obj); 
-  void single_dump_mesh_binary(std::string path, std::shared_ptr<bright::base::Mesh> mesh);
+  std::shared_ptr<Obj> single_load_obj(std::string file);
+  std::shared_ptr<bright::base::Mesh> single_convert_obj_to_mesh(std::shared_ptr<Obj> obj); 
+  void single_dump_mesh_binary(std::string outputPath, std::shared_ptr<bright::base::Mesh> mesh);
 
   std::map<std::string, std::shared_ptr<bright::base::Mesh>> meshes_;
 

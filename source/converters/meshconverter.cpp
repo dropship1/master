@@ -4,13 +4,38 @@ using namespace bright::converters;
 
 MeshConverter::MeshConverter(std::shared_ptr<bright::utils::FileWorker> pFileWorker): pFileWorker_(pFileWorker){}
 
-void MeshConverter::batch_convert_obj_and_dump_mesh_binary(std::string path, std::vector<std::string> files){  
+void MeshConverter::batch_convert_obj_and_dump_mesh_binary(std::string outputPath){
+
+  std::string meshList = pFileWorker_->get_file_contents("mesh_conversions.res");
+  std::stringstream in(meshList);
+  std::string line;
+  std::string meshFile;
+  std::vector<std::string> meshFileList;
+  bool inMeshNode = false;
+  while (getline(in, line)) {
+    if (line.substr(0, 1) == "]") {
+      break;
+    }
+    if (inMeshNode) {
+      if (line.substr(0, 5) == "file=") {
+        meshFile = line.substr(5);
+      }
+      else if (line.substr(0, 7) == "</Mesh>") {
+        meshFileList.push_back(meshFile);
+        inMeshNode = false;
+      }
+    }
+    else if (line.substr(0, 6) == "<Mesh>") {
+      inMeshNode = true;
+    }
+  }
+
 
   //Loop over all files
   auto handle_file = [&] (std::string file) {
-    single_convert_obj_and_dump_mesh_binary(path, file);
+    single_convert_obj_and_dump_mesh_binary(outputPath, file);
   };
-  std::for_each(files.begin(), files.end(), handle_file);
+  std::for_each(meshFileList.begin(), meshFileList.end(), handle_file);
 	
 }
 
@@ -49,7 +74,6 @@ void MeshConverter::batch_read_obj_mesh_binary(){
   auto handle_stream = [&] (std::shared_ptr<std::ifstream> pStream) { 
     auto pMesh = single_read_obj_mesh_binary(pStream);
     meshes_[pMesh->composite_name()] = pMesh;
-    int stop = 0;
   };
   std::for_each(streams.begin(), streams.end(), handle_stream);
 
@@ -64,24 +88,24 @@ std::shared_ptr<bright::base::Mesh> MeshConverter::single_read_obj_mesh_binary(s
 }
 
 
-void MeshConverter::single_convert_obj_and_dump_mesh_binary(std::string path, std::string file){  
-	std::shared_ptr<Obj> obj = single_load_obj(path, file);
-	std::shared_ptr<bright::base::Mesh> mesh = single_convert_obj_to_mesh(path, obj); 
-	single_dump_mesh_binary(path, mesh);
+void MeshConverter::single_convert_obj_and_dump_mesh_binary(std::string outputPath, std::string file){  
+	std::shared_ptr<Obj> obj = single_load_obj(file);
+	std::shared_ptr<bright::base::Mesh> mesh = single_convert_obj_to_mesh(obj); 
+	single_dump_mesh_binary(outputPath, mesh);
 }
 
-std::shared_ptr<Obj> MeshConverter::single_load_obj(std::string path, std::string file){  
+std::shared_ptr<Obj> MeshConverter::single_load_obj(std::string file){  
 
   int start, end;
   int dif;
 
-  std::cout << "Loading " << file+".obj: " << std::endl << std::flush;
-  auto obj = std::make_shared<Obj>();
+  std::cout << "Loading " << file << std::endl << std::flush;
+  auto obj = std::make_shared<Obj>(pFileWorker_);
 
   start = clock() / (CLOCKS_PER_SEC / 1000);
 
   obj->fileName_ = file;
-  obj->load_obj_file(file+".obj", path);
+  obj->load_obj_file(file);
 
   end = clock() / (CLOCKS_PER_SEC / 1000);
   dif = end - start;
@@ -91,7 +115,7 @@ std::shared_ptr<Obj> MeshConverter::single_load_obj(std::string path, std::strin
   return obj;
 }
 
-std::shared_ptr<bright::base::Mesh> MeshConverter::single_convert_obj_to_mesh(std::string path, std::shared_ptr<Obj> obj){
+std::shared_ptr<bright::base::Mesh> MeshConverter::single_convert_obj_to_mesh(std::shared_ptr<Obj> obj){
 
   int start, end;
   int dif;
@@ -116,7 +140,7 @@ void MeshConverter::single_dump_mesh_binary(std::string path, std::shared_ptr<br
   int start, end;
   int dif;
 
-  std::string fullPathAndName = path+"/"+mesh->composite_name()+".bin";
+  std::string fullPathAndName = path+"/"+mesh->composite_name() +".bin";
 
 	std::cout << "Dumping " << mesh->composite_name() << ": " << std::endl << std::flush;
 	start = clock() / (CLOCKS_PER_SEC / 1000);
@@ -140,8 +164,12 @@ void MeshConverter::single_dump_mesh_binary(std::string path, std::shared_ptr<br
 
 std::shared_ptr<bright::base::Mesh> MeshConverter::load_mesh_from_obj(std::shared_ptr<Obj> obj){
  
+  //Cut off the obj extension from the name
+  int pos = obj->fileName_.find(".");
+  std::string newName = obj->fileName_.substr(0, pos);
+
   auto rootMesh = std::make_shared<bright::base::Mesh>();
-  rootMesh->composite_name(obj->fileName_);
+  rootMesh->composite_name(newName);
   rootMesh->is_root(true);
   rootMesh->part_name("Root");
   rootMesh->has_children(true);
@@ -153,7 +181,7 @@ std::shared_ptr<bright::base::Mesh> MeshConverter::load_mesh_from_obj(std::share
     rootMesh->child_meshes(pMesh);
     rootMesh->count_children(countChildren);
     ++countChildren;
-    pMesh->composite_name(obj->fileName_);
+    pMesh->composite_name(newName);
     pMesh->is_root(false);
     pMesh->has_children(false);
     pMesh->part_name(g->name_);

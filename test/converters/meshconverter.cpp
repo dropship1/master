@@ -10,11 +10,10 @@ int main(){
   auto pFileWorker = std::make_shared<bright::utils::FileWorker>("data/files.fl");
   auto pMeshConverter = std::make_shared<bright::converters::MeshConverter>(pFileWorker);
 
-  std::vector<std::string> meshFileNames;
-  meshFileNames.push_back("altair");
-
   pFileWorker->read_in_list_of_files();
   pFileWorker->create_lookup_map_of_files_content();
+
+  //pMeshConverter->batch_convert_obj_and_dump_mesh_binary("data/meshes");
   
   pMeshConverter->batch_read_obj_mesh_binary();
   auto pMesh = pMeshConverter->mesh("altair");
@@ -36,10 +35,11 @@ int main(){
     std::cout << "count_faces: " << pChildMesh->count_faces() << std::endl << std::flush;
     std::cout << "count_normals: " << pChildMesh->count_normals() << std::endl << std::flush;
     std::cout << "count_textures: " << pChildMesh->count_textures() << std::endl << std::flush;
+    std::cout << "material: " << pChildMesh->material() << std::endl << std::flush;
     std::cout << std::endl << std::flush;
   };
   std::for_each(pMesh->child_meshes().begin(), pMesh->child_meshes().end(), print_mesh);
-  
+
   std::cout << "ctr+c to exit or x on the window" << std::endl;
   while (true){ }
 

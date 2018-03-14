@@ -51,15 +51,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
     std::cout << std::endl << std::flush;
   };
 
-  std::vector<std::string> uniforms;
-  uniforms.push_back("dirToLight");
-  uniforms.push_back("lightIntensity");
-  uniforms.push_back("ambientIntensity");
-  uniforms.push_back("colorTexture");
-  uniforms.push_back("cameraToClipMatrix");
-  uniforms.push_back("modelToWorldMatrix");
-  uniforms.push_back("worldToCamMatrix");
-  uniforms.push_back("normalToWorldMatrix");
+  std::array<std::string, 8> uniforms = {
+    "dirToLight",
+    "lightIntensity",
+    "ambientIntensity",
+    "colorTexture",
+    "cameraToClipMatrix",
+    "modelToWorldMatrix",
+    "worldToCamMatrix",
+    "normalToWorldMatrix" 
+  };
   std::for_each(uniforms.begin(), uniforms.end(), verify_uniform);
 
 

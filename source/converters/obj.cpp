@@ -1,18 +1,13 @@
 #include "converters/meshconverter.hpp"
 #include <iostream>
 
-Obj::Obj(){}
+Obj::Obj(std::shared_ptr<bright::utils::FileWorker> pFileWorker): pFileWorker_(pFileWorker) {}
 
 
-void Obj::load_obj_file(std::string fileName, std::string path){
+void Obj::load_obj_file(std::string fileName){
         
-  std::string fullPathAndName = path+"/"+fileName;
-
-  std::ifstream in(fullPathAndName, std::ios::in);
-  if (!in) { 
-    std::cerr << "Obj file reader: Cannot open " << fullPathAndName << std::endl << std::flush; 
-    exit(1); 
-  }
+  std::string resourcesConfig = pFileWorker_->get_file_contents(fileName);
+  std::stringstream in(resourcesConfig);
 
   std::string line; 
 
@@ -26,7 +21,7 @@ void Obj::load_obj_file(std::string fileName, std::string path){
   }
 
   if (hasMaterialLib){
-    load_material_file(materialFileName, path);
+    load_material_file(materialFileName);
   }
 
   //Vertex handling
@@ -81,12 +76,10 @@ std::shared_ptr<Material> Obj::get_material(std::string matName){
 }
 
 
-void Obj::load_material_file(std::string fileName, std::string path){
-        
-  std::string fullPathAndName = path+"/"+fileName;
-  
-  std::ifstream in(fullPathAndName, std::ios::in);
-  if (!in) { std::cerr << "Material file reader: Cannot open " << fullPathAndName << std::endl; exit(1); }
+void Obj::load_material_file(std::string fileName){
+ 
+  std::string resourcesConfig = pFileWorker_->get_file_contents(fileName);
+  std::stringstream in(resourcesConfig);
 
   std::string line; 
 

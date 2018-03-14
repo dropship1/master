@@ -3,6 +3,7 @@
 
 #include "base/mesh.hpp"
 #include "utils/utilities.hpp"
+#include "utils/fileworker.hpp"
 
 #include <vector>
 #include <map>
@@ -20,6 +21,12 @@
 
 class Group{
 public:
+  //Lets reserve (Preallocate memory) here to speed things up
+  Group() {
+    vertexFaceElems_.reserve(100000);
+    normalFaceElems_.reserve(100000);
+    textureFaceElems_.reserve(100000);
+  }
   std::string name_;
   std::string material_;
   std::vector<unsigned int> vertexFaceElems_;
@@ -29,6 +36,13 @@ public:
 
 class GroupLibrary{
 public:
+  //Lets reserve (Preallocate memory) here to speed things up
+  GroupLibrary() {
+    vertices_.reserve(100000);
+    normals_.reserve(100000);
+    textures_.reserve(100000);
+  }
+
   std::vector<std::shared_ptr<Group>> groups_;
   std::vector<glm::vec4> vertices_;
   std::vector<glm::vec3> normals_;
@@ -75,14 +89,16 @@ public:
  */
 class Obj{
 public:
-  Obj();
+  Obj(std::shared_ptr<bright::utils::FileWorker> pFileWorker);
   
-  void load_obj_file(std::string fileName, std::string path);
-  void load_material_file(std::string fileName, std::string path);
+  void load_obj_file(std::string fileName);
+  void load_material_file(std::string fileName);
   std::shared_ptr<Material> get_material(std::string name);
   std::string fileName_;
   std::shared_ptr<GroupLibrary> groupLibrary_;
   std::shared_ptr<MaterialLibrary> materialLibrary_;
+
+  std::shared_ptr<bright::utils::FileWorker> pFileWorker_;
   
 };
 
