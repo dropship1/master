@@ -10,17 +10,17 @@ int main(){
   auto pFileWorker = std::make_shared<bright::utils::FileWorker>("data/files.fl");
   auto pAABBConverter = std::make_shared<bright::converters::AABBConverter>(pFileWorker);
 
+  pFileWorker->read_in_list_of_files();
+  pFileWorker->create_lookup_map_of_files_content();
+
   std::vector<std::string> aabbFileNames;
   aabbFileNames.push_back("monster_jetpack_003");
 
-  pAABBConverter->batch_convert_obj_and_dump_aabb_binary("data/meshes", "data/aabbs", aabbFileNames);
-
-  pFileWorker->read_in_list_of_files();
-  pFileWorker->create_lookup_map_of_files_content();
+  pAABBConverter->batch_convert_obj_and_dump_aabb_binary("data/aabbs");
   
   pAABBConverter->batch_read_obj_aabb_binary();
   auto pAABB = pAABBConverter->aabb_shr_ptr_copy("monster_jetpack_003");
-  
+
   //Loop over all aabbs (Add more testing later, this is pretty simple verification)
   std::cout << "AABB: " << std::endl << std::flush;
   std::cout << "name: " << pAABB->name() << std::endl << std::flush;
@@ -34,7 +34,7 @@ int main(){
   std::cout << "minY: " << pAABB->min().y << std::endl << std::flush;
   std::cout << "minZ: " << pAABB->min().z << std::endl << std::flush;
   std::cout << std::endl << std::flush;
-
+  
   
   std::cout << "ctr+c to exit or x on the window" << std::endl;
   while (true){ }
